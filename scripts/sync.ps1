@@ -21,7 +21,7 @@
 #>
 
 param(
-    [ValidateSet("all", "antigravity", "cursor", "claude", "gemini")]
+    [ValidateSet("all", "antigravity", "cursor", "claude", "gemini", "site")]
     [string]$Target = "all",
 
     [ValidateSet("all", "skills", "rules")]
@@ -71,6 +71,9 @@ if ($Target -eq "all" -or $Target -eq "claude") {
 }
 if ($Target -eq "all" -or $Target -eq "gemini") {
     $transforms += @{ Name = "Gemini CLI"; Script = "$ScriptRoot\transforms\to-gemini-cli.ps1" }
+}
+if ($Target -eq "all" -or $Target -eq "site") {
+    $transforms += @{ Name = "Astro Documentation Site"; Script = "$ScriptRoot\transforms\to-site.ps1" }
 }
 
 foreach ($t in $transforms) {

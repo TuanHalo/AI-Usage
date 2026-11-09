@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import skillsData from '../data/skills.json';
 
 interface SkillItem {
   name: string;
@@ -13,7 +14,7 @@ interface SkillItem {
   steps: string[];
 }
 
-const skills: SkillItem[] = [];
+const skills: SkillItem[] = skillsData;
 ---
 
 <BaseLayout title="Skills Catalog — AI-Usage">

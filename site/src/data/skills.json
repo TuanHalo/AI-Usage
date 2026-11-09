@@ -1,0 +1,76 @@
+﻿[
+    {
+        "name":  "asset-architect",
+        "version":  "1.0.0",
+        "description":  "Architects, scaffolds, validates, and synchronizes new canonical AI assets (skills, rules, agents, principles) conforming to repository contracts and multi-tool targets. Use this skill whenever the user wants to create, refine, or scaffold a new skill, rule, agent persona, or principle.",
+        "tags":  [
+                     "meta-skill",
+                     "scaffolding",
+                     "prompt-engineering",
+                     "automation",
+                     "multi-tool"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Determine Asset Classification",
+                      "Capture Mandatory Metadata (Per Content Contract)",
+                      "Generate Directory Structure",
+                      "Validate Asset Integrity",
+                      "Multi-Tool \u0026 Site Synchronization"
+                  ]
+    },
+    {
+        "name":  "git-commit",
+        "version":  "1.0.0",
+        "description":  "Analyzes modified and untracked files, groups logically related changes into atomic commits, and drafts Conventional Commit messages adhering to commit best practices. Use this skill when the user asks to stage, commit, or create git commits for their code changes.",
+        "tags":  [
+                     "git",
+                     "commit",
+                     "atomic-commits",
+                     "conventional-commits",
+                     "vcs"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Inspect Status and Diff",
+                      "Group Files into Atomic Commits",
+                      "Draft Conventional Commit Messages",
+                      "Stage and Commit Sequentially",
+                      "Verification"
+                  ]
+    },
+    {
+        "name":  "github-pr",
+        "version":  "1.1.0",
+        "description":  "Inspects commits, validates branch state, safely pushes to remote, and creates GitHub Pull Requests with structured titles and comprehensive descriptions. Use this skill when the user asks to push branches, open or create a GitHub PR, or generate a pull request description.",
+        "tags":  [
+                     "git",
+                     "github",
+                     "pull-request",
+                     "pr",
+                     "code-review"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Branch and Working Tree Validation",
+                      "Remote Synchronization and Push",
+                      "Commit Analysis and PR Drafting",
+                      "Create PR via GitHub CLI"
+                  ]
+    }
+]

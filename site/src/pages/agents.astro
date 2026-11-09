@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import agentsData from '../data/agents.json';
 
 interface AgentItem {
   name: string;
@@ -15,7 +16,7 @@ interface AgentItem {
   tags: string[];
 }
 
-const agents: AgentItem[] = [];
+const agents: AgentItem[] = agentsData;
 ---
 
 <BaseLayout title="Agents Catalog — AI-Usage">

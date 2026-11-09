@@ -41,6 +41,10 @@ jobs:
           cd site
           npm install
 
+      - name: Generate Site Data from Canonical Assets
+        shell: pwsh
+        run: ./scripts/transforms/to-site.ps1
+
       - name: Build Astro Site
         run: |
           cd site
