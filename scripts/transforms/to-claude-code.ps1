@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Transforms canonical AI assets into Claude Code format (~/.claude/CLAUDE.md).
 #>
@@ -12,7 +12,7 @@ param(
 . "$PSScriptRoot\..\utils\yaml-parser.ps1"
 
 $AssetsDir = (Resolve-Path $AssetsDir).Path
-Write-Host "🧠 Transforming canonical assets for Claude Code..." -ForegroundColor Cyan
+Write-Host "[CLAUDE] Transforming canonical assets for Claude Code..." -ForegroundColor Cyan
 
 $ruleFiles = Get-ChildItem -Path "$AssetsDir\rules" -Filter "*.yaml" -ErrorAction SilentlyContinue
 if ($ruleFiles -and $ruleFiles.Count -gt 0) {
@@ -27,17 +27,17 @@ if ($ruleFiles -and $ruleFiles.Count -gt 0) {
 
         if ($name -and $content) {
             $claudeContent += "<!-- Section: $name -->`n$content`n`n---`n`n"
-            Write-Host "  → Rule: $name" -ForegroundColor Yellow
+            Write-Host "  -> Rule: $name" -ForegroundColor Yellow
         }
     }
 
     $outFile = "$TargetDir\CLAUDE.md"
-    Write-Host "    Target: $outFile" -ForegroundColor DarkGray
+    Write-Host "     Target: $outFile" -ForegroundColor DarkGray
     if (-not $DryRun) {
         Set-Content -Path $outFile -Value $claudeContent -Encoding UTF8
     }
 } else {
-    Write-Host "  ℹ️ No rules to sync." -ForegroundColor DarkGray
+    Write-Host "  [INFO] No rules to sync." -ForegroundColor DarkGray
 }
 
-Write-Host "✨ Claude Code sync completed." -ForegroundColor Green
+Write-Host "[DONE] Claude Code sync completed." -ForegroundColor Green

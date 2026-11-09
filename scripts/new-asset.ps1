@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Interactive scaffolder for authoring new canonical AI assets (skills, rules, agents, principles).
 
@@ -60,16 +60,16 @@ if (-not $Type) {
 while (-not $Name -or $Name -notmatch "^[a-z][a-z0-9-]*$") {
     $Name = Read-Host "`nEnter Asset Name (lowercase-kebab-case, e.g. git-worktrees)"
     if ($Name -notmatch "^[a-z][a-z0-9-]*$") {
-        Write-Host "❌ Invalid name. Must be lowercase letters, numbers, and hyphens." -ForegroundColor Red
+        Write-Host "[FAIL] Invalid name. Must be lowercase letters, numbers, and hyphens." -ForegroundColor Red
     }
 }
 
 while (-not $Description -or $Description.Length -lt 20) {
     Write-Host "`nEnter Description (minimum 20 characters):" -ForegroundColor Cyan
-    Write-Host "💡 Best practice: State WHEN to use this asset in third-person (e.g., 'Use this skill when...')" -ForegroundColor DarkGray
+    Write-Host "[TIP] Best practice: State WHEN to use this asset in third-person (e.g., 'Use this skill when...')" -ForegroundColor DarkGray
     $Description = Read-Host "Description"
     if ($Description.Length -lt 20) {
-        Write-Host "❌ Description must be at least 20 characters." -ForegroundColor Red
+        Write-Host "[FAIL] Description must be at least 20 characters." -ForegroundColor Red
     }
 }
 
@@ -126,10 +126,10 @@ content: |
 "@
         $targetFile = "$skillDir\skill.yaml"
         Set-Content -Path $targetFile -Value $yamlContent -Encoding UTF8
-        Write-Host "`n✅ Created Skill at $targetFile" -ForegroundColor Green
-        Write-Host "   ├── scripts/" -ForegroundColor DarkGray
-        Write-Host "   ├── examples/" -ForegroundColor DarkGray
-        Write-Host "   └── references/" -ForegroundColor DarkGray
+        Write-Host "`n[OK] Created Skill at $targetFile" -ForegroundColor Green
+        Write-Host "     |-- scripts/" -ForegroundColor DarkGray
+        Write-Host "     |-- examples/" -ForegroundColor DarkGray
+        Write-Host "     \-- references/" -ForegroundColor DarkGray
     }
 
     "rule" {
@@ -171,7 +171,7 @@ content: |
 "@
         $targetFile = "$AssetsRoot\rules\$Name.yaml"
         Set-Content -Path $targetFile -Value $yamlContent -Encoding UTF8
-        Write-Host "`n✅ Created Rule at $targetFile" -ForegroundColor Green
+        Write-Host "`n[OK] Created Rule at $targetFile" -ForegroundColor Green
     }
 
     "agent" {
@@ -199,7 +199,7 @@ rules_applied: []
 "@
         $targetFile = "$AssetsRoot\agents\$Name.yaml"
         Set-Content -Path $targetFile -Value $yamlContent -Encoding UTF8
-        Write-Host "`n✅ Created Agent at $targetFile" -ForegroundColor Green
+        Write-Host "`n[OK] Created Agent at $targetFile" -ForegroundColor Green
     }
 
     "principle" {
@@ -224,12 +224,12 @@ content: |
   Explain why this principle exists and its long-term impact on code quality and token budget.
 
   ## Application
-  - Application in prompt engineering
-  - Application in system architecture
+  - Application in engineering
+  - Application in prompt/tool design
 "@
         $targetFile = "$AssetsRoot\principles\$Name.yaml"
         Set-Content -Path $targetFile -Value $yamlContent -Encoding UTF8
-        Write-Host "`n✅ Created Principle at $targetFile" -ForegroundColor Green
+        Write-Host "`n[OK] Created Principle at $targetFile" -ForegroundColor Green
     }
 }
 
@@ -238,9 +238,9 @@ content: |
 
 # 4. Optional Sync
 if ($SyncAfter) {
-    Write-Host "`n🚀 Synchronizing new asset to machine..." -ForegroundColor Cyan
+    Write-Host "`n[SYNC] Synchronizing new asset to machine..." -ForegroundColor Cyan
     & "$ScriptRoot\sync.ps1" -Target all
 } else {
-    Write-Host "`n💡 To sync this asset to Antigravity, Cursor, Claude Code, and Gemini CLI, run:" -ForegroundColor Yellow
-    Write-Host "   .\scripts\sync.ps1 -Target all`n" -ForegroundColor White
+    Write-Host "`n[TIP] To sync this asset to Antigravity, Cursor, Claude Code, and Gemini CLI, run:" -ForegroundColor Yellow
+    Write-Host "      .\scripts\sync.ps1 -Target all`n" -ForegroundColor White
 }

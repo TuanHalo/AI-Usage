@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Transforms canonical AI assets into Cursor format (.mdc files).
     - Global Rules: ~/.cursor/rules/<name>.mdc
@@ -14,7 +14,7 @@ param(
 
 $AssetsDir = (Resolve-Path $AssetsDir).Path
 
-Write-Host "⚡ Transforming canonical assets for Cursor..." -ForegroundColor Cyan
+Write-Host "[CURSOR] Transforming canonical assets for Cursor..." -ForegroundColor Cyan
 
 $ruleFiles = Get-ChildItem -Path "$AssetsDir\rules" -Filter "*.yaml" -ErrorAction SilentlyContinue
 if ($ruleFiles -and $ruleFiles.Count -gt 0) {
@@ -40,8 +40,8 @@ globs: $globs
 $content
 "@
             $outFile = "$TargetDir\$name.mdc"
-            Write-Host "  → Rule: $name (.mdc)" -ForegroundColor Yellow
-            Write-Host "    Target: $outFile" -ForegroundColor DarkGray
+            Write-Host "  -> Rule: $name (.mdc)" -ForegroundColor Yellow
+            Write-Host "     Target: $outFile" -ForegroundColor DarkGray
 
             if (-not $DryRun) {
                 Set-Content -Path $outFile -Value $mdcContent -Encoding UTF8
@@ -49,7 +49,7 @@ $content
         }
     }
 } else {
-    Write-Host "  ℹ️ No rules to sync." -ForegroundColor DarkGray
+    Write-Host "  [INFO] No rules to sync." -ForegroundColor DarkGray
 }
 
-Write-Host "✨ Cursor sync completed." -ForegroundColor Green
+Write-Host "[DONE] Cursor sync completed." -ForegroundColor Green

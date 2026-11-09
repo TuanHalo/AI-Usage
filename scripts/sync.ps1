@@ -51,11 +51,11 @@ if (-not $?) {
 }
 
 if ($ValidateOnly) {
-    Write-Host "`n✅ Asset validation completed (--ValidateOnly specified)." -ForegroundColor Green
+    Write-Host "`n[OK] Asset validation completed (--ValidateOnly specified)." -ForegroundColor Green
     exit 0
 }
 
-Write-Host "`n🚀 Executing Tool Transformations..." -ForegroundColor Cyan
+Write-Host "`n[SYNC] Executing Tool Transformations..." -ForegroundColor Cyan
 
 # Step 2: Run Selected Transforms
 $transforms = @()
@@ -79,6 +79,5 @@ foreach ($t in $transforms) {
 }
 
 Write-Host "`n==================================================" -ForegroundColor Magenta
-Write-Host "🎉 Synchronization Finished Successfully!" -ForegroundColor Magenta
+Write-Host "[SUCCESS] Synchronization Finished Successfully!" -ForegroundColor Magenta
 Write-Host "==================================================" -ForegroundColor Magenta
-
