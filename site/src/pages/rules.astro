@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import rulesData from '../data/rules.json';
 
 interface RuleItem {
   name: string;
@@ -14,7 +15,7 @@ interface RuleItem {
   guidelines: string[];
 }
 
-const rules: RuleItem[] = [];
+const rules: RuleItem[] = rulesData;
 ---
 
 <BaseLayout title="Rules Catalog — AI-Usage">

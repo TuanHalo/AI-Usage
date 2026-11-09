@@ -3,12 +3,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayButton from '../components/ClayButton.astro';
 import ClayBadge from '../components/ClayBadge.astro';
+import skills from '../data/skills.json';
+import rules from '../data/rules.json';
+import agents from '../data/agents.json';
+import principles from '../data/principles.json';
 
 const categories = [
   {
     title: 'Skills',
     variant: 'skills' as const,
-    count: '0 Active',
+    count: `${skills.length} Active`,
     desc: 'Procedural runbooks, tool recipes, and on-demand workflows for complex tasks.',
     href: `${import.meta.env.BASE_URL}skills`,
     icon: '⚡',
@@ -16,7 +20,7 @@ const categories = [
   {
     title: 'Rules',
     variant: 'rules' as const,
-    count: '0 Active',
+    count: `${rules.length} Active`,
     desc: 'Always-on constraints, code style standards, and safety invariants.',
     href: `${import.meta.env.BASE_URL}rules`,
     icon: '🛡️',
@@ -24,7 +28,7 @@ const categories = [
   {
     title: 'Agents',
     variant: 'agents' as const,
-    count: '0 Active',
+    count: `${agents.length} Active`,
     desc: 'Autonomous agent persona profiles, role boundaries, and tool specifications.',
     href: `${import.meta.env.BASE_URL}agents`,
     icon: '🤖',
@@ -32,7 +36,7 @@ const categories = [
   {
     title: 'Principles',
     variant: 'principles' as const,
-    count: '0 Active',
+    count: `${principles.length} Active`,
     desc: 'Core engineering philosophies, token-efficiency rules, and architectural tenets.',
     href: `${import.meta.env.BASE_URL}principles`,
     icon: '💡',

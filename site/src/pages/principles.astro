@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import principlesData from '../data/principles.json';
 
 interface PrincipleItem {
   name: string;
@@ -13,7 +14,7 @@ interface PrincipleItem {
   tags: string[];
 }
 
-const principles: PrincipleItem[] = [];
+const principles: PrincipleItem[] = principlesData;
 ---
 
 <BaseLayout title="Principles — AI-Usage">
