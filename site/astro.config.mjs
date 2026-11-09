@@ -8,3 +8,4 @@ export default defineConfig({
   base: '/AI-Usage/',
   integrations: [mdx(), sitemap()],
 });
+

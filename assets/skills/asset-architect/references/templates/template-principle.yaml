@@ -1,0 +1,22 @@
+meta:
+  name: example-principle-name
+  version: "1.0.0"
+  description: >-
+    Fundamental architectural or engineering principle guiding system design and token efficiency.
+  category: "architecture" # architecture | ux | engineering | communication | security
+  tags:
+    - principle
+    - core-philosophy
+
+content: |
+  # Example Principle
+
+  ## Definition
+  Core definition and philosophical premise.
+
+  ## Rationale
+  Why this principle matters for code health and agent performance.
+
+  ## Application
+  - Application in engineering
+  - Application in prompt/tool design

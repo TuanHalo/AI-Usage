@@ -1,0 +1,78 @@
+meta:
+  name: asset-architect
+  version: "1.0.0"
+  description: >-
+    Architects, scaffolds, validates, and synchronizes new canonical AI assets (skills,
+    rules, agents, principles) conforming to repository contracts and multi-tool targets.
+    Use this skill whenever the user wants to create, refine, or scaffold a new skill, rule, agent persona, or principle.
+  tags:
+    - meta-skill
+    - scaffolding
+    - prompt-engineering
+    - automation
+    - multi-tool
+  author: TuanHalo
+  created: "2026-11-09"
+  updated: "2026-11-09"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Asset Architect Skill
+
+  ## Overview
+  The **Asset Architect** skill is the canonical meta-workflow for creating, structuring, validating, and deploying new AI knowledge assets into the `AI-Usage` repository. It guarantees that every new skill, rule, agent persona, and engineering principle conforms strictly to repository contracts and can be immediately synchronized to local coding environments.
+
+  ## Steps
+
+  ### 1. Determine Asset Classification
+  Identify the exact type of asset required:
+  - **Skill** (`assets/skills/<name>/`): Procedural runbooks, tool recipes, and on-demand capabilities.
+  - **Rule** (`assets/rules/<name>.yaml`): Mandatory standards, safety invariants, or directory-scoped guidelines.
+  - **Agent** (`assets/agents/<name>.yaml`): Autonomous persona specifications, tool capability boundaries, and subagent configs.
+  - **Principle** (`assets/principles/<name>.yaml`): Architectural philosophies, token budget rules, or design tenets.
+
+  ### 2. Capture Mandatory Metadata (Per Content Contract)
+  Ensure the following contract requirements are collected:
+  - **Name**: Must be strictly `^[a-z][a-z0-9-]*$` (lowercase kebab-case, <= 50 characters).
+  - **Description**: Must be third-person, at least 20 characters, specifying **when** and **why** the AI should trigger this asset.
+  - **Target Scopes**: Determine Antigravity triggers (`auto`, `always_on`), Cursor scoping (`alwaysApply: true` vs file `globs`), and Claude Code scope (`global` vs `project`).
+
+  ### 3. Generate Directory Structure
+  - **For Skills**:
+    1. Create directory `assets/skills/<name>/`.
+    2. Create `assets/skills/<name>/skill.yaml` using the canonical template.
+    3. Scaffold subdirectories: `scripts/` (executable helpers), `examples/` (reference I/O), and `references/` (documentation).
+    4. **Enforce Progressive Disclosure**: Keep `skill.yaml` under 100 lines; push extensive documentation into `references/` to prevent token context exhaustion.
+  - **For Rules**: Create `assets/rules/<name>.yaml` containing `Context`, `Guidelines`, and `Enforcement`.
+  - **For Agents**: Create `assets/agents/<name>.yaml` containing `Role`, `Capabilities`, `System Prompt`, and bound skills/rules.
+  - **For Principles**: Create `assets/principles/<name>.yaml` containing `Definition`, `Rationale`, and `Application`.
+
+  ### 4. Validate Asset Integrity
+  Execute the local validation script to verify schema compliance:
+  ```powershell
+  .\scripts\utils\validate.ps1
+  ```
+  Ensure 0 validation errors before proceeding.
+
+  ### 5. Multi-Tool Synchronization
+  Synchronize the newly created asset to local tool destinations (Antigravity, Cursor, Claude Code, Gemini CLI):
+  ```powershell
+  .\scripts\sync.ps1 -Target all
+  ```
+
+  ## Usage & Example Invocation
+  Trigger whenever user says:
+  - *"Create a new skill for..."*
+  - *"Add a coding rule for..."*
+  - *"Define an agent persona for..."*
+  - *"Document a new engineering principle for..."*

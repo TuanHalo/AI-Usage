@@ -67,3 +67,4 @@ style_contract:
     wcag_compliance: "WCAG 2.1 AA"
     min_contrast_ratio: 4.5
     reduced_motion: "respect prefers-reduced-motion media query"
+

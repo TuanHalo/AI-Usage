@@ -1,0 +1,34 @@
+meta:
+  name: example-rule-name
+  version: "1.0.0"
+  description: >-
+    Enforces specific standards or constraints across targeted file scopes.
+  scope: global # global | project
+  priority: high # low | medium | high | critical
+  tags:
+    - standards
+    - quality
+
+targets:
+  antigravity:
+    trigger: always_on # always_on | model_decision
+  cursor:
+    alwaysApply: true
+    globs: "**/*.ts,**/*.tsx" # or null for all files
+  claude_code:
+    scope: global
+  gemini_cli:
+    scope: global
+
+content: |
+  # Example Rule
+
+  ## Context
+  Why this rule exists and what problems it prevents.
+
+  ## Guidelines
+  - **Requirement 1**: Concrete guideline.
+  - **Requirement 2**: What to avoid.
+
+  ## Enforcement
+  Commands or checklists to verify compliance.

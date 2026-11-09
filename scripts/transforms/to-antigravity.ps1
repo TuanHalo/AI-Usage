@@ -19,20 +19,20 @@ $RulesDest = "$TargetDir\rules"
 
 Write-Host "🤖 Transforming canonical assets for Antigravity..." -ForegroundColor Cyan
 
-if (-not $DryRun) {
-    New-Item -ItemType Directory -Force -Path $SkillsDest, $RulesDest | Out-Null
-}
-
 # 1. Transform Skills
-$skillFiles = Get-ChildItem -Path "$AssetsDir\skills" -Filter "skill.yaml" -Recurse
-foreach ($file in $skillFiles) {
-    $parsed = Parse-CanonicalYaml $file.FullName
-    $name = $parsed.Name
-    $desc = $parsed.Description
-    $content = $parsed.Content
+$skillFiles = Get-ChildItem -Path "$AssetsDir\skills" -Filter "skill.yaml" -Recurse -ErrorAction SilentlyContinue
+if ($skillFiles -and $skillFiles.Count -gt 0) {
+    if (-not $DryRun) {
+        New-Item -ItemType Directory -Force -Path $SkillsDest | Out-Null
+    }
+    foreach ($file in $skillFiles) {
+        $parsed = Parse-CanonicalYaml $file.FullName
+        $name = $parsed.Name
+        $desc = $parsed.Description
+        $content = $parsed.Content
 
-    if ($name -and $content) {
-        $skillMarkdown = @"
+        if ($name -and $content) {
+            $skillMarkdown = @"
 ---
 name: $name
 description: >-
@@ -41,38 +41,47 @@ description: >-
 
 $content
 "@
-        $skillDir = "$SkillsDest\$name"
-        $skillOutFile = "$skillDir\SKILL.md"
+            $skillDir = "$SkillsDest\$name"
+            $skillOutFile = "$skillDir\SKILL.md"
 
-        Write-Host "  → Skill: $name" -ForegroundColor Yellow
-        Write-Host "    Target: $skillOutFile" -ForegroundColor DarkGray
+            Write-Host "  → Skill: $name" -ForegroundColor Yellow
+            Write-Host "    Target: $skillOutFile" -ForegroundColor DarkGray
 
-        if (-not $DryRun) {
-            New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
-            Set-Content -Path $skillOutFile -Value $skillMarkdown -Encoding UTF8
+            if (-not $DryRun) {
+                New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
+                Set-Content -Path $skillOutFile -Value $skillMarkdown -Encoding UTF8
+            }
         }
     }
+} else {
+    Write-Host "  ℹ️ No skills to sync." -ForegroundColor DarkGray
 }
 
 # 2. Transform Rules
-$ruleFiles = Get-ChildItem -Path "$AssetsDir\rules" -Filter "*.yaml"
-$consolidatedRules = "# Global AI Rules (Synced from AI-Usage)`n`n"
-
-foreach ($file in $ruleFiles) {
-    $parsed = Parse-CanonicalYaml $file.FullName
-    $name = $parsed.Name
-    $content = $parsed.Content
-
-    if ($name -and $content) {
-        $consolidatedRules += "<!-- Rule: $name -->`n$content`n`n---`n`n"
-        Write-Host "  → Rule: $name" -ForegroundColor Yellow
+$ruleFiles = Get-ChildItem -Path "$AssetsDir\rules" -Filter "*.yaml" -ErrorAction SilentlyContinue
+if ($ruleFiles -and $ruleFiles.Count -gt 0) {
+    if (-not $DryRun) {
+        New-Item -ItemType Directory -Force -Path $RulesDest | Out-Null
     }
-}
+    $consolidatedRules = "# Global AI Rules (Synced from AI-Usage)`n`n"
+    foreach ($file in $ruleFiles) {
+        $parsed = Parse-CanonicalYaml $file.FullName
+        $name = $parsed.Name
+        $content = $parsed.Content
 
-$ruleOutFile = "$RulesDest\AGENTS.md"
-Write-Host "    Target: $ruleOutFile" -ForegroundColor DarkGray
-if (-not $DryRun) {
-    Set-Content -Path $ruleOutFile -Value $consolidatedRules -Encoding UTF8
+        if ($name -and $content) {
+            $consolidatedRules += "<!-- Rule: $name -->`n$content`n`n---`n`n"
+            Write-Host "  → Rule: $name" -ForegroundColor Yellow
+        }
+    }
+
+    $ruleOutFile = "$RulesDest\AGENTS.md"
+    Write-Host "    Target: $ruleOutFile" -ForegroundColor DarkGray
+    if (-not $DryRun) {
+        Set-Content -Path $ruleOutFile -Value $consolidatedRules -Encoding UTF8
+    }
+} else {
+    Write-Host "  ℹ️ No rules to sync." -ForegroundColor DarkGray
 }
 
 Write-Host "✨ Antigravity sync completed." -ForegroundColor Green

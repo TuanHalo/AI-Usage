@@ -120,3 +120,4 @@ Deployment is 100% automated via GitHub Actions:
 To enable GitHub Pages in your repo:
 1. Go to **Settings** → **Pages**.
 2. Under **Build and deployment** → **Source**, select **GitHub Actions**.
+

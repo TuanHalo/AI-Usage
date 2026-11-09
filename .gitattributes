@@ -1,0 +1,15 @@
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# PowerShell scripts on Windows
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Visual & binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text
+*.ico binary

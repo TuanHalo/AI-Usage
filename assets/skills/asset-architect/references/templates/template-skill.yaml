@@ -1,0 +1,36 @@
+meta:
+  name: example-skill-name
+  version: "1.0.0"
+  description: >-
+    Third-person activation description. Use this skill when the user asks to...
+  tags:
+    - tag1
+    - tag2
+  author: TuanHalo
+  created: "2026-11-09"
+  updated: "2026-11-09"
+
+targets:
+  antigravity:
+    trigger: auto # auto | manual | slash_command
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Example Skill
+
+  ## Overview
+  High-level context and objective.
+
+  ## Steps
+  1. **Preparation**: Step 1 instructions.
+  2. **Execution**: Step 2 instructions.
+  3. **Verification**: How to confirm success.
+
+  ## Usage
+  Scenarios and prompt examples.

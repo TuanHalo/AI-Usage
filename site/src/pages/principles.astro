@@ -4,20 +4,16 @@ import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
 
-const principles = [
-  {
-    name: 'progressive-disclosure',
-    version: '1.0.0',
-    category: 'Architecture & UX',
-    description: 'Information should be revealed progressively: show summaries and high-level structure first, enabling users and AI agents to drill down into complex details on demand without token window exhaustion or cognitive overload.',
-    applications: [
-      'In Skills: Keep SKILL.md concise (<100 lines); place detailed guides in references/ or sub-documents.',
-      'In Research Outputs: Always begin with an Executive Summary and high-level findings table before detailed deep-dives.',
-      'In Web UIs: Employ collapsible cards, tabs, and interactive drill-downs.'
-    ],
-    tags: ['principle', 'information-architecture', 'ux', 'token-budget']
-  }
-];
+interface PrincipleItem {
+  name: string;
+  version: string;
+  category: string;
+  description: string;
+  applications: string[];
+  tags: string[];
+}
+
+const principles: PrincipleItem[] = [];
 ---
 
 <BaseLayout title="Principles — AI-Usage">
@@ -30,47 +26,62 @@ const principles = [
     </p>
   </div>
 
-  <div style="display: flex; flex-direction: column; gap: 32px;">
-    {principles.map((pr) => (
-      <ClayCard variant="principles">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-          <div>
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-              <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
-                {pr.name}
-              </h2>
-              <ClayBadge>v{pr.version}</ClayBadge>
-              <ClayBadge style="background: #ffffff; color: #d97706;">{pr.category}</ClayBadge>
+  {principles.length === 0 ? (
+    <ClayCard variant="principles" style="text-align: center; padding: 48px 24px;">
+      <span style="font-size: 3rem; display: block; margin-bottom: 12px;">🌱</span>
+      <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 8px;">
+        No Principles Authored Yet
+      </h3>
+      <p style="color: var(--color-text-secondary); max-width: 520px; margin: 0 auto 24px;">
+        Use the <code>asset-architect</code> skill or run <code>.\scripts\new-asset.ps1 -Type principle</code> to scaffold your first engineering principle.
+      </p>
+      <ClayButton href="https://github.com/TuanHalo/AI-Usage">
+        Read Principle Contract ➔
+      </ClayButton>
+    </ClayCard>
+  ) : (
+    <div style="display: flex; flex-direction: column; gap: 32px;">
+      {principles.map((pr) => (
+        <ClayCard variant="principles">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
+                  {pr.name}
+                </h2>
+                <ClayBadge>v{pr.version}</ClayBadge>
+                <ClayBadge style="background: #ffffff; color: #d97706;">{pr.category}</ClayBadge>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                {pr.tags.map((tag) => (
+                  <ClayBadge style="background: rgba(255,255,255,0.65); font-size: 0.78rem;">
+                    #{tag}
+                  </ClayBadge>
+                ))}
+              </div>
             </div>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              {pr.tags.map((tag) => (
-                <ClayBadge style="background: rgba(255,255,255,0.65); font-size: 0.78rem;">
-                  #{tag}
-                </ClayBadge>
-              ))}
-            </div>
+
+            <ClayButton href={`https://github.com/TuanHalo/AI-Usage/tree/main/assets/principles/${pr.name}.yaml`}>
+              Source YAML ➔
+            </ClayButton>
           </div>
 
-          <ClayButton href="https://github.com/TuanHalo/AI-Usage/tree/main/assets/principles/progressive-disclosure.yaml">
-            Source YAML ➔
-          </ClayButton>
-        </div>
+          <p style="font-size: 1.05rem; margin-bottom: 20px;">
+            {pr.description}
+          </p>
 
-        <p style="font-size: 1.05rem; margin-bottom: 20px;">
-          {pr.description}
-        </p>
-
-        <div style="background: rgba(255, 255, 255, 0.7); border-radius: var(--clay-radius-md); padding: 20px;">
-          <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">
-            Practical Applications
-          </h3>
-          <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-            {pr.applications.map((app) => (
-              <li style="color: var(--color-text-secondary);">{app}</li>
-            ))}
-          </ul>
-        </div>
-      </ClayCard>
-    ))}
-  </div>
+          <div style="background: rgba(255, 255, 255, 0.7); border-radius: var(--clay-radius-md); padding: 20px;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">
+              Practical Applications
+            </h3>
+            <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+              {pr.applications.map((app) => (
+                <li style="color: var(--color-text-secondary);">{app}</li>
+              ))}
+            </ul>
+          </div>
+        </ClayCard>
+      ))}
+    </div>
+  )}
 </BaseLayout>

@@ -53,3 +53,4 @@ output_contract:
     must_use_clay_cards: true
     responsive: true
     code_highlighting: true
+

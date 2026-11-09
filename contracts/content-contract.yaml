@@ -49,3 +49,4 @@ content_contract:
   versioning:
     format: "semver"
     initial_version: "1.0.0"
+

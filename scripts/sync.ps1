@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Orchestrates the synchronization of canonical AI assets to local tool configurations.
 
@@ -81,3 +81,4 @@ foreach ($t in $transforms) {
 Write-Host "`n==================================================" -ForegroundColor Magenta
 Write-Host "🎉 Synchronization Finished Successfully!" -ForegroundColor Magenta
 Write-Host "==================================================" -ForegroundColor Magenta
+

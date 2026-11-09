@@ -1,0 +1,21 @@
+meta:
+  name: example-agent-name
+  version: "1.0.0"
+  description: >-
+    Autonomous persona definition specialized in a targeted domain.
+  role: "Specialized Role Title"
+  tags:
+    - agent
+    - automation
+
+capabilities:
+  - web_search
+  - file_read
+  - file_write
+
+system_prompt: |
+  You are an expert specialist agent.
+  Your objective is to...
+
+skills_required: []
+rules_applied: []
