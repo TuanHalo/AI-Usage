@@ -37,13 +37,35 @@ if (-not $commits) {
     $commits | ForEach-Object { Write-Host "  $_" -ForegroundColor White }
 }
 
-# 4. Check gh CLI
-$ghInstalled = Get-Command gh -ErrorAction SilentlyContinue
-if ($ghInstalled) {
-    Write-Host "`n[OK] GitHub CLI ('gh') is available." -ForegroundColor Green
-    gh auth status 2>&1 | Out-String | Write-Host -ForegroundColor DarkGray
-} else {
-    Write-Host "`n[INFO] GitHub CLI ('gh') not detected on PATH." -ForegroundColor Yellow
-    Write-Host "       Direct compare URL will be generated as fallback." -ForegroundColor DarkGray
+# 4. Check gh CLI & Path Discovery
+$cmd = Get-Command gh -ErrorAction SilentlyContinue
+$ghPath = if ($cmd) { $cmd.Source } else { $null }
+
+if (-not $ghPath) {
+    # Refresh PATH from registry
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $cmd = Get-Command gh -ErrorAction SilentlyContinue
+    if ($cmd) { $ghPath = $cmd.Source }
+}
+if (-not $ghPath) {
+    $fallbackPaths = @(
+        "C:\Program Files\GitHub CLI\gh.exe",
+        "C:\Program Files (x86)\GitHub CLI\gh.exe",
+        "$env:LOCALAPPDATA\Programs\GitHub CLI\gh.exe"
+    )
+    foreach ($p in $fallbackPaths) {
+        if (Test-Path $p) {
+            $ghPath = $p
+            break
+        }
+    }
 }
 
+if ($ghPath) {
+    Write-Host "`n[OK] GitHub CLI ('gh') is located at: $ghPath" -ForegroundColor Green
+    $authStatus = cmd.exe /c " ""$ghPath"" auth status 2>&1 "
+    Write-Host $authStatus -ForegroundColor DarkGray
+} else {
+    Write-Host "`n[INFO] GitHub CLI ('gh') not detected on system." -ForegroundColor Yellow
+    Write-Host "       To install: winget install --id GitHub.cli -e --silent" -ForegroundColor DarkGray
+}

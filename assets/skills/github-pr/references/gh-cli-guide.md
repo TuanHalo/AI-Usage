@@ -1,86 +1,102 @@
-# GitHub CLI (`gh`) Automation Guide
+# GitHub CLI (`gh`) Automation & PR Guide
 
-## 1. Authentication & Status Check
-Before creating pull requests, check CLI readiness:
+## 1. Environment & Path Resolution
 
-```bash
-# Check if authenticated
+On Windows systems, newly installed CLI binaries may not appear immediately in active PowerShell environments.
+
+### Binary Resolution Logic
+```powershell
+$ghPath = (Get-Command gh -ErrorAction SilentlyContinue)?.Source
+if (-not $ghPath) {
+    # Refresh PATH from registry
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $ghPath = (Get-Command gh -ErrorAction SilentlyContinue)?.Source
+}
+# Fallback check standard install location
+if (-not $ghPath -and (Test-Path "C:\Program Files\GitHub CLI\gh.exe")) {
+    $ghPath = "C:\Program Files\GitHub CLI\gh.exe"
+}
+```
+
+### Installation If Missing
+```powershell
+winget install --id GitHub.cli -e --accept-source-agreements --accept-package-agreements --silent
+```
+
+### Authentication Flow
+```powershell
+# Check current authentication status
 gh auth status
 
-# If not authenticated, login
-gh auth login
+# Interactive browser login
+gh auth login --web
+
+# Headless / token login via stdin
+gh auth login --with-token < token.txt
 ```
 
 ---
 
-## 2. Creating Pull Requests
+## 2. Shell Escaping Hazards on Windows PowerShell
 
-### Basic Command
-```bash
-gh pr create --title "<title>" --body "<body>"
-```
+### The Problem With `--body "..."`
+Passing multi-line Markdown descriptions with quotes, backticks, code blocks, or `#` headers directly into `--body "..."` on Windows PowerShell results in:
+- Argument stripping and truncated bodies.
+- Unrecognized flag errors (`unknown flag: --body`).
+- PowerShell parser escaping crashes on special symbols.
 
-### Common Flags
-| Flag | Description | Example |
-| :--- | :--- | :--- |
-| `--base <branch>` | Target branch to merge into | `--base main` |
-| `--head <branch>` | Source branch containing your commits | `--head feat/user-auth` |
-| `--title <string>` | Pull request title | `--title "feat(auth): add oauth2 support"` |
-| `--body <string>` | Markdown description inline | `--body "## Summary\n..."` |
-| `--body-file <file>`| Read description from a file | `--body-file .pr-body.md` |
-| `--draft` | Create as a draft (work in progress) | `--draft` |
-| `--reviewer <user>` | Request code review from username/team | `--reviewer octocat` |
-| `--assignee <user>` | Assign PR to someone | `--assignee @me` |
-| `--label <names>` | Add comma-separated labels | `--label "enhancement,backend"` |
-| `--web` | Open the PR in browser for final inspection | `--web` |
+### The Standard Solution: `--body-file`
+Always isolate the Markdown description into a UTF-8 temporary file:
 
----
-
-## 3. Handling Multi-Line PR Descriptions
-
-### Method A: Heredoc in Bash / Zsh
-```bash
-gh pr create --title "feat(auth): add oauth2 PKCE flow" --body "$(cat <<'EOF'
-## Summary
-Implements PKCE authorization code flow for secure single-page applications.
-
-## Verification
-- Unit tests: passed
-- Manual testing: verified against auth server
-
-Closes #105
-EOF
-)"
-```
-
-### Method B: Temporary File in PowerShell
 ```powershell
-$body = @"
-## Summary
-Implements PKCE authorization code flow for secure single-page applications.
+$tempFile = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "pr-body-$([System.Guid]::NewGuid().ToString('N')).md")
+[System.IO.File]::WriteAllText($tempFile, $markdownDescription, [System.Text.Encoding]::UTF8)
 
-## Verification
-- Unit tests: passed
-- Manual testing: verified against auth server
-
-Closes #105
-"@
-
-$tmpFile = [System.IO.Path]::GetTempFileName()
-Set-Content -Path $tmpFile -Value $body -Encoding UTF8
-gh pr create --title "feat(auth): add oauth2 PKCE flow" --body-file $tmpFile
-Remove-Item $tmpFile -Force
+try {
+    gh pr create --base main --head feat/my-branch --title "feat: my title" --body-file $tempFile
+}
+finally {
+    Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
+}
 ```
 
 ---
 
-## 4. Fallback When `gh` Is Not Available
+## 3. Non-Interactive Automation Safeguards
 
-If `gh` CLI is not installed or the user lacks token access:
-1. Provide the formatted PR title and markdown body in the chat response.
-2. Construct the direct web URL for GitHub's PR compare view:
-   ```text
-   https://github.com/<owner>/<repo>/compare/<base-branch>...<head-branch>?expand=1
-   ```
-3. Advise the user to paste the generated title and description into the GitHub web interface.
+When executing `gh` inside automated agent sessions:
+1. **Disable Prompts**:
+   Set `$env:GH_PROMPT_DISABLED = "1"` and `$env:GH_NO_UPDATE_NOTIFIER = "1"` to prevent hanging on interactive input or update notifications.
+2. **Explicit Arguments**:
+   Always provide `--base`, `--head`, `--title`, and `--body-file` explicitly so `gh` never prompts for missing parameters.
 
+---
+
+## 4. Idempotency: Checking for Existing PRs
+
+Before creating a PR, check if an open PR already exists for the head branch to prevent `already exists` errors:
+
+```powershell
+$existing = gh pr list --head feat/my-branch --json number,url,title,state | ConvertFrom-Json
+if ($existing.Count -gt 0) {
+    # Update existing PR instead of failing
+    gh pr edit $existing[0].number --title "new title" --body-file $tempFile
+} else {
+    # Create new PR
+    gh pr create --base main --head feat/my-branch --title "new title" --body-file $tempFile
+}
+```
+
+---
+
+## 5. Automated Helper Script
+
+Use the bundled automation script in this skill:
+```powershell
+.\scripts\create-pr.ps1 -Title "feat(scope): title" -Body "## Summary`n..." -Base "main"
+```
+Or pass an existing markdown file:
+```powershell
+.\scripts\create-pr.ps1 -Title "feat(scope): title" -BodyFile ".\docs\pr-description.md"
+```
+This handles path resolution, auth checks, body file safety, existing PR detection, and execution automatically.
