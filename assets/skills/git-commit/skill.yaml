@@ -1,0 +1,86 @@
+meta:
+  name: git-commit
+  version: "1.0.0"
+  description: >-
+    Analyzes modified and untracked files, groups logically related changes into atomic commits, and drafts Conventional Commit messages adhering to commit best practices. Use this skill when the user asks to stage, commit, or create git commits for their code changes.
+  tags:
+    - git
+    - commit
+    - atomic-commits
+    - conventional-commits
+    - vcs
+  author: TuanHalo
+  created: "2026-11-09"
+  updated: "2026-11-09"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Git Commit Skill
+
+  ## Overview
+  Enforces atomic commit discipline and standard Conventional Commits formatting. Commits must never bundle unrelated changes together. When multiple files or components are modified, they must be separated into cohesive logical groups, staged explicitly, and committed with precise, standard-compliant commit messages.
+
+  ## Steps
+
+  ### 1. Inspect Status and Diff
+  - Run `git status --short` to inspect modified, staged, deleted, and untracked files.
+  - Run `git diff` to inspect unstaged changes, and `git diff --cached` for staged changes.
+  - Check for unwanted files before staging: `.env`, credentials, node_modules, build outputs, or debug logs. If found, add them to `.gitignore` or revert them.
+
+  ### 2. Group Files into Atomic Commits
+  - Partition modified files into single-responsibility clusters:
+    - **Feature / Core**: Domain logic, new functions, or API endpoints.
+    - **Tests**: Unit tests, integration tests, or mock fixtures.
+    - **Documentation**: README, docstrings, architectural docs, or API specs.
+    - **Configuration / Tooling**: Build scripts, dependency updates, linters, or CI workflows.
+    - **Refactoring / Cleanup**: Code reorganization or typing fixes without behavior changes.
+  - Never stage all files (`git add .`) when changes span multiple logical categories.
+  - For detailed partitioning heuristics, consult `references/grouping-heuristics.md`.
+
+  ### 3. Draft Conventional Commit Messages
+  - Format: `<type>(<optional-scope>): <imperative summary>`
+  - Types:
+    - `feat`: New feature or user-facing functionality.
+    - `fix`: Bug fix.
+    - `refactor`: Code change that neither fixes a bug nor adds a feature.
+    - `perf`: Performance improvement.
+    - `test`: Adding or correcting tests.
+    - `docs`: Documentation changes only.
+    - `style`: Formatting, missing semicolons (no code logic change).
+    - `build`: Changes affecting build system or external dependencies.
+    - `ci`: Changes to CI configuration files and scripts.
+    - `chore`: Maintenance tasks, repo configs, tooling.
+  - Rules:
+    - Use the imperative present mood ("add", "fix", not "added", "fixing").
+    - Keep summary line under 50 characters (max 72).
+    - Lowercase after prefix colon. Do not end summary with a period.
+    - Add body separated by a blank line when context or motivation is needed.
+    - For full specification and examples, consult `references/conventional-commits.md`.
+
+  ### 4. Stage and Commit Sequentially
+  For each group of related files:
+  1. Stage exclusively related files: `git add <path1> <path2>`
+  2. Verify staged diff: `git diff --cached --stat`
+  3. Commit: `git commit -m "<type>(<scope>): <summary>" -m "<optional body>"`
+  4. Verify commit: `git log -1 --stat`
+  Repeat until all changes are cleanly committed.
+
+  ### 5. Verification
+  - Run `git status` to verify working tree is clean (or only contains intentionally uncommitted files).
+  - Run `git log -n <count> --oneline` to confirm history is clean and legible.
+
+  ## Usage
+  Trigger whenever user says:
+  - "Commit my changes."
+  - "Review the diff and create atomic commits for each logical change."
+  - "Group modified files into commits with conventional commit messages."
