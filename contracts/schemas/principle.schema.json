@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CanonicalPrinciple",
+  "type": "object",
+  "required": ["meta", "content"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name", "version", "description", "category", "tags"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "version": { "type": "string" },
+        "description": { "type": "string", "minLength": 20 },
+        "category": { "type": "string", "enum": ["architecture", "ux", "engineering", "communication", "security"] },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "content": {
+      "type": "string",
+      "minLength": 30
+    }
+  }
+}

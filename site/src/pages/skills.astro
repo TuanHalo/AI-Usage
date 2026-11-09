@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ClayCard from '../components/ClayCard.astro';
+import ClayBadge from '../components/ClayBadge.astro';
+import ClayButton from '../components/ClayButton.astro';
+
+const skills = [
+  {
+    name: 'deep-research',
+    version: '1.0.0',
+    description: 'Performs multi-source deep research on a technical topic, synthesizing findings into a structured report with citations. Use this skill when the user asks for in-depth investigation, architecture analysis, or comparative technology evaluation.',
+    tags: ['research', 'analysis', 'synthesis', 'documentation'],
+    targets: ['Antigravity (auto)', 'Cursor', 'Claude Code', 'Gemini CLI'],
+    steps: [
+      'Deconstruct the query into 3-5 sub-topics',
+      'Collect and cross-verify evidence across at least 2 independent sources',
+      'Synthesize findings into executive summary, architecture, and matrix',
+      'Attach formal source attribution and citations',
+      'Output formatted HTML conforming to the repository Output Contract'
+    ]
+  }
+];
+---
+
+<BaseLayout title="Skills Catalog — AI-Usage">
+  <div style="margin-bottom: 32px;">
+    <h1 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; margin-bottom: 8px;">
+      ⚡ Skills Catalog
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--color-text-secondary);">
+      Procedural capabilities and runbooks loaded on-demand by AI agents.
+    </p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 32px;">
+    {skills.map((skill) => (
+      <ClayCard variant="skills">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+              <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
+                {skill.name}
+              </h2>
+              <ClayBadge>v{skill.version}</ClayBadge>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              {skill.tags.map((tag) => (
+                <ClayBadge style="background: rgba(255,255,255,0.65); font-size: 0.78rem;">
+                  #{tag}
+                </ClayBadge>
+              ))}
+            </div>
+          </div>
+
+          <ClayButton href="https://github.com/TuanHalo/AI-Usage/tree/main/assets/skills/deep-research/skill.yaml">
+            Source YAML ➔
+          </ClayButton>
+        </div>
+
+        <div style="background: rgba(255, 255, 255, 0.7); border-radius: var(--clay-radius-md); padding: 20px; margin-bottom: 20px;">
+          <h4 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted); margin-bottom: 6px;">
+            Trigger / Activation Description
+          </h4>
+          <p style="font-size: 1.05rem; color: var(--color-text-primary);">
+            {skill.description}
+          </p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 12px;">
+            Execution Procedure
+          </h3>
+          <ol style="margin-left: 24px; display: flex; flex-direction: column; gap: 8px;">
+            {skill.steps.map((step) => (
+              <li style="font-size: 1rem; color: var(--color-text-secondary);">{step}</li>
+            ))}
+          </ol>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span style="font-weight: 700; font-size: 0.9rem; color: var(--color-text-secondary);">Supported Targets:</span>
+          {skill.targets.map((tgt) => (
+            <ClayBadge style="background: #ffffff;">{tgt}</ClayBadge>
+          ))}
+        </div>
+      </ClayCard>
+    ))}
+  </div>
+</BaseLayout>

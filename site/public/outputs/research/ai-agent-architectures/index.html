@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autonomous AI Agent Architectures — 2026 Evaluation</title>
+  <!--
+  metadata:
+    title: "Autonomous AI Agent Architectures — 2026 Evaluation"
+    date: "2026-11-09"
+    agent: "research-analyst"
+    category: "research"
+    tags: ["agents", "architecture", "multi-agent", "orchestration"]
+    status: "published"
+    summary: "Comprehensive comparative evaluation of hierarchical vs peer agent orchestration architectures."
+  -->
+  <style>
+    :root {
+      --clay-radius-sm: 16px;
+      --clay-radius-md: 24px;
+      --clay-radius-lg: 36px;
+      --clay-radius-xl: 48px;
+
+      --color-canvas: #f0f0f8;
+      --color-primary: #e4dffd;
+      --color-secondary: #d4f0e8;
+      --color-accent: #fde8d0;
+      --color-highlight: #fcd5ce;
+      --color-info: #d0e8fd;
+
+      --color-text-primary: #2e1065;
+      --color-text-secondary: #4a3080;
+      --color-text-muted: #7c6fa0;
+
+      --shadow-drop: rgba(120, 90, 180, 0.22);
+      --shadow-dark: rgba(100, 60, 150, 0.16);
+      --shadow-light: rgba(255, 255, 255, 0.85);
+
+      --clay-shadow: 
+        0 20px 40px -15px var(--shadow-drop),
+        inset 0 -8px 16px var(--shadow-dark),
+        inset 0 8px 16px var(--shadow-light);
+
+      --clay-shadow-sm:
+        0 10px 20px -8px var(--shadow-drop),
+        inset 0 -4px 8px var(--shadow-dark),
+        inset 0 4px 8px var(--shadow-light);
+
+      --font-display: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--color-canvas);
+      font-family: var(--font-body);
+      color: var(--color-text-primary);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* Clay Cards */
+    .clay-card {
+      background-color: var(--color-primary);
+      border-radius: var(--clay-radius-lg);
+      padding: 36px;
+      box-shadow: var(--clay-shadow);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+    }
+
+    .clay-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .clay-card.secondary {
+      background-color: var(--color-secondary);
+      --shadow-drop: rgba(40, 140, 110, 0.22);
+      --shadow-dark: rgba(30, 110, 90, 0.15);
+    }
+
+    .clay-card.accent {
+      background-color: var(--color-accent);
+      --shadow-drop: rgba(180, 100, 40, 0.22);
+      --shadow-dark: rgba(140, 80, 30, 0.15);
+    }
+
+    .clay-card.highlight {
+      background-color: var(--color-highlight);
+      --shadow-drop: rgba(190, 70, 90, 0.22);
+      --shadow-dark: rgba(150, 50, 70, 0.15);
+    }
+
+    .clay-card.info {
+      background-color: var(--color-info);
+      --shadow-drop: rgba(50, 110, 180, 0.22);
+      --shadow-dark: rgba(40, 90, 140, 0.15);
+    }
+
+    /* Header styling */
+    .output-header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    h1.output-title {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .output-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .clay-badge {
+      padding: 8px 18px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: var(--clay-shadow-sm);
+      background-color: #ffffff;
+      color: var(--color-text-secondary);
+    }
+
+    /* Section Headings */
+    h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: var(--color-text-primary);
+    }
+
+    p {
+      margin-bottom: 14px;
+      font-size: 1.05rem;
+    }
+
+    /* Architecture Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 16px;
+    }
+
+    .sub-card {
+      background: rgba(255, 255, 255, 0.65);
+      border-radius: var(--clay-radius-md);
+      padding: 24px;
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .sub-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--color-text-primary);
+    }
+
+    /* Interactive Diagram / Visualization representation */
+    .diagram-container {
+      background: #ffffff;
+      border-radius: var(--clay-radius-md);
+      padding: 24px;
+      box-shadow: var(--clay-shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .flow-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .flow-node {
+      background: var(--color-primary);
+      padding: 12px 24px;
+      border-radius: var(--clay-radius-md);
+      font-weight: bold;
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .flow-arrow {
+      font-size: 1.5rem;
+      color: var(--color-text-muted);
+    }
+
+    /* Table styling */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 12px;
+    }
+
+    th, td {
+      padding: 12px 18px;
+      text-align: left;
+    }
+
+    th {
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    }
+
+    td {
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 12px;
+    }
+
+    /* Footer styling */
+    .output-footer {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+    }
+
+    .sources-list {
+      list-style-type: square;
+      margin-left: 24px;
+      margin-top: 8px;
+    }
+
+    .sources-list li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="clay-card output-header">
+      <h1 class="output-title">Autonomous AI Agent Architectures</h1>
+      <div class="output-badges">
+        <span class="clay-badge" style="background-color: var(--color-highlight);">Research Report</span>
+        <span class="clay-badge">Generated: 2026-11-09</span>
+        <span class="clay-badge">Agent: research-analyst</span>
+        <span class="clay-badge" style="background-color: var(--color-secondary);">Status: Published</span>
+      </div>
+      <p style="margin-top: 8px; font-weight: 500;">
+        An empirical examination of multi-agent topologies: orchestrator-workers, peer collectives, and reactive tool loops.
+      </p>
+    </header>
+
+    <!-- Executive Summary -->
+    <section class="clay-card secondary executive-summary">
+      <h2>1. Executive Summary</h2>
+      <p>
+        Modern agentic workflows require balancing <strong>latency, model context budget</strong>, and <strong>reasoning depth</strong>. Through testing state-of-the-art coding agents (Antigravity, Cursor, Claude Code), two architectural paradigms dominate the landscape:
+      </p>
+      <div class="grid-2">
+        <div class="sub-card">
+          <h3>Hierarchical (Orchestrator-Worker)</h3>
+          <p>A primary planner agent decomposes goals and delegates isolated sub-tasks to ephemeral subagents. Minimizes context contamination and maintains high alignment.</p>
+        </div>
+        <div class="sub-card">
+          <h3>Sequential / Peer Reactive</h3>
+          <p>Agents share a unified context stream, executing inline tool calls iteratively. Maximizes step-by-step transparency with lower initialization latency.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visualizations / Diagrams -->
+    <section class="clay-card accent visualizations">
+      <h2>2. Topological Flow</h2>
+      <div class="diagram-container">
+        <div class="flow-row">
+          <div class="flow-node">User Request</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node" style="background: var(--color-secondary);">Planner Agent</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node" style="background: var(--color-highlight);">Subagent Isolation</div>
+        </div>
+        <div class="flow-row" style="margin-top: 8px;">
+          <div class="flow-node" style="background: var(--color-info);">Tool Execution</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node" style="background: var(--color-accent);">Verification Check</div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node">Final Output Synthesis</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparative Findings -->
+    <section class="clay-card info findings">
+      <h2>3. Comparative Matrix</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Architecture Pattern</th>
+            <th>Context Window Impact</th>
+            <th>Error Recovery Rate</th>
+            <th>Recommended Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hierarchical Delegation</strong></td>
+            <td>Low (Subagent isolation)</td>
+            <td>High (Worker can be retried)</td>
+            <td>Complex refactoring, research, code generation</td>
+          </tr>
+          <tr>
+            <td><strong>Single Loop Interactive</strong></td>
+            <td>Medium-High (Accumulates turns)</td>
+            <td>Medium (Depends on user feedback)</td>
+            <td>Fast debugging, simple file updates</td>
+          </tr>
+          <tr>
+            <td><strong>Background Autonomous</strong></td>
+            <td>Isolated per session</td>
+            <td>Very High (Comprehensive verification)</td>
+            <td>Overnight migrations, batch transforms</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Footer & Citations -->
+    <footer class="clay-card highlight output-footer">
+      <h2>4. Citations & Methodology</h2>
+      <p>Research synthesized from official developer documentation and empirical benchmarks across active developer toolsets:</p>
+      <ul class="sources-list">
+        <li>Google Antigravity Customization Architecture & Progressive Disclosure Guidelines (2026).</li>
+        <li>Cursor MDC Rule Scoping & Dynamic Injection Specification.</li>
+        <li>Anthropic Claude Code Context Window & Multi-Tool Execution Patterns.</li>
+      </ul>
+      <p style="margin-top: 14px; font-size: 0.85rem; color: var(--color-text-muted);">
+        Methodology: Subagent parallel queries cross-referenced with local environment configurations. Generated autonomously under Repo Output Contract v1.0.0.
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

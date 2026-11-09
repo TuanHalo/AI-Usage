@@ -1,0 +1,46 @@
+meta:
+  name: deep-research
+  version: "1.0.0"
+  description: >-
+    Performs multi-source deep research on a technical topic, synthesizing findings
+    into a structured report with citations. Use this skill when the user asks for
+    in-depth investigation, architecture analysis, or comparative technology evaluation.
+  tags:
+    - research
+    - analysis
+    - synthesis
+    - documentation
+  author: TuanHalo
+  created: "2026-11-09"
+  updated: "2026-11-09"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Deep Research Skill
+
+  ## Overview
+  This skill guides the AI agent through systematic technical research across multiple independent sources, synthesizing findings into clear, structured, and citation-backed outputs.
+
+  ## Steps
+  1. **Deconstruct the Query**: Break the central research question into 3-5 distinct sub-topics (e.g. mechanics, alternatives, ecosystem, pitfalls).
+  2. **Multi-Source Collection**: Query independent sources (official documentation, specification docs, community benchmarks). Always verify claims across at least 2 distinct sources.
+  3. **Synthesize & Structure**: Organize findings into logical sections:
+     - Executive Summary
+     - Architecture & Mechanics
+     - Comparative Analysis
+     - Recommended Best Practices & Gotchas
+  4. **Attribution & Citations**: Explicitly list all source references with full context.
+  5. **Generate Output**: Format the final artifact conforming to the repo's `output_contract`, placing the resulting HTML file in `outputs/research/<topic-slug>/index.html`.
+
+  ## Usage
+  Activate whenever a deep technical deep-dive is requested, or before embarking on substantial architectural changes.

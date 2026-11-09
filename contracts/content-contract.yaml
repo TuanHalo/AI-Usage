@@ -1,0 +1,51 @@
+content_contract:
+  version: "1.0.0"
+  description: "Strict consistency contract for authoring canonical AI assets (skills, rules, agents, principles)."
+
+  # Required metadata fields across all canonical assets
+  required_meta:
+    - name
+    - version
+    - description
+    - tags
+
+  # Naming convention for asset files and identifiers
+  naming:
+    pattern: "^[a-z][a-z0-9-]*$"
+    convention: "lowercase-kebab-case"
+    max_length: 50
+
+  # Asset description rules (crucial for progressive disclosure and LLM discovery)
+  description_rules:
+    min_length: 20
+    max_length: 500
+    must_specify_trigger: true # Must state WHEN to use this skill/rule
+    voice: "third_person" # e.g. "Use this skill when..." not "I do..."
+
+  # Body content constraints
+  content_rules:
+    format: "markdown"
+    must_start_with_h1: true
+    max_tokens_recommended: 3000
+    sections_by_type:
+      skill:
+        - "Overview"
+        - "Steps"
+        - "Usage"
+      rule:
+        - "Context"
+        - "Guidelines"
+        - "Enforcement"
+      agent:
+        - "Role"
+        - "Capabilities"
+        - "Instructions"
+      principle:
+        - "Definition"
+        - "Rationale"
+        - "Application"
+
+  # Versioning standard
+  versioning:
+    format: "semver"
+    initial_version: "1.0.0"

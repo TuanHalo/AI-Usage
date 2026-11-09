@@ -1,0 +1,21 @@
+---
+interface Props {
+  href?: string;
+  variant?: 'primary' | 'secondary' | 'accent';
+  class?: string;
+}
+
+const { href, class: className = '' } = Astro.props;
+---
+
+{
+  href ? (
+    <a href={href} class={`clay-btn ${className}`}>
+      <slot />
+    </a>
+  ) : (
+    <button class={`clay-btn ${className}`}>
+      <slot />
+    </button>
+  )
+}

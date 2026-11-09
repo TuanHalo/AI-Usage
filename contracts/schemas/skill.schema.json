@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CanonicalSkill",
+  "type": "object",
+  "required": ["meta", "content"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name", "version", "description", "tags"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "version": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "author": { "type": "string" },
+        "created": { "type": "string" },
+        "updated": { "type": "string" }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "properties": {
+        "antigravity": {
+          "type": "object",
+          "properties": {
+            "trigger": { "type": "string", "enum": ["auto", "manual", "slash_command"] }
+          }
+        },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "alwaysApply": { "type": "boolean" },
+            "globs": { "type": ["string", "null"] }
+          }
+        },
+        "claude_code": {
+          "type": "object",
+          "properties": {
+            "scope": { "type": "string", "enum": ["global", "project"] }
+          }
+        },
+        "gemini_cli": {
+          "type": "object",
+          "properties": {
+            "scope": { "type": "string", "enum": ["global", "project"] }
+          }
+        }
+      }
+    },
+    "content": {
+      "type": "string",
+      "minLength": 30
+    }
+  }
+}

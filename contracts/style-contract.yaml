@@ -1,0 +1,69 @@
+style_contract:
+  version: "1.0.0"
+  design_system: "claymorphism"
+  description: "Styling contract defining Claymorphism design tokens, shadow equations, color semantics, and accessibility constraints."
+
+  # Core geometry and radii
+  geometry:
+    border_radius:
+      sm: "16px"
+      md: "24px"
+      lg: "36px"
+      xl: "48px"
+      rule: "Elements must always use --clay-radius-* tokens. Never use sharp corners or raw px values < 16px."
+
+  # The 3-layer Clay shadow system (Outer drop + Inset dark + Inset light)
+  shadow_system:
+    unified_light_source: "top-left"
+    formula:
+      outer_drop: "0 20px 40px -15px var(--shadow-drop)"
+      inset_dark: "inset 0 -8px 16px var(--shadow-dark)"
+      inset_light: "inset 0 8px 16px var(--shadow-light)"
+    pressed_formula:
+      outer_drop: "0 10px 20px -5px var(--shadow-drop)"
+      inset_dark: "inset 0 -4px 8px var(--shadow-dark)"
+      inset_light: "inset 0 4px 8px var(--shadow-light)"
+
+  # Color palette (Pastel bases with tinted shadows)
+  palette:
+    canvas: "#f0f0f7"
+    text_primary: "#2e1065"
+    text_secondary: "#4a3080"
+    text_muted: "#7c6fa0"
+    types:
+      skills:
+        bg: "#e4dffd" # Soft lavender
+        shadow_tint: "rgba(120, 90, 180, 0.28)"
+        accent: "#7c3aed"
+      rules:
+        bg: "#d0e8fd" # Soft sky blue
+        shadow_tint: "rgba(70, 130, 200, 0.28)"
+        accent: "#0284c7"
+      agents:
+        bg: "#d4f0e8" # Soft mint green
+        shadow_tint: "rgba(50, 160, 130, 0.28)"
+        accent: "#0d9488"
+      principles:
+        bg: "#fde8d0" # Soft peach
+        shadow_tint: "rgba(200, 120, 60, 0.28)"
+        accent: "#d97706"
+      outputs:
+        bg: "#fcd5ce" # Soft rose
+        shadow_tint: "rgba(210, 90, 110, 0.28)"
+        accent: "#e11d48"
+
+  # Interaction rules
+  interactions:
+    cards:
+      hover: "transform: translateY(-4px); enhanced shadow"
+      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+    buttons:
+      active: "transform: scale(0.97); pressed inset shadow"
+    inputs:
+      appearance: "sunken/recessed inner shadow with glowing focus ring"
+
+  # Accessibility requirements
+  accessibility:
+    wcag_compliance: "WCAG 2.1 AA"
+    min_contrast_ratio: 4.5
+    reduced_motion: "respect prefers-reduced-motion media query"

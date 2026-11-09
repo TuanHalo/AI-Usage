@@ -1,0 +1,35 @@
+---
+import ClayButton from './ClayButton.astro';
+
+const navItems = [
+  { label: 'Overview', href: `${import.meta.env.BASE_URL}` },
+  { label: 'Skills', href: `${import.meta.env.BASE_URL}skills` },
+  { label: 'Rules', href: `${import.meta.env.BASE_URL}rules` },
+  { label: 'Agents', href: `${import.meta.env.BASE_URL}agents` },
+  { label: 'Principles', href: `${import.meta.env.BASE_URL}principles` },
+  { label: 'Outputs', href: `${import.meta.env.BASE_URL}outputs` },
+];
+---
+
+<header style="margin-bottom: 40px;">
+  <nav class="clay-nav">
+    <a href={import.meta.env.BASE_URL} style="display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-family: var(--font-display); font-weight: 800;">
+      <span style="font-size: 1.6rem;">🔮</span>
+      <span>AI-Usage</span>
+    </a>
+
+    <ul class="clay-nav-links">
+      {navItems.map((item) => (
+        <li>
+          <a href={item.href} class="clay-nav-link">
+            {item.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <ClayButton href="https://github.com/TuanHalo/AI-Usage" class="github-btn">
+      ⭐ GitHub
+    </ClayButton>
+  </nav>
+</header>

@@ -1,0 +1,13 @@
+---
+interface Props {
+  variant?: 'skills' | 'rules' | 'agents' | 'principles' | 'outputs' | 'default';
+  class?: string;
+  style?: string;
+}
+
+const { variant = 'default', class: className = '', style = '' } = Astro.props;
+---
+
+<div class={`clay-card ${variant !== 'default' ? variant : ''} ${className}`} style={style}>
+  <slot />
+</div>

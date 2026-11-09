@@ -1,0 +1,141 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ClayCard from '../components/ClayCard.astro';
+import ClayButton from '../components/ClayButton.astro';
+import ClayBadge from '../components/ClayBadge.astro';
+
+const categories = [
+  {
+    title: 'Skills',
+    variant: 'skills' as const,
+    count: '1 Active',
+    desc: 'Procedural runbooks, tool recipes, and on-demand workflows for complex tasks.',
+    href: `${import.meta.env.BASE_URL}skills`,
+    icon: '⚡',
+  },
+  {
+    title: 'Rules',
+    variant: 'rules' as const,
+    count: '1 Active',
+    desc: 'Always-on constraints, code style standards, and safety invariants.',
+    href: `${import.meta.env.BASE_URL}rules`,
+    icon: '🛡️',
+  },
+  {
+    title: 'Agents',
+    variant: 'agents' as const,
+    count: '1 Active',
+    desc: 'Autonomous agent persona profiles, role boundaries, and tool specifications.',
+    href: `${import.meta.env.BASE_URL}agents`,
+    icon: '🤖',
+  },
+  {
+    title: 'Principles',
+    variant: 'principles' as const,
+    count: '1 Active',
+    desc: 'Core engineering philosophies, token-efficiency rules, and architectural tenets.',
+    href: `${import.meta.env.BASE_URL}principles`,
+    icon: '💡',
+  },
+  {
+    title: 'AI Outputs',
+    variant: 'outputs' as const,
+    count: '1 Report',
+    desc: 'Rich interactive HTML deliverables, deep research evaluations, and system graphs.',
+    href: `${import.meta.env.BASE_URL}outputs`,
+    icon: '📊',
+  },
+];
+---
+
+<BaseLayout title="AI-Usage — Universal AI Hub & Artifacts">
+  <!-- Hero Section -->
+  <section style="margin-bottom: 40px;">
+    <ClayCard variant="skills" style="padding: 48px 40px; text-align: center;">
+      <div style="display: inline-block; margin-bottom: 12px;">
+        <ClayBadge style="background: #ffffff; color: var(--color-accent); font-size: 0.95rem;">
+          ✨ Canonical Source of Truth for AI Assets
+        </ClayBadge>
+      </div>
+      <h1 style="font-family: var(--font-display); font-size: 3rem; font-weight: 900; line-height: 1.2; margin-bottom: 16px;">
+        Universal AI Assets & Outputs
+      </h1>
+      <p style="font-size: 1.2rem; color: var(--color-text-secondary); max-width: 720px; margin: 0 auto 28px;">
+        Author once in canonical format. Synchronize automatically across Antigravity, Cursor, Claude Code, and Gemini CLI, and publish rich AI outputs directly to GitHub Pages.
+      </p>
+
+      <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <ClayButton href={`${import.meta.env.BASE_URL}skills`}>
+          Explore Skills Catalog
+        </ClayButton>
+        <ClayButton href={`${import.meta.env.BASE_URL}outputs`} style="background-color: var(--color-outputs);">
+          Read AI Research Outputs ➔
+        </ClayButton>
+      </div>
+    </ClayCard>
+  </section>
+
+  <!-- Quick Sync Terminal Command Box -->
+  <section style="margin-bottom: 40px;">
+    <ClayCard variant="rules" style="padding: 24px 32px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 700;">🔄 Machine Synchronization</h3>
+          <p style="font-size: 0.95rem; color: var(--color-text-secondary);">
+            Run the PowerShell orchestrator to sync canonical rules & skills into your machine:
+          </p>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.85); padding: 12px 20px; border-radius: var(--clay-radius-sm); font-family: var(--font-mono); font-size: 0.95rem; box-shadow: var(--clay-shadow-sm);">
+          <code>.\scripts\sync.ps1 -Target all</code>
+        </div>
+      </div>
+    </ClayCard>
+  </section>
+
+  <!-- Categories Grid -->
+  <section style="margin-bottom: 48px;">
+    <h2 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 24px;">Asset Catalogs & Outputs</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+      {categories.map((cat) => (
+        <a href={cat.href} style="text-decoration: none; display: block;">
+          <ClayCard variant={cat.variant} style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 2rem;">{cat.icon}</span>
+                <ClayBadge>{cat.count}</ClayBadge>
+              </div>
+              <h3 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">
+                {cat.title}
+              </h3>
+              <p style="color: var(--color-text-secondary); font-size: 0.98rem; font-weight: normal; margin-bottom: 20px;">
+                {cat.desc}
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-text-primary);">
+              <span>Browse Catalog</span>
+              <span>➔</span>
+            </div>
+          </ClayCard>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Consistency Contracts Badge Section -->
+  <section>
+    <ClayCard variant="principles" style="padding: 32px;">
+      <h3 style="font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 12px;">
+        📜 Consistency & Generation Contracts
+      </h3>
+      <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
+        Every asset and output in this repository is governed by declarative contracts to ensure stylistic and content consistency across AI model generations:
+      </p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <ClayBadge style="background: #ffffff;">Content Contract v1.0.0</ClayBadge>
+        <ClayBadge style="background: #ffffff;">Style Contract (Claymorphism)</ClayBadge>
+        <ClayBadge style="background: #ffffff;">Output Contract (HTML & Citations)</ClayBadge>
+        <ClayBadge style="background: #ffffff;">JSON Schema Verified</ClayBadge>
+      </div>
+    </ClayCard>
+  </section>
+</BaseLayout>

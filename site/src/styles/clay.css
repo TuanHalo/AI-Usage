@@ -1,0 +1,195 @@
+/* Claymorphism Design System Tokens & Classes */
+:root {
+  /* --- Geometry & Radii --- */
+  --clay-radius-sm: 16px;
+  --clay-radius-md: 24px;
+  --clay-radius-lg: 36px;
+  --clay-radius-xl: 48px;
+
+  /* --- Color Palette --- */
+  --color-canvas: #f0f0f8;
+  --color-skills: #e4dffd;       /* Soft lavender */
+  --color-rules: #d0e8fd;        /* Soft sky blue */
+  --color-agents: #d4f0e8;       /* Soft mint green */
+  --color-principles: #fde8d0;   /* Soft peach */
+  --color-outputs: #fcd5ce;      /* Soft rose */
+
+  --color-text-primary: #2e1065;
+  --color-text-secondary: #4a3080;
+  --color-text-muted: #7c6fa0;
+  --color-accent: #7c3aed;
+
+  /* --- Base 3-Layer Clay Shadows --- */
+  --shadow-drop: rgba(120, 90, 180, 0.22);
+  --shadow-dark: rgba(100, 60, 150, 0.16);
+  --shadow-light: rgba(255, 255, 255, 0.85);
+
+  --clay-shadow: 
+    0 20px 40px -15px var(--shadow-drop),
+    inset 0 -8px 16px var(--shadow-dark),
+    inset 0 8px 16px var(--shadow-light);
+
+  --clay-shadow-hover:
+    0 28px 50px -15px var(--shadow-drop),
+    inset 0 -8px 16px var(--shadow-dark),
+    inset 0 8px 16px var(--shadow-light);
+
+  --clay-shadow-sm:
+    0 10px 20px -8px var(--shadow-drop),
+    inset 0 -4px 8px var(--shadow-dark),
+    inset 0 4px 8px var(--shadow-light);
+
+  --clay-shadow-pressed:
+    0 6px 12px -4px var(--shadow-drop),
+    inset 0 -2px 6px var(--shadow-dark),
+    inset 0 3px 6px var(--shadow-light);
+
+  /* --- Typography --- */
+  --font-display: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+  /* --- Transitions --- */
+  --clay-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--clay-transition);
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+/* Clay Card Component */
+.clay-card {
+  background-color: var(--color-skills);
+  border-radius: var(--clay-radius-lg);
+  padding: 32px;
+  box-shadow: var(--clay-shadow);
+  transition: var(--clay-transition);
+}
+
+.clay-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--clay-shadow-hover);
+}
+
+/* Card Category Variants */
+.clay-card.skills {
+  background-color: var(--color-skills);
+  --shadow-drop: rgba(120, 90, 180, 0.22);
+  --shadow-dark: rgba(100, 60, 150, 0.16);
+}
+
+.clay-card.rules {
+  background-color: var(--color-rules);
+  --shadow-drop: rgba(70, 130, 200, 0.22);
+  --shadow-dark: rgba(50, 100, 160, 0.16);
+}
+
+.clay-card.agents {
+  background-color: var(--color-agents);
+  --shadow-drop: rgba(40, 140, 110, 0.22);
+  --shadow-dark: rgba(30, 110, 90, 0.16);
+}
+
+.clay-card.principles {
+  background-color: var(--color-principles);
+  --shadow-drop: rgba(180, 100, 40, 0.22);
+  --shadow-dark: rgba(140, 80, 30, 0.16);
+}
+
+.clay-card.outputs {
+  background-color: var(--color-outputs);
+  --shadow-drop: rgba(190, 70, 90, 0.22);
+  --shadow-dark: rgba(150, 50, 70, 0.16);
+}
+
+/* Clay Button Component */
+.clay-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border-radius: var(--clay-radius-md);
+  border: none;
+  background-color: #ffffff;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: var(--clay-shadow-sm);
+  cursor: pointer;
+  transition: var(--clay-transition);
+}
+
+.clay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--clay-shadow);
+}
+
+.clay-btn:active {
+  transform: scale(0.97);
+  box-shadow: var(--clay-shadow-pressed);
+}
+
+/* Clay Badge */
+.clay-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: var(--clay-radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: #ffffff;
+  color: var(--color-text-secondary);
+  box-shadow: var(--clay-shadow-sm);
+}
+
+/* Clay Nav Bar */
+.clay-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-radius: var(--clay-radius-xl);
+  background-color: #ffffff;
+  box-shadow: var(--clay-shadow);
+}
+
+.clay-nav-links {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+}
+
+.clay-nav-link {
+  padding: 10px 20px;
+  border-radius: var(--clay-radius-md);
+  color: var(--color-text-primary);
+  font-weight: 700;
+  transition: var(--clay-transition);
+}
+
+.clay-nav-link:hover, .clay-nav-link.active {
+  background-color: var(--color-skills);
+  box-shadow: var(--clay-shadow-sm);
+}

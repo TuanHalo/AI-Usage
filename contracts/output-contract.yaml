@@ -1,0 +1,55 @@
+output_contract:
+  version: "1.0.0"
+  description: "Standard contract for AI-generated outputs (research findings, architecture diagrams, reports) rendered as rich HTML."
+
+  # Required HTML document structure
+  html_structure:
+    head:
+      must_contain:
+        - '<meta charset="UTF-8">'
+        - '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
+        - '<title>'
+        - 'link rel="stylesheet" to clay design system or embedded clay tokens'
+    header:
+      element: "header.output-header"
+      must_contain:
+        - "h1.output-title"
+        - "div.output-badges (category, date, generated_by_agent, status)"
+    body:
+      element: "main.output-body"
+      sections:
+        executive_summary:
+          required: true
+          element: "section.executive-summary"
+        findings_and_analysis:
+          required: true
+          element: "section.findings"
+        diagrams_or_data:
+          required: false
+          element: "section.visualizations"
+    footer:
+      element: "footer.output-footer"
+      must_contain:
+        - "section.sources-and-citations"
+        - "section.methodology-note"
+
+  # Frontmatter / metadata embedded in HTML comments or JSON-LD
+  metadata_contract:
+    required:
+      - title
+      - date
+      - agent
+      - category # research | report | experiment | diagram
+      - tags
+      - status # draft | published
+    optional:
+      - summary
+      - related_skills
+      - related_rules
+
+  # Styling rules
+  styling:
+    design_system: "claymorphism"
+    must_use_clay_cards: true
+    responsive: true
+    code_highlighting: true

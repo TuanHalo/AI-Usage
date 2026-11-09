@@ -1,0 +1,28 @@
+meta:
+  name: progressive-disclosure
+  version: "1.0.0"
+  description: >-
+    Fundamental information architecture principle: reveal high-level summaries first,
+    enabling users and AI agents to drill down into complex details on demand without cognitive overload.
+  category: "architecture"
+  tags:
+    - principle
+    - information-architecture
+    - ux
+    - token-budget
+
+content: |
+  # Progressive Disclosure Principle
+
+  ## Definition
+  Progressive Disclosure is an interaction design technique that sequences information and actions across several steps, displaying only essential information at first and offering access to specialized or detailed information upon request.
+
+  ## Rationale
+  In modern AI-assisted engineering and documentation:
+  1. **Token Window Conservation**: Loading monolithic manuals unconditionally degrades attention and wastes model context.
+  2. **Human Cognitive Load**: Engineers and readers need the high-level picture before navigating into implementation minutiae.
+
+  ## Application
+  - **In Skills**: Keep `SKILL.md` or top-level instructions concise (under 100 lines); place detailed guides in `references/` or sub-documents.
+  - **In Research Outputs**: Always begin with an Executive Summary and high-level findings table before detailed technical deep-dives.
+  - **In Web UIs**: Employ collapsible cards, tabs, and interactive drill-downs.
