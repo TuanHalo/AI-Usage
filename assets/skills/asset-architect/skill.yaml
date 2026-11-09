@@ -64,8 +64,8 @@ content: |
   ```
   Ensure 0 validation errors before proceeding.
 
-  ### 5. Multi-Tool Synchronization
-  Synchronize the newly created asset to local tool destinations (Antigravity, Cursor, Claude Code, Gemini CLI):
+  ### 5. Multi-Tool & Site Synchronization
+  Synchronize the newly created asset to local tool destinations (Antigravity, Cursor, Claude Code, Gemini CLI) and the Astro documentation site:
   ```powershell
   .\scripts\sync.ps1 -Target all
   ```

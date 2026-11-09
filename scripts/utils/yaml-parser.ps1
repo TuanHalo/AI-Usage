@@ -19,6 +19,9 @@ function Parse-CanonicalYaml {
         Priority = "medium"
         Role = ""
         Category = ""
+        Capabilities = @()
+        SkillsRequired = @()
+        RulesApplied = @()
         AlwaysApply = "true"
         Globs = ""
         Content = ""
@@ -31,9 +34,49 @@ function Parse-CanonicalYaml {
     $contentLines = @()
     $inSystemPrompt = $false
     $systemPromptLines = @()
+    $inTags = $false
+    $inCapabilities = $false
+    $inSkillsRequired = $false
+    $inRulesApplied = $false
 
     foreach ($line in $lines) {
         # Check block ends
+        if ($inTags) {
+            if ($line -match "^\s*-\s+(.*)$") {
+                $data.Tags += $matches[1].Trim()
+                continue
+            } else {
+                $inTags = $false
+            }
+        }
+
+        if ($inCapabilities) {
+            if ($line -match "^\s*-\s+(.*)$") {
+                $data.Capabilities += $matches[1].Trim()
+                continue
+            } else {
+                $inCapabilities = $false
+            }
+        }
+
+        if ($inSkillsRequired) {
+            if ($line -match "^\s*-\s+(.*)$") {
+                $data.SkillsRequired += $matches[1].Trim()
+                continue
+            } else {
+                $inSkillsRequired = $false
+            }
+        }
+
+        if ($inRulesApplied) {
+            if ($line -match "^\s*-\s+(.*)$") {
+                $data.RulesApplied += $matches[1].Trim()
+                continue
+            } else {
+                $inRulesApplied = $false
+            }
+        }
+
         if ($inDescription) {
             if ($line -match "^\s*[a-zA-Z0-9_]+:\s*") {
                 $inDescription = $false
@@ -78,6 +121,18 @@ function Parse-CanonicalYaml {
             $data.AlwaysApply = $matches[1].Trim()
         } elseif ($line -match "^\s*globs:\s*['""]?([^'""]+)['""]?") {
             $data.Globs = $matches[1].Trim()
+        } elseif ($line -match "^\s*tags:\s*$") {
+            $inTags = $true
+            $data.Tags = @()
+        } elseif ($line -match "^\s*capabilities:\s*$") {
+            $inCapabilities = $true
+            $data.Capabilities = @()
+        } elseif ($line -match "^\s*skills_required:\s*$") {
+            $inSkillsRequired = $true
+            $data.SkillsRequired = @()
+        } elseif ($line -match "^\s*rules_applied:\s*$") {
+            $inRulesApplied = $true
+            $data.RulesApplied = @()
         } elseif ($line -match "^\s*description:\s*>?-?\s*(.*)$") {
             $inline = $matches[1].Trim()
             if ($inline -ne "" -and $inline -ne ">-" -and $inline -ne "|") {
