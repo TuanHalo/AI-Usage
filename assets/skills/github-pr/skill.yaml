@@ -1,0 +1,81 @@
+meta:
+  name: github-pr
+  version: "1.0.0"
+  description: >-
+    Inspects commits, validates branch state, safely pushes to remote, and creates GitHub Pull Requests with structured titles and comprehensive descriptions. Use this skill when the user asks to push branches, open or create a GitHub PR, or generate a pull request description.
+  tags:
+    - git
+    - github
+    - pull-request
+    - pr
+    - code-review
+  author: TuanHalo
+  created: "2026-11-09"
+  updated: "2026-11-09"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # GitHub PR Skill
+
+  ## Overview
+  Streamlines pushing feature branches to GitHub and generating high-quality Pull Requests. Automatically analyzes commit history and diffs to draft standard-compliant PR titles and rich, structured markdown descriptions featuring context, changes, test evidence, and review guidance.
+
+  ## Steps
+
+  ### 1. Branch and Working Tree Validation
+  - Check current branch: `git branch --show-current`.
+  - Ensure work is not being pushed directly from default branches (`main` or `master`) unless specifically requested. If on default branch, suggest branching: `git checkout -b <type>/<short-name>`.
+  - Confirm working directory has no uncommitted work needed for the PR (`git status --short`).
+
+  ### 2. Remote Synchronization and Push
+  - Verify remote exists: `git remote -v`.
+  - Push branch with upstream tracking: `git push -u origin <branch-name>`.
+  - If force push is needed after rebasing, always use `git push --force-with-lease` rather than raw `--force`.
+
+  ### 3. Commit Analysis and Diff Inspection
+  - Identify base branch (default: `main` or repository default).
+  - Inspect commit range: `git log <base>..HEAD --oneline`.
+  - Inspect diff statistics: `git diff <base>...HEAD --stat`.
+  - Extract the core intent, key modified components, and rationale.
+
+  ### 4. PR Title Generation
+  - Formulate a concise, descriptive title (< 70 chars) summarizing the whole PR.
+  - Follow Conventional Commit format matching the primary change:
+    - Example: `feat(billing): add stripe webhook handler for subscriptions`
+    - Example: `fix(auth): prevent session timeout during token refresh`
+  - Ensure title clearly tells reviewers what value this PR delivers.
+
+  ### 5. PR Description Generation
+  - Draft structured description based on canonical template:
+    - **Summary / Context**: Problem solved and motivation.
+    - **Key Changes**: Bullet list of major modifications grouped by area.
+    - **Type of Change**: Feature, bugfix, refactor, performance, etc.
+    - **Verification**: Exact test commands and verification steps performed.
+    - **Related Issues**: `Closes #<id>` or `Refs #<id>`.
+  - For full templates (feature, fix, refactor), consult `references/pr-templates.md`.
+
+  ### 6. Create PR via GitHub CLI
+  - Check if GitHub CLI is installed and authenticated: `gh auth status`.
+  - Execute PR creation:
+    ```bash
+    gh pr create --base <base> --head <branch> --title "<title>" --body "<body>"
+    ```
+  - For draft PRs, append `--draft`.
+  - If `gh` CLI is unavailable, provide the generated title, body, and GitHub web compare URL:
+    `https://github.com/<owner>/<repo>/compare/<base>...<branch>?expand=1`.
+
+  ## Usage
+  Trigger whenever user says:
+  - "Push my branch and create a PR."
+  - "Open a GitHub pull request for this feature."
+  - "Generate PR title and description based on my commits."
