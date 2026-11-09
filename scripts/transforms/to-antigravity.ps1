@@ -50,6 +50,15 @@ $content
             if (-not $DryRun) {
                 New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
                 Set-Content -Path $skillOutFile -Value $skillMarkdown -Encoding UTF8
+
+                # Copy supporting subdirectories if they exist (references, scripts, examples)
+                $subDirs = @("references", "scripts", "examples")
+                foreach ($sub in $subDirs) {
+                    $srcSub = Join-Path $file.Directory.FullName $sub
+                    if (Test-Path $srcSub) {
+                        Copy-Item -Path $srcSub -Destination $skillDir -Recurse -Force
+                    }
+                }
             }
         }
     }
