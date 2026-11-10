@@ -1,5 +1,30 @@
 ﻿[
     {
+        "name":  "archify",
+        "version":  "1.0.0",
+        "description":  "Delegates interactive HTML diagram and one-page explainer generation to the local Archify engine without duplicating upstream schemas or renderers. Use this skill whenever the user asks to draw, visualize, or diagram systems, workflows, sequences, data flows, lifecycles, ERDs, class models, trees, timelines, or waterfalls, convert Mermaid syntax, or build a one-page explainer.",
+        "tags":  [
+                     "diagrams",
+                     "architecture",
+                     "visualization",
+                     "archify",
+                     "explainer"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Resolve Local Archify Engine",
+                      "Select Mode and Read Upstream Contracts",
+                      "Author Candidate and Choose Output Location",
+                      "Finalize and Validate Artifact",
+                      "Deliver Verified HTML Output"
+                  ]
+    },
+    {
         "name":  "asset-architect",
         "version":  "1.0.0",
         "description":  "Architects, scaffolds, validates, and synchronizes new canonical AI assets (skills, rules, agents, principles) conforming to repository contracts and multi-tool targets. Use this skill whenever the user wants to create, refine, or scaffold a new skill, rule, agent persona, or principle.",
