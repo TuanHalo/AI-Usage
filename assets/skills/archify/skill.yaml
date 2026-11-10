@@ -1,0 +1,67 @@
+meta:
+  name: archify
+  version: "1.0.0"
+  description: >-
+    Delegates interactive HTML diagram and one-page explainer generation to the
+    local Archify engine without duplicating upstream schemas or renderers. Use
+    this skill whenever the user asks to draw, visualize, or diagram systems,
+    workflows, sequences, data flows, lifecycles, ERDs, class models, trees,
+    timelines, or waterfalls, convert Mermaid syntax, or build a one-page explainer.
+  tags:
+    - diagrams
+    - architecture
+    - visualization
+    - archify
+    - explainer
+  author: TuanHalo
+  created: "2026-11-10"
+  updated: "2026-11-10"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Archify Diagram Bridge Skill
+
+  ## Overview
+  Links this repository's canonical skill catalog to the standalone **Archify** engine installed locally at `D:\IT\archify\archify` (overridable via `$env:ARCHIFY_HOME`), without copying upstream renderers, JSON schemas, or examples into `AI-Usage`. Archify produces validated, self-contained interactive HTML diagrams across ten modes plus one-page explainers.
+
+  ## Steps
+
+  ### 1. Resolve Local Archify Engine
+  - Locate the Archify package in priority order: `$env:ARCHIFY_HOME`, sibling checkout `..\archify\archify`, or `D:\IT\archify\archify` (see `references/archify-bridge.md`).
+  - Run `powershell -File scripts/invoke-archify.ps1 -ResolveOnly` to confirm `ARCHIFY_HOME`, `SKILL.md`, and `bin/archify.mjs` without duplicating files.
+  - Read `<ARCHIFY_HOME>\SKILL.md` as the authoritative generation, delivery, and update-awareness contract.
+
+  ### 2. Select Mode and Read Upstream Contracts
+  - Pick the artifact from `<ARCHIFY_HOME>\SKILL.md`: `architecture`, `workflow`, `sequence`, `dataflow`, `lifecycle`, `erd`, `class`, `tree`, `timeline`, `waterfall`, or `explainer` (or map Mermaid input per its Mermaid section).
+  - Read only the relevant upstream references (`authoring-defaults.md`, `repository-authoring.md`, or `explainer-authoring.md`), mode schema in `<ARCHIFY_HOME>\schemas\`, and showcase example in `<ARCHIFY_HOME>\examples\` on demand.
+
+  ### 3. Author Candidate and Choose Output Location
+  - For ad-hoc workspace diagrams, store `candidate.json` (or `candidate.archify.md`) and `<slug>.html` under `.archify\<type>-<slug>-<YYYYMMDD-HHMMSS>\`.
+  - For publishable `AI-Usage` repository diagrams, place the final artifact under `outputs\diagrams\<slug>\<slug>.html` and pass `--repo-root` when inspecting repository source evidence.
+
+  ### 4. Finalize and Validate Artifact
+  - Execute `powershell -File scripts/invoke-archify.ps1 finalize <type> <candidate> <output.html> --quality showcase --json` (or `node <ARCHIFY_HOME>\bin\archify.mjs ...`).
+  - If sandbox restrictions block Node.js under user-local NVM paths, invoke the CLI command with unsandboxed execution only for that Node call.
+  - On non-zero exit, repair the candidate using `<ARCHIFY_HOME>\references\delivery-contract.md` and rerun `finalize`.
+
+  ### 5. Deliver Verified HTML Output
+  - Reply with a concise clickable Markdown link to the delivered `.html` file and disclose any abstraction scope, illustrative values, or automated-only verification per `<ARCHIFY_HOME>\SKILL.md`.
+  - If the delivery receipt reports `update.noticeRequired: true`, surface one brief notice without auto-updating `D:\IT\archify`.
+
+  ## Usage
+  Trigger whenever user says:
+  - "Use archify to draw an architecture diagram of this codebase."
+  - "Visualize this API sequence or workflow as an interactive HTML diagram."
+  - "Convert this Mermaid diagram into an Archify HTML diagram."
+  - "Answer this question as a one-page Archify explainer."
+
