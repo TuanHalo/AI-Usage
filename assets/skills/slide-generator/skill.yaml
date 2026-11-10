@@ -1,0 +1,68 @@
+meta:
+  name: slide-generator
+  version: "1.0.0"
+  description: >-
+    Guides users from a presentation topic through multi-source research, concern alignment, slide-by-slide content approval, visual style sampling, and final PPTX generation. Use this skill whenever the user asks to create, design, or generate presentation slides or a PowerPoint deck.
+  tags:
+    - pptx
+    - slides
+    - presentation
+    - visual-design
+    - storytelling
+  author: TuanHalo
+  created: "2026-11-10"
+  updated: "2026-11-10"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Slide Generator Skill
+
+  ## Overview
+  Creates polished 16:9 PowerPoint (`.pptx`) decks through a strict human-in-the-loop workflow: topic discovery, multi-source research with concern alignment, slide-by-slide content approval, interactive visual style sampling, and automated PPTX generation. Never skip an approval gate before advancing to the next phase.
+
+  ## Steps
+
+  ### 1. Topic Intake & Scope Clarification
+  - If the topic is missing, ask the user for the presentation topic and brief context (audience, goal, approximate slide count, and language).
+  - If the topic is already stated, confirm it and ask only high-impact missing scope questions.
+
+  ### 2. Multi-Source Research & Concern Check
+  - Gather relevant facts across available sources: local workspace files (docs, code, data, PDFs), internet/web search, and direct user inputs.
+  - Present a concise **Research & Context Brief** (key insights, sources, proposed narrative arc, gaps/assumptions).
+  - **Gate 1 (Concern Check)**: Explicitly ask if the user has any concerns, corrections, exclusions, or constraints before drafting slide content. Wait for confirmation.
+
+  ### 3. Slide Deck Content Drafting & Review
+  - Draft the full slide-by-slide content outline (slide number, layout role, takeaway title, concise bullets/metrics, visual/chart cue, speaker notes) per `references/slide-layouts.md`.
+  - **Gate 2 (Content Approval)**: Present the complete content draft for user review. Iterate on edits until the user explicitly approves the slide content. Do not recommend styles or build `.pptx` before content approval.
+
+  ### 4. Style Recommendation & Visual Samples
+  - Recommend 3-4 contrasting themes from `references/style-catalog.md` tailored to the topic and audience.
+  - Render visual style samples populated with the user's real deck title and sample slide content:
+    - In Antigravity: render a compact inline or standalone HTML style gallery widget showing 16:9 miniature slide mockups side-by-side (`generative_ui` pattern).
+    - Cross-tool / HTML fallback: run `python scripts/preview_styles.py --deck deck.json --themes <ids> --output style-preview.html` and present a quick comparison table.
+  - **Gate 3 (Style Approval)**: Ask the user to pick a style (or request custom color/font tweaks) and wait for approval.
+
+  ### 5. PPTX Deck Generation
+  - Check `python-pptx` availability (`python -c "import pptx"`); if missing, install via `pip install python-pptx` with user confirmation.
+  - Write the approved slides and selected theme to `deck.json` following `references/slide-layouts.md`.
+  - Run `python scripts/generate_pptx.py --input deck.json --output <deck-name>.pptx` (see `references/workflow-and-gates.md` and `examples/end-to-end-walkthrough.md`).
+
+  ### 6. Output Verification & Delivery
+  - Verify the `.pptx` file exists, is non-empty, and matches the approved slide count from the script summary.
+  - Share the generated `.pptx` path and offer slide edits or speaker-note refinements.
+
+  ## Usage
+  Trigger whenever user says:
+  - "Create a slide deck (PPTX) about..."
+  - "Help me make a PowerPoint presentation on..."
+  - "Generate slides for my topic and let me review content and style first."

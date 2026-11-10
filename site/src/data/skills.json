@@ -72,5 +72,31 @@
                       "Commit Analysis and PR Drafting",
                       "Create PR via GitHub CLI"
                   ]
+    },
+    {
+        "name":  "slide-generator",
+        "version":  "1.0.0",
+        "description":  "Guides users from a presentation topic through multi-source research, concern alignment, slide-by-slide content approval, visual style sampling, and final PPTX generation. Use this skill whenever the user asks to create, design, or generate presentation slides or a PowerPoint deck.",
+        "tags":  [
+                     "pptx",
+                     "slides",
+                     "presentation",
+                     "visual-design",
+                     "storytelling"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Topic Intake \u0026 Scope Clarification",
+                      "Multi-Source Research \u0026 Concern Check",
+                      "Slide Deck Content Drafting \u0026 Review",
+                      "Style Recommendation \u0026 Visual Samples",
+                      "PPTX Deck Generation",
+                      "Output Verification \u0026 Delivery"
+                  ]
     }
 ]
