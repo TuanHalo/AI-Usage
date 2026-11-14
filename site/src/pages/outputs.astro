@@ -4,7 +4,60 @@ import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
 
-const outputs = [
+interface OutputQuickLink {
+  readonly label: string;
+  readonly href: string;
+}
+
+interface OutputDeliverable {
+  readonly title: string;
+  readonly date: string;
+  readonly category: string;
+  readonly agent: string;
+  readonly status: string;
+  readonly summary: string;
+  readonly tags: readonly string[];
+  readonly htmlPath: string;
+  readonly quickLinks?: readonly OutputQuickLink[];
+}
+
+const outputs: readonly OutputDeliverable[] = [
+  {
+    title: 'OS Interview Mastery Series — CS Learning Hub',
+    date: '2026-11-14',
+    category: 'CS Learning Hub',
+    agent: 'cs-mentor',
+    status: 'Published',
+    summary: 'Complete 6-module Operating Systems interview curriculum with daily-life analogies, Fresher-to-Senior level tags, interactive labs, flashcards, and 6 animated Archify flow diagrams.',
+    tags: ['operating-systems', 'interview-prep', 'archify', 'fresher-to-senior'],
+    htmlPath: `${import.meta.env.BASE_URL}outputs/learning/os-interview/index.html`,
+    quickLinks: [
+      {
+        label: '📘 M1: Process & Thread',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-1-process-thread.html`
+      },
+      {
+        label: '🔀 M2: Context Switch & COW',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-2-context-switch-ipc.html`
+      },
+      {
+        label: '🧠 M3: Virtual Memory',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-3-virtual-memory.html`
+      },
+      {
+        label: '🔒 M4: Locks & Deadlock',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-4-concurrency-locking.html`
+      },
+      {
+        label: '⚡ M5: Syscalls & epoll',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-5-kernel-io-filesystems.html`
+      },
+      {
+        label: '🎯 M6: Flashcards & Cheat Sheet',
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-6-interview-drill.html`
+      }
+    ]
+  },
   {
     title: 'Autonomous AI Agent Architectures — 2026 Evaluation',
     date: '2026-11-09',
@@ -58,6 +111,11 @@ const outputs = [
             <ClayButton href={out.htmlPath} class="open-btn" style="background-color: #ffffff;">
               🔗 Open Fullscreen HTML
             </ClayButton>
+            {out.quickLinks && out.quickLinks.map((link) => (
+              <ClayButton href={link.href} style="background-color: rgba(255,255,255,0.82); font-size: 0.9rem;">
+                {link.label}
+              </ClayButton>
+            ))}
           </div>
         </div>
 
