@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Virtual Memory: Address Translation & Page Fault Path",
+    "output": "outputs/diagrams/os-virtual-memory-translation/os-virtual-memory-translation.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "lanes": [
+    { "id": "cpu", "label": "CPU & MMU Hardware" },
+    { "id": "kernel", "label": "OS Kernel & Page Fault Handler", "variant": "exception" },
+    { "id": "storage", "label": "Physical RAM & Disk Swap" }
+  ],
+  "phases": [
+    { "id": "lookup", "label": "1. Virtual Address + TLB", "fromCol": 0, "toCol": 1 },
+    { "id": "walk", "label": "2. Page Table Walk", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "resolve", "label": "3. Physical Frame Access", "fromCol": 4, "toCol": 5 }
+  ],
+  "mainPath": ["va", "tlb", "ptwalk", "present", "ram"],
+  "nodes": [
+    { "id": "va", "lane": "cpu", "col": 0, "type": "frontend", "label": "Virtual Address", "sublabel": "VPN + Offset" },
+    { "id": "tlb", "lane": "cpu", "col": 1, "type": "backend", "label": "TLB Cache", "sublabel": "~1ns fast lookup", "tag": "MMU cache" },
+    { "id": "ptwalk", "lane": "cpu", "col": 2, "type": "backend", "label": "Page Table Walk", "sublabel": "4-level radix tree" },
+    { "id": "present", "lane": "cpu", "col": 3, "type": "security", "label": "Present Bit Check", "sublabel": "in RAM or swapped?" },
+    { "id": "fault", "lane": "kernel", "col": 3, "type": "security", "label": "Page Fault Trap", "sublabel": "minor or major fault", "tag": "OS handler" },
+    { "id": "swap", "lane": "storage", "col": 4, "type": "database", "label": "Disk / Swap", "sublabel": "major fault (~ms)" },
+    { "id": "ram", "lane": "storage", "col": 5, "type": "database", "label": "Physical RAM", "sublabel": "PFN + Offset (~100ns)" }
+  ],
+  "edges": [
+    { "id": "va-tlb", "from": "va", "to": "tlb", "label": "split VPN", "variant": "emphasis" },
+    { "id": "tlb-ram", "from": "tlb", "to": "ram", "label": "TLB Hit (fast!)", "variant": "emphasis" },
+    { "id": "tlb-walk", "from": "tlb", "to": "ptwalk", "label": "TLB Miss", "variant": "dashed" },
+    { "id": "walk-present", "from": "ptwalk", "to": "present", "label": "read PTE", "variant": "default" },
+    { "id": "present-ram", "from": "present", "to": "ram", "label": "Present = 1", "variant": "default" },
+    { "id": "present-fault", "from": "present", "to": "fault", "label": "Present = 0", "variant": "security", "role": "error" },
+    { "id": "fault-swap", "from": "fault", "to": "swap", "label": "load page", "variant": "security" },
+    { "id": "swap-ram", "from": "swap", "to": "ram", "label": "map frame", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "TLB Makes Virtual Memory Fast",
+      "items": [
+        "99%+ of lookups hit the TLB cache inside the MMU",
+        "Context switching processes flushes/tags TLB entries"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Minor vs. Major Page Fault",
+      "items": [
+        "Minor: page is in RAM (or zero-fill), just update PTE",
+        "Major: OS must read 4KB from SSD/HDD swap (10,000x slower)"
+      ]
+    }
+  ]
+}
