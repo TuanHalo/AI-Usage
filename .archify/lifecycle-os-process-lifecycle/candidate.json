@@ -1,0 +1,96 @@
+{
+  "schema_version": 3,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "OS Process & Thread Lifecycle (5 States + Zombie)",
+    "output": "outputs/diagrams/os-process-lifecycle/os-process-lifecycle.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "mainPath": ["new", "ready", "running", "terminated"],
+  "states": [
+    {
+      "id": "new",
+      "type": "start",
+      "label": "New",
+      "sublabel": "fork() allocates PCB",
+      "tag": "created",
+      "step": "01"
+    },
+    {
+      "id": "ready",
+      "type": "waiting",
+      "label": "Ready Queue",
+      "sublabel": "waiting for CPU core",
+      "tag": "runnable",
+      "step": "02"
+    },
+    {
+      "id": "running",
+      "type": "active",
+      "label": "Running",
+      "sublabel": "executing on CPU",
+      "tag": "on core",
+      "step": "03"
+    },
+    {
+      "id": "waiting",
+      "type": "waiting",
+      "label": "Waiting / Blocked",
+      "sublabel": "sleep() or disk I/O",
+      "tag": "wait queue"
+    },
+    {
+      "id": "zombie",
+      "type": "neutral",
+      "label": "Zombie (Z)",
+      "sublabel": "exited; awaiting wait()",
+      "tag": "unreaped"
+    },
+    {
+      "id": "terminated",
+      "type": "success",
+      "label": "Terminated",
+      "sublabel": "PCB & PID freed",
+      "tag": "reaped",
+      "step": "04"
+    }
+  ],
+  "transitions": [
+    { "id": "new-ready", "from": "new", "to": "ready", "label": "admitted" },
+    { "id": "ready-running", "from": "ready", "to": "running", "label": "scheduler dispatch" },
+    { "id": "running-ready", "from": "running", "to": "ready", "label": "quantum expired", "variant": "dashed" },
+    { "id": "running-waiting", "from": "running", "to": "waiting", "label": "sleep() / I/O wait" },
+    { "id": "waiting-ready", "from": "waiting", "to": "ready", "label": "IRQ / wakeup", "variant": "emphasis" },
+    { "id": "running-zombie", "from": "running", "to": "zombie", "label": "exit() unreaped", "variant": "security" },
+    { "id": "zombie-terminated", "from": "zombie", "to": "terminated", "label": "parent wait()", "variant": "emphasis" },
+    { "id": "running-terminated", "from": "running", "to": "terminated", "label": "exit() + reaped" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "CPU Time-Slicing",
+      "items": [
+        "Ready <-> Running swaps thousands of times per second",
+        "Timer interrupts preempt long-running tasks fairly"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Zero-CPU Waiting",
+      "items": [
+        "Blocked tasks move off the Ready Queue into a Wait Queue",
+        "They consume 0% CPU until an I/O or timer interrupt fires"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Interview Trap: Zombie",
+      "items": [
+        "A Zombie uses 0 RAM/CPU but still holds a PID slot",
+        "Unreaped zombies eventually exhaust the OS PID table"
+      ]
+    }
+  ]
+}
+

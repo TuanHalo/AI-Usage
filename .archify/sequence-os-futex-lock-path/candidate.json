@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Futex: Fast User-Space Lock vs. Contended Kernel Sleep",
+    "output": "outputs/diagrams/os-futex-lock-path/os-futex-lock-path.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "t1", "type": "frontend", "label": "Thread 1", "sublabel": "acquires lock first" },
+    { "id": "atom", "type": "backend", "label": "User Atomic Word", "sublabel": "CAS 0 -> 1 in RAM" },
+    { "id": "kernel", "type": "security", "label": "Kernel Futex Queue", "sublabel": "FUTEX_WAIT / WAKE" },
+    { "id": "t2", "type": "external", "label": "Thread 2", "sublabel": "contends for lock" }
+  ],
+  "segments": [
+    { "from": 150, "to": 240, "label": "1. Fast Path (Zero Syscalls!)" },
+    { "from": 250, "to": 370, "label": "2. Slow Path (Thread 2 Sleeps)" },
+    { "from": 380, "to": 480, "label": "3. Unlock & Kernel Wakeup" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "t1", "to": "atom", "y": 168, "label": "atomic CAS(0 -> 1)", "variant": "emphasis" },
+    { "id": "m2", "from": "atom", "to": "t1", "y": 205, "label": "OK! locked in ~10ns", "variant": "return" },
+    { "id": "m3", "from": "t2", "to": "atom", "y": 265, "label": "atomic CAS(0 -> 1)", "variant": "default" },
+    { "id": "m4", "from": "atom", "to": "t2", "y": 298, "label": "FAIL (already 1)", "variant": "security" },
+    { "id": "m5", "from": "t2", "to": "kernel", "y": 335, "label": "syscall FUTEX_WAIT", "variant": "security" },
+    { "id": "m6", "from": "t1", "to": "atom", "y": 395, "label": "atomic unlock (1 -> 0)", "variant": "emphasis" },
+    { "id": "m7", "from": "t1", "to": "kernel", "y": 430, "label": "syscall FUTEX_WAKE(1)", "variant": "dashed" },
+    { "id": "m8", "from": "kernel", "to": "t2", "y": 462, "label": "wake Thread 2 -> Ready", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "t1", "from": 162, "to": 212, "type": "frontend" },
+    { "participant": "t2", "from": 260, "to": 345, "type": "external" },
+    { "participant": "kernel", "from": 335, "to": 468, "type": "security" },
+    { "participant": "t1", "from": 390, "to": 440, "type": "frontend" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Why Mutexes Are Fast Usually",
+      "items": [
+        "When uncontended, Linux pthread_mutex uses 0 syscalls",
+        "A single CPU Compare-And-Swap (CAS) finishes in nanoseconds"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Contended Slow Path",
+      "items": [
+        "Only when Thread 2 sees contention does it enter the kernel",
+        "Thread 2 sleeps instead of burning CPU like a Spinlock"
+      ]
+    }
+  ]
+}
+

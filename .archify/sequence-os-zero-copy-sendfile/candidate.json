@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Traditional read()+write() vs. Zero-Copy sendfile()",
+    "output": "outputs/diagrams/os-zero-copy-sendfile/os-zero-copy-sendfile.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "app", "type": "frontend", "label": "User App", "sublabel": "Nginx / Web Server" },
+    { "id": "pagecache", "type": "database", "label": "Kernel Page Cache", "sublabel": "OS file buffer" },
+    { "id": "sockbuf", "type": "backend", "label": "Socket Buffer", "sublabel": "TCP kernel buffer" },
+    { "id": "hw", "type": "messagebus", "label": "Disk & NIC (DMA)", "sublabel": "hardware buses" }
+  ],
+  "segments": [
+    { "from": 150, "to": 295, "label": "Traditional: 4 Context Switches + 2 CPU Copies" },
+    { "from": 310, "to": 465, "label": "Zero-Copy sendfile(): 2 Context Switches + 0 CPU Copies" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "hw", "to": "pagecache", "y": 168, "label": "1. DMA Disk -> Page Cache", "variant": "dashed" },
+    { "id": "m2", "from": "pagecache", "to": "app", "y": 200, "label": "2. CPU copy -> User Buffer", "variant": "security" },
+    { "id": "m3", "from": "app", "to": "sockbuf", "y": 235, "label": "3. CPU copy -> Socket Buffer", "variant": "security" },
+    { "id": "m4", "from": "sockbuf", "to": "hw", "y": 270, "label": "4. DMA Socket -> NIC", "variant": "dashed" },
+    { "id": "m5", "from": "app", "to": "pagecache", "y": 330, "label": "sendfile(sock_fd, file_fd)", "variant": "emphasis" },
+    { "id": "m6", "from": "hw", "to": "pagecache", "y": 368, "label": "DMA Disk -> Page Cache", "variant": "default" },
+    { "id": "m7", "from": "pagecache", "to": "sockbuf", "y": 405, "label": "pass descriptor (no data copy!)", "variant": "emphasis" },
+    { "id": "m8", "from": "pagecache", "to": "hw", "y": 442, "label": "DMA Page Cache -> NIC direct", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "app", "from": 195, "to": 245, "type": "frontend" },
+    { "participant": "app", "from": 325, "to": 452, "type": "frontend" },
+    { "participant": "pagecache", "from": 325, "to": 452, "type": "database" }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Why Traditional Serving Wastes CPU",
+      "items": [
+        "Data crosses the User/Kernel wall twice for no reason",
+        "Wastes CPU cycles + L1/L2 cache + 4 mode switches"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Why It's Called Zero-Copy",
+      "items": [
+        "0 CPU memory copies between kernel and user space",
+        "Used by Nginx, Kafka, and static file servers at scale"
+      ]
+    }
+  ]
+}
+

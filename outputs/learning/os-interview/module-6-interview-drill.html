@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 6: Interview Drill, Production Scenarios &amp; Cheat Sheet — OS Interview Mastery</title>
+  <!--
+  metadata:
+    title: "Module 6: Interview Drill, Production Scenarios & Cheat Sheet"
+    date: "2026-11-14"
+    agent: "cs-mentor"
+    category: "research"
+    tags: ["operating-systems", "mock-interview", "flashcards", "cheat-sheet", "debugging"]
+    status: "published"
+    summary: "Interactive OS mock interview flashcard simulator, Senior production debugging scenarios, and a 1-page printable cheat sheet across Fresher to Senior levels."
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clay-radius-sm: 16px; --clay-radius-md: 24px; --clay-radius-lg: 36px;
+      --color-canvas: #f0f0f8; --color-skills: #e4dffd; --color-rules: #d0e8fd; --color-agents: #d4f0e8; --color-principles: #fde8d0; --color-outputs: #fcd5ce;
+      --color-text-primary: #2e1065; --color-text-secondary: #4a3080; --color-text-muted: #6b5d8f;
+      --shadow-drop: rgba(120,90,180,0.22); --shadow-dark: rgba(100,60,150,0.16); --shadow-light: rgba(255,255,255,0.85);
+      --clay-shadow: 0 20px 40px -15px var(--shadow-drop), inset 0 -8px 16px var(--shadow-dark), inset 0 8px 16px var(--shadow-light);
+      --clay-shadow-sm: 0 10px 20px -8px var(--shadow-drop), inset 0 -4px 8px var(--shadow-dark), inset 0 4px 8px var(--shadow-light);
+      --font-display: 'Nunito', 'Segoe UI', system-ui, sans-serif; --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--color-canvas); font-family: var(--font-body); color: var(--color-text-primary); line-height: 1.65; padding: 32px 20px 64px; }
+    .container { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+    .clay-card { background: var(--color-skills); border-radius: var(--clay-radius-lg); padding: 32px; box-shadow: var(--clay-shadow); }
+    .clay-card.agents { background: var(--color-agents); --shadow-drop: rgba(40,140,110,0.22); --shadow-dark: rgba(30,110,90,0.15); }
+    .clay-card.principles { background: var(--color-principles); --shadow-drop: rgba(180,100,40,0.22); --shadow-dark: rgba(140,80,30,0.15); }
+    .clay-card.outputs { background: var(--color-outputs); --shadow-drop: rgba(190,70,90,0.22); --shadow-dark: rgba(150,50,70,0.15); }
+    .clay-card.rules { background: var(--color-rules); --shadow-drop: rgba(50,110,180,0.22); --shadow-dark: rgba(40,90,140,0.15); }
+    h1.output-title { font-family: var(--font-display); font-size: clamp(1.85rem, 3.3vw, 2.55rem); font-weight: 900; line-height: 1.15; }
+    h2 { font-family: var(--font-display); font-size: 1.55rem; font-weight: 800; margin-bottom: 12px; }
+    h3 { font-family: var(--font-display); font-size: 1.18rem; font-weight: 800; margin-bottom: 8px; }
+    p { margin-bottom: 12px; font-size: 1.01rem; }
+    .output-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .clay-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--clay-radius-sm); font-size: 0.83rem; font-weight: 700; background: #fff; color: var(--color-text-secondary); box-shadow: var(--clay-shadow-sm); }
+    .clay-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: var(--clay-radius-md); border: none; background: #fff; color: var(--color-text-primary); font-family: var(--font-display); font-weight: 800; font-size: 0.93rem; text-decoration: none; box-shadow: var(--clay-shadow-sm); cursor: pointer; }
+    .clay-btn.primary { background: #6d28d9; color: #fff; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 14px; }
+    .sub-card { background: rgba(255,255,255,0.86); border-radius: var(--clay-radius-md); padding: 22px; box-shadow: var(--clay-shadow-sm); }
+    .lvl-badge { display: inline-block; padding: 4px 12px; border-radius: var(--clay-radius-sm); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; }
+    .lvl-fresher { background: #d4f0e8; color: #065f46; }
+    .lvl-junior { background: #d0e8fd; color: #075985; }
+    .lvl-mid { background: #fde8d0; color: #92400e; }
+    .lvl-senior { background: #fcd5ce; color: #9f1239; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 18px; }
+    .filter-btn { padding: 8px 16px; border-radius: var(--clay-radius-sm); border: none; background: #fff; color: var(--color-text-primary); font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: var(--clay-shadow-sm); }
+    .filter-btn.active { background: #2e1065; color: #fff; }
+    .flashcard { background: #fff; border-radius: var(--clay-radius-md); padding: 28px; box-shadow: var(--clay-shadow); min-height: 240px; display: flex; flex-direction: column; justify-content: space-between; gap: 16px; }
+    .answer-panel { background: #ede9fe; border-left: 5px solid #6d28d9; padding: 16px 18px; border-radius: 16px; display: none; }
+    .answer-panel.open { display: block; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0 8px; margin: 12px 0; }
+    th, td { padding: 10px 14px; text-align: left; font-size: 0.92rem; }
+    th { font-weight: 800; color: var(--color-text-secondary); }
+    td { background: rgba(255,255,255,0.88); border-radius: 16px; }
+    code { font-family: var(--font-mono); font-size: 0.9em; background: rgba(109,40,217,0.1); padding: 2px 6px; border-radius: 8px; }
+    a { color: #5b21b6; font-weight: 700; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .no-print { display: none !important; }
+      .clay-card { box-shadow: none; border: 1px solid #cbd5e1; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="clay-card output-header no-print">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="module-5-kernel-io-filesystems.html" class="clay-btn" style="padding:8px 16px; font-size:0.88rem;">← Module 5</a>
+          <a href="index.html" class="clay-btn" style="padding:8px 16px; font-size:0.88rem;">🏠 OS Hub</a>
+        </div>
+        <span class="clay-badge" style="background:var(--color-agents); color:#065f46;">Module 6 of 6 · Final Drill</span>
+      </div>
+      <h1 class="output-title" style="margin-top:12px;">Module 6: Mock Interview Simulator &amp; 1-Page Cheat Sheet</h1>
+      <div class="output-badges">
+        <span class="clay-badge" style="background:var(--color-outputs); color:#9f1239;">Practice Workbench</span>
+        <span class="clay-badge">Date: 2026-11-14</span>
+        <span class="clay-badge">Agent: cs-mentor</span>
+        <span class="clay-badge" style="background:var(--color-agents); color:#065f46;">Fresher → Senior</span>
+      </div>
+      <p style="margin-top:12px; color:var(--color-text-secondary);">
+        Time to practice speaking your answers out loud! Filter flashcards by your target career level, test yourself on Senior production war stories, and print the 1-page cheat sheet right before your interview.
+      </p>
+    </header>
+
+    <!-- Section 1: Interactive Flashcard Deck -->
+    <section class="clay-card agents executive-summary no-print">
+      <h2>1. Mock Interview Flashcard Deck</h2>
+      <div class="filter-bar">
+        <button class="filter-btn active fc-filter" data-level="all">All Levels</button>
+        <button class="filter-btn fc-filter" data-level="fresher">Fresher</button>
+        <button class="filter-btn fc-filter" data-level="junior">Junior</button>
+        <button class="filter-btn fc-filter" data-level="mid">Mid-Level</button>
+        <button class="filter-btn fc-filter" data-level="senior">Senior</button>
+        <button class="clay-btn" id="fc-shuffle" style="padding:8px 14px; font-size:0.86rem;">🔀 Shuffle</button>
+      </div>
+
+      <div class="flashcard">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+            <div>
+              <span id="fc-lvl" class="lvl-badge lvl-fresher">Fresher</span>
+              <span id="fc-mod" class="clay-badge" style="margin-left:6px;">Module 1</span>
+            </div>
+            <span id="fc-counter" style="font-weight:800; color:var(--color-text-muted);">Card 1 / 16</span>
+          </div>
+          <h3 id="fc-question" style="font-size:1.35rem;">Loading question...</h3>
+        </div>
+
+        <div id="fc-answer" class="answer-panel"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="clay-btn primary" id="fc-toggle">👀 Reveal Model Answer</button>
+            <button class="clay-btn" id="fc-prev">← Prev</button>
+            <button class="clay-btn" id="fc-next">Next →</button>
+          </div>
+          <span style="font-size:0.85rem; color:var(--color-text-muted);">Speak your 30-second pitch out loud before revealing!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Senior Production Scenarios -->
+    <section class="clay-card principles visualizations">
+      <h2>2. Senior Production Debugging Scenarios</h2>
+      <div class="grid-2">
+        <div class="sub-card">
+          <span class="lvl-badge lvl-senior">Senior</span>
+          <h3 style="margin-top:8px;">🔥 Case A: 100% System CPU in <code>epoll_wait</code></h3>
+          <p style="font-size:0.93rem;"><strong>Symptom:</strong> High-throughput TCP proxy spikes to 100% <code>sys</code> CPU while throughput stalls.</p>
+          <p style="font-size:0.93rem;"><strong>Root Cause &amp; Fix:</strong> Multiple worker threads sharing one <code>epoll</code> set cause a <strong>Thundering Herd</strong>—every thread wakes for 1 packet, contends on kernel locks, and goes back to sleep. Fix with <code>EPOLLEXCLUSIVE</code> or per-core <code>SO_REUSEPORT</code>.</p>
+        </div>
+        <div class="sub-card">
+          <span class="lvl-badge lvl-senior">Senior</span>
+          <h3 style="margin-top:8px;">🐢 Case B: Load Average 48, CPU Idle 85%</h3>
+          <p style="font-size:0.93rem;"><strong>Symptom:</strong> API latencies jump to 10s, <code>top</code> shows Load Avg 48 on an 8-core box, yet CPU is mostly idle.</p>
+          <p style="font-size:0.93rem;"><strong>Root Cause &amp; Fix:</strong> Linux Load Average counts <code>D</code>-state (Uninterruptible I/O sleep) tasks! Check <code>vmstat 1</code> for high <code>wa</code> (<code>iowait</code>) &amp; <code>b</code>—either swap <strong>Thrashing</strong> or stalled disk/NFS storage.</p>
+        </div>
+        <div class="sub-card">
+          <span class="lvl-badge lvl-senior">Senior</span>
+          <h3 style="margin-top:8px;">💥 Case C: Redis OOM Crash During Backup</h3>
+          <p style="font-size:0.93rem;"><strong>Symptom:</strong> A 10 GB Redis instance on a 16 GB host gets killed by Linux OOM Killer right during <code>BGSAVE</code>.</p>
+          <p style="font-size:0.93rem;"><strong>Root Cause &amp; Fix:</strong> <code>BGSAVE</code> calls <code>fork()</code>. Heavy writes in the parent dirty <strong>Copy-on-Write</strong> pages, pushing total physical RAM toward 20 GB! Fix by sizing RAM to 2× peak dataset or pausing heavy writes during snapshots.</p>
+        </div>
+        <div class="sub-card">
+          <span class="lvl-badge lvl-mid">Mid</span>
+          <h3 style="margin-top:8px;">💾 Case D: Deleted 50 GB Log, Disk Still 100% Full</h3>
+          <p style="font-size:0.93rem;"><strong>Symptom:</strong> <code>rm app.log</code> succeeds, yet <code>df -h</code> shows 0 bytes freed.</p>
+          <p style="font-size:0.93rem;"><strong>Root Cause &amp; Fix:</strong> A running daemon still holds an open File Descriptor to that inode. Run <code>lsof +L1</code> and signal the service to reopen logs (<code>kill -USR1</code>) or truncate via <code>: &gt; app.log</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: 1-Page Printable Cheat Sheet -->
+    <section class="clay-card rules findings">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:10px;">
+        <h2 style="margin:0;">3. One-Page OS Interview Cheat Sheet</h2>
+        <button class="clay-btn no-print" onclick="window.print()" style="padding:8px 16px; font-size:0.88rem;">🖨️ Print Cheat Sheet</button>
+      </div>
+      <table>
+        <thead><tr><th>Topic</th><th>Key Distinction</th><th>Interview Power Phrase</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Process vs. Thread</strong></td><td>Isolated virtual memory (PCB) vs. shared Heap/Code/FDs + private Stack/Regs (TCB)</td><td>"Threads share blast radius; processes isolate crashes."</td></tr>
+          <tr><td><strong>Sleep / I/O Wait</strong></td><td>Moved from Ready Queue → Wait Queue; woken by Hardware IRQ</td><td>"Sleeping threads burn 0% CPU—the kernel never polls."</td></tr>
+          <tr><td><strong>Zombie vs. Orphan</strong></td><td>Zombie = exited awaiting <code>wait()</code>; Orphan = parent died, adopted by PID 1</td><td>"Zombies leak PIDs, not RAM."</td></tr>
+          <tr><td><strong><code>fork()</code> + COW</strong></td><td>Shares Read-Only frames until first write triggers Page Fault copy</td><td>"Watch out for 2× RAM spikes during Redis BGSAVE."</td></tr>
+          <tr><td><strong>Virtual Memory</strong></td><td>MMU + Page Table + TLB; <code>libc</code> `.text` shared once across processes</td><td>"<code>malloc()</code> reserves virtual space; first write commits RAM."</td></tr>
+          <tr><td><strong>Locks &amp; Futex</strong></td><td>Mutex sleeps; Spinlock busy-waits; Semaphore signals; Futex = CAS fast + kernel slow</td><td>"Never spinlock on 1 core; align counters to 64B to stop False Sharing."</td></tr>
+          <tr><td><strong>High-Speed I/O</strong></td><td><code>epoll</code> O(1) ready list (ET needs drain to <code>EAGAIN</code>); <code>sendfile()</code> skips user copies</td><td>"Zero-Copy = 0 CPU memory copies across User/Kernel boundary."</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="clay-card output-footer no-print">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+        <a href="module-5-kernel-io-filesystems.html" class="clay-btn">← Previous: Module 5</a>
+        <a href="index.html" class="clay-btn primary">🏠 Return to OS Hub</a>
+      </div>
+      <h2>4. Citations &amp; Methodology</h2>
+      <section class="sources-and-citations">
+        <ul style="margin-left:22px;">
+          <li>Remzi &amp; Andrea Arpaci-Dusseau, <em>Operating Systems: Three Easy Pieces (OSTEP)</em>.</li>
+          <li>Brendan Gregg, <em>Systems Performance: Enterprise and the Cloud</em>; Michael Kerrisk, <em>The Linux Programming Interface</em>.</li>
+        </ul>
+      </section>
+      <section class="methodology-note" style="margin-top:12px; font-size:0.88rem; color:var(--color-text-secondary);">
+        <p style="margin:0;"><strong>Methodology:</strong> Authored under AI-Usage Output Contract v1.0.0 &amp; Style Contract v1.0.0.</p>
+      </section>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      const deck = [
+        { lvl: 'fresher', mod: 'Module 1', q: 'What is the core difference between a Process and a Thread?', a: 'A Process has isolated virtual memory & file tables (PCB). Threads live inside a process, sharing Heap, Code, and FDs while keeping private Stacks & CPU Registers (TCB).', trap: 'Never say threads share stacks or processes can never share memory.' },
+        { lvl: 'junior', mod: 'Module 1', q: 'What is a Zombie process, and what breaks if you leak thousands of them?', a: 'An exited child waiting for its parent to call wait(). It holds 0 RAM, but holds a PID slot—eventually exhausting pid_max so no new processes can spawn.', trap: 'In Docker, PID 1 entrypoints must reap orphaned grandchildren (e.g., tini / --init).' },
+        { lvl: 'mid', mod: 'Module 1', q: 'How does the OS wake a sleeping thread without polling?', a: 'The kernel parks the thread in a Wait Queue and switches to another Ready task. A hardware timer or device IRQ later moves it back to the Ready Queue.', trap: 'sleep(50ms) guarantees AT LEAST 50ms—it still waits in the Ready Queue.' },
+        { lvl: 'senior', mod: 'Module 1', q: 'Why can Linux Load Average be 50 while CPU idle is 85%?', a: 'Linux Load Average counts both Runnable (R) AND Uninterruptible Sleep (D) processes waiting on disk/NFS I/O.', trap: 'Check vmstat wa/b before blaming CPU.' },
+        { lvl: 'mid', mod: 'Module 2', q: 'Explain Copy-on-Write (COW) when fork() is called.', a: 'Parent & child share physical frames marked Read-Only. Only when either writes does a protection Page Fault copy that 4KB page privately.', trap: 'Redis BGSAVE can spike RAM up to 2x under heavy writes.' },
+        { lvl: 'senior', mod: 'Module 2', q: 'How does gdb attach to and pause a running process?', a: 'Via ptrace(PTRACE_ATTACH) sending SIGSTOP, swapping an instruction byte with 0xCC (INT 3 breakpoint), and reading/writing registers via PTRACE_GETREGS/POKEDATA.', trap: 'Never call malloc() or printf() inside a signal handler (heap lock self-deadlock!).' },
+        { lvl: 'fresher', mod: 'Module 3', q: 'Why do we need Virtual Memory?', a: '1) Process isolation & security, 2) Simple contiguous address space per app, 3) RAM efficiency via demand paging and shared libraries.', trap: '32-bit = 4 GB virtual space; 64-bit x86-64 = 256 TB (48-bit).' },
+        { lvl: 'mid', mod: 'Module 3', q: 'Can 2 processes map to the SAME physical RAM address?', a: 'Yes! Intentionally via Shared Memory (shm), mmap(), Copy-on-Write, and shared libraries like libc (.text read-only frames).', trap: 'Separate virtual spaces do not forbid shared physical frames.' },
+        { lvl: 'senior', mod: 'Module 3', q: 'Why does malloc(1GB) succeed on a 512MB container, and what happens later?', a: 'Demand paging + Linux Memory Overcommit reserve virtual space only. Physical RAM is allocated on first write—potentially triggering the OOM Killer.', trap: 'Swap glibc ptmalloc for jemalloc/tcmalloc to curb multi-threaded fragmentation.' },
+        { lvl: 'fresher', mod: 'Module 4', q: 'Concurrency vs. Parallelism on 1 core vs. 4 cores?', a: 'Concurrency = multiple tasks making overlapping progress (works on 1 core via time-slicing). Parallelism = literally executing simultaneously on multiple cores.', trap: 'CPython threads are concurrent, not parallel for Python bytecode (GIL).' },
+        { lvl: 'mid', mod: 'Module 4', q: 'When would you use a Spinlock instead of a Mutex?', a: 'Only on multi-core systems when the critical section lasts nanoseconds (shorter than a context switch). Never on 1 core!', trap: 'Spinning on 1 core wastes the entire time quantum.' },
+        { lvl: 'junior', mod: 'Module 4', q: 'Name the 4 Coffman conditions for Deadlock and the best practical fix.', a: 'Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait. Break Circular Wait via consistent Global Lock Ordering.', trap: 'Deadlock = 0% CPU sleeping; Livelock = 100% CPU retrying in lockstep.' },
+        { lvl: 'senior', mod: 'Module 4', q: 'What is False Sharing and how do you fix it?', a: 'Two cores modify independent variables sitting on the same 64-byte CPU cache line, causing MESI invalidation ping-pong. Fix with alignas(64) padding or thread-local accumulation.', trap: 'Happens even with zero locks!' },
+        { lvl: 'junior', mod: 'Module 5', q: 'What does "Everything is a file" mean in Linux?', a: 'Files, terminals, pipes, devices, and sockets all expose integer File Descriptors under VFS with uniform read/write/poll/close syscalls.', trap: 'Two independent open() calls get separate offsets; forked FDs share one offset.' },
+        { lvl: 'senior', mod: 'Module 5', q: 'epoll Level-Triggered vs. Edge-Triggered: what bug hits ET?', a: 'ET notifies only once when new data arrives. If you do not drain the non-blocking socket until EAGAIN, epoll_wait hangs forever on leftover bytes.', trap: 'Use EPOLLEXCLUSIVE or SO_REUSEPORT to prevent Thundering Herd.' },
+        { lvl: 'senior', mod: 'Module 5', q: 'Why is sendfile() called Zero-Copy?', a: 'DMA moves disk -> Page Cache -> NIC directly, eliminating all CPU memory copies across the user/kernel boundary (2 context switches instead of 4).', trap: 'Data still moves via DMA; "zero-copy" refers to zero CPU copies.' }
+      ];
+      let filtered = [...deck], idx = 0;
+      const lvlEl = document.getElementById('fc-lvl'), modEl = document.getElementById('fc-mod'), cntEl = document.getElementById('fc-counter'), qEl = document.getElementById('fc-question'), aEl = document.getElementById('fc-answer'), togBtn = document.getElementById('fc-toggle');
+      const lvlClasses = { fresher: 'lvl-fresher', junior: 'lvl-junior', mid: 'lvl-mid', senior: 'lvl-senior' };
+      function render() {
+        const c = filtered[idx];
+        lvlEl.textContent = c.lvl.toUpperCase();
+        lvlEl.className = 'lvl-badge ' + (lvlClasses[c.lvl] || 'lvl-fresher');
+        modEl.textContent = c.mod;
+        cntEl.textContent = `Card ${idx + 1} / ${filtered.length}`;
+        qEl.textContent = c.q;
+        aEl.innerHTML = `<strong>🎙️ Model Answer:</strong> ${c.a}<br><br><strong>⚠️ Watch Out:</strong> ${c.trap}`;
+        aEl.classList.remove('open');
+        togBtn.textContent = '👀 Reveal Model Answer';
+      }
+      togBtn.addEventListener('click', () => {
+        const open = aEl.classList.toggle('open');
+        togBtn.textContent = open ? '🙈 Hide Answer' : '👀 Reveal Model Answer';
+      });
+      document.getElementById('fc-next').addEventListener('click', () => { idx = (idx + 1) % filtered.length; render(); });
+      document.getElementById('fc-prev').addEventListener('click', () => { idx = (idx - 1 + filtered.length) % filtered.length; render(); });
+      document.getElementById('fc-shuffle').addEventListener('click', () => {
+        filtered.sort(() => Math.random() - 0.5); idx = 0; render();
+      });
+      document.querySelectorAll('.fc-filter').forEach((b) => b.addEventListener('click', () => {
+        document.querySelectorAll('.fc-filter').forEach((x) => x.classList.remove('active'));
+        b.classList.add('active');
+        const lv = b.dataset.level;
+        filtered = lv === 'all' ? [...deck] : deck.filter((d) => d.lvl === lv);
+        idx = 0; render();
+      }));
+      render();
+    })();
+  </script>
+</body>
+</html>
+

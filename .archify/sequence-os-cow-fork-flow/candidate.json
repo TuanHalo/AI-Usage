@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "fork() & Copy-on-Write (COW) Memory Flow",
+    "output": "outputs/diagrams/os-cow-fork-flow/os-cow-fork-flow.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "parent", "type": "frontend", "label": "Parent Process", "sublabel": "has variable x = 10" },
+    { "id": "kernel", "type": "backend", "label": "OS Kernel", "sublabel": "MMU + Page Fault Handler" },
+    { "id": "ramA", "type": "database", "label": "Frame #42", "sublabel": "original physical page" },
+    { "id": "ramB", "type": "database", "label": "Frame #99", "sublabel": "new private copy" },
+    { "id": "child", "type": "external", "label": "Child Process", "sublabel": "created by fork()" }
+  ],
+  "segments": [
+    { "from": 150, "to": 255, "label": "1. fork() Shares Read-Only Pages" },
+    { "from": 265, "to": 335, "label": "2. Child Reads x (Zero Copy!)" },
+    { "from": 345, "to": 480, "label": "3. Child Writes x=99 (COW Split)" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "parent", "to": "kernel", "y": 165, "label": "fork() syscall", "variant": "emphasis" },
+    { "id": "m2", "from": "kernel", "to": "child", "y": 198, "label": "copy page table (mark RO)", "variant": "default" },
+    { "id": "m3", "from": "child", "to": "ramA", "y": 230, "label": "points to Frame #42 (RO)", "variant": "dashed" },
+    { "id": "m4", "from": "child", "to": "ramA", "y": 282, "label": "read x -> returns 10", "variant": "return" },
+    { "id": "m5", "from": "child", "to": "kernel", "y": 355, "label": "write x=99 -> Page Fault!", "variant": "security" },
+    { "id": "m6", "from": "kernel", "to": "ramA", "y": 390, "label": "copy Frame #42 contents", "variant": "default" },
+    { "id": "m7", "from": "kernel", "to": "ramB", "y": 422, "label": "allocate Frame #99 (RW)", "variant": "emphasis" },
+    { "id": "m8", "from": "child", "to": "ramB", "y": 456, "label": "child writes x=99 safely", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "parent", "from": 160, "to": 205, "type": "frontend" },
+    { "participant": "kernel", "from": 165, "to": 235, "type": "backend" },
+    { "participant": "child", "from": 198, "to": 300, "type": "external" },
+    { "participant": "kernel", "from": 355, "to": 432, "type": "backend" },
+    { "participant": "child", "from": 355, "to": 468, "type": "external" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Why fork() Is Fast",
+      "items": [
+        "fork() only duplicates page table entries, not gigabytes of RAM",
+        "Both processes initially share Frame #42 marked Read-Only"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Write Triggers Protection Fault",
+      "items": [
+        "Writing to a Read-Only COW page raises a hardware page fault",
+        "Kernel copies just that 4KB page into Frame #99 as Read-Write"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Production Redis Trap",
+      "items": [
+        "Redis BGSAVE forks; heavy writes during snapshot copy pages",
+        "Up to 2x RAM can be used if every page is dirtied mid-save"
+      ]
+    }
+  ]
+}
+

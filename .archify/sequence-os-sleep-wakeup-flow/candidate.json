@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "How OS Sleeps & Wakes a Thread (Zero CPU Polling)",
+    "output": "outputs/diagrams/os-sleep-wakeup-flow/os-sleep-wakeup-flow.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    { "id": "threadA", "type": "frontend", "label": "Thread A", "sublabel": "calls sleep(50ms)" },
+    { "id": "kernel", "type": "backend", "label": "OS Kernel", "sublabel": "Scheduler + Wait Queue" },
+    { "id": "cpu", "type": "security", "label": "CPU Core", "sublabel": "executes instructions" },
+    { "id": "timer", "type": "messagebus", "label": "Hardware Timer", "sublabel": "APIC / IRQ tick" },
+    { "id": "threadB", "type": "external", "label": "Thread B", "sublabel": "next Ready task" }
+  ],
+  "segments": [
+    { "from": 150, "to": 255, "label": "1. Thread A Yields CPU" },
+    { "from": 265, "to": 355, "label": "2. Thread B Runs (A Uses 0% CPU)" },
+    { "from": 365, "to": 470, "label": "3. Hardware IRQ Wakes Thread A" }
+  ],
+  "messages": [
+    { "id": "m1", "from": "threadA", "to": "kernel", "y": 165, "label": "nanosleep(50ms) syscall", "variant": "emphasis" },
+    { "id": "m2", "from": "kernel", "to": "cpu", "y": 195, "label": "park A in Wait Queue", "variant": "default" },
+    { "id": "m3", "from": "kernel", "to": "timer", "y": 225, "label": "arm 50ms timer IRQ", "variant": "dashed" },
+    { "id": "m4", "from": "kernel", "to": "threadB", "y": 280, "label": "context switch -> Thread B", "variant": "emphasis" },
+    { "id": "m5", "from": "threadB", "to": "cpu", "y": 315, "label": "execute useful work", "variant": "default" },
+    { "id": "m6", "from": "timer", "to": "kernel", "y": 380, "label": "IRQ: 50ms elapsed!", "variant": "security" },
+    { "id": "m7", "from": "kernel", "to": "threadA", "y": 415, "label": "move A -> Ready Queue", "variant": "return" },
+    { "id": "m8", "from": "cpu", "to": "threadA", "y": 450, "label": "resume Thread A", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "threadA", "from": 160, "to": 200, "type": "frontend" },
+    { "participant": "kernel", "from": 165, "to": 285, "type": "backend" },
+    { "participant": "threadB", "from": 280, "to": 340, "type": "external" },
+    { "participant": "kernel", "from": 375, "to": 425, "type": "backend" },
+    { "participant": "threadA", "from": 415, "to": 460, "type": "frontend" }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Why Not Busy-Wait?",
+      "items": [
+        "CPU never spins in a loop checking the clock",
+        "Thread A leaves the Ready Queue so other threads run"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Interrupt-Driven Wakeup",
+      "items": [
+        "Hardware timer (or disk/NIC DMA) raises an IRQ",
+        "Kernel ISR wakes Thread A into the Ready Queue"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Note on Accuracy",
+      "items": [
+        "sleep(50ms) guarantees AT LEAST 50ms, not exact 50ms",
+        "Thread A still waits for its turn in the Ready Queue"
+      ]
+    }
+  ]
+}
+
