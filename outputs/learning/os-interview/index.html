@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OS Interview Mastery Series — CS Learning Hub</title>
+  <!--
+  metadata:
+    title: "OS Interview Mastery Series — CS Learning Hub"
+    date: "2026-11-14"
+    agent: "cs-mentor"
+    category: "research"
+    tags: ["operating-systems", "interview-prep", "computer-science", "archify", "fresher-to-senior"]
+    status: "published"
+    summary: "Complete 6-module Operating Systems interview preparation hub with daily-life analogies, animated Archify flows, interactive labs, and Fresher-to-Senior level tags."
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clay-radius-sm: 16px;
+      --clay-radius-md: 24px;
+      --clay-radius-lg: 36px;
+      --clay-radius-xl: 48px;
+
+      --color-canvas: #f0f0f8;
+      --color-skills: #e4dffd;
+      --color-rules: #d0e8fd;
+      --color-agents: #d4f0e8;
+      --color-principles: #fde8d0;
+      --color-outputs: #fcd5ce;
+
+      --color-text-primary: #2e1065;
+      --color-text-secondary: #4a3080;
+      --color-text-muted: #6b5d8f;
+      --color-accent: #6d28d9;
+
+      --shadow-drop: rgba(120, 90, 180, 0.22);
+      --shadow-dark: rgba(100, 60, 150, 0.16);
+      --shadow-light: rgba(255, 255, 255, 0.85);
+
+      --clay-shadow:
+        0 20px 40px -15px var(--shadow-drop),
+        inset 0 -8px 16px var(--shadow-dark),
+        inset 0 8px 16px var(--shadow-light);
+
+      --clay-shadow-sm:
+        0 10px 20px -8px var(--shadow-drop),
+        inset 0 -4px 8px var(--shadow-dark),
+        inset 0 4px 8px var(--shadow-light);
+
+      --clay-shadow-pressed:
+        0 6px 12px -4px var(--shadow-drop),
+        inset 0 -2px 6px var(--shadow-dark),
+        inset 0 3px 6px var(--shadow-light);
+
+      --font-display: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-canvas);
+      font-family: var(--font-body);
+      color: var(--color-text-primary);
+      line-height: 1.65;
+      padding: 36px 20px 64px;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .clay-card {
+      background-color: var(--color-skills);
+      border-radius: var(--clay-radius-lg);
+      padding: 32px;
+      box-shadow: var(--clay-shadow);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+    }
+
+    .clay-card:hover { transform: translateY(-3px); }
+    .clay-card.agents { background-color: var(--color-agents); --shadow-drop: rgba(40, 140, 110, 0.22); --shadow-dark: rgba(30, 110, 90, 0.15); }
+    .clay-card.principles { background-color: var(--color-principles); --shadow-drop: rgba(180, 100, 40, 0.22); --shadow-dark: rgba(140, 80, 30, 0.15); }
+    .clay-card.outputs { background-color: var(--color-outputs); --shadow-drop: rgba(190, 70, 90, 0.22); --shadow-dark: rgba(150, 50, 70, 0.15); }
+    .clay-card.rules { background-color: var(--color-rules); --shadow-drop: rgba(50, 110, 180, 0.22); --shadow-dark: rgba(40, 90, 140, 0.15); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .clay-card, .clay-btn { transition: none; }
+      .clay-card:hover, .clay-btn:hover { transform: none; }
+    }
+
+    h1.output-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.9rem, 3.5vw, 2.75rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; }
+    h3 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
+    p { margin-bottom: 12px; font-size: 1.02rem; }
+
+    .output-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+    .clay-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 15px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.84rem;
+      font-weight: 700;
+      background-color: #ffffff;
+      color: var(--color-text-secondary);
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .clay-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--clay-radius-md);
+      border: none;
+      background-color: #ffffff;
+      color: var(--color-text-primary);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.98rem;
+      text-decoration: none;
+      box-shadow: var(--clay-shadow-sm);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .clay-btn:hover { transform: translateY(-2px); }
+    .clay-btn:active { transform: scale(0.97); box-shadow: var(--clay-shadow-pressed); }
+    .clay-btn.primary { background-color: #6d28d9; color: #ffffff; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; margin-top: 16px; }
+
+    .sub-card {
+      background: rgba(255, 255, 255, 0.82);
+      border-radius: var(--clay-radius-md);
+      padding: 22px;
+      box-shadow: var(--clay-shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .lvl-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .lvl-fresher { background: #d4f0e8; color: #065f46; }
+    .lvl-junior  { background: #d0e8fd; color: #075985; }
+    .lvl-mid     { background: #fde8d0; color: #92400e; }
+    .lvl-senior  { background: #fcd5ce; color: #9f1239; }
+
+    .src-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #ede9fe;
+      color: #5b21b6;
+    }
+
+    .progress-track {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: var(--clay-radius-md);
+      height: 22px;
+      padding: 4px;
+      box-shadow: inset 0 2px 6px rgba(46, 16, 101, 0.14);
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--clay-radius-sm);
+      background: linear-gradient(90deg, #7c3aed, #0d9488);
+      transition: width 0.35s ease;
+    }
+
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 18px; }
+    .filter-btn {
+      padding: 8px 16px;
+      border-radius: var(--clay-radius-sm);
+      border: none;
+      background: #ffffff;
+      color: var(--color-text-primary);
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      box-shadow: var(--clay-shadow-sm);
+      transition: transform 0.18s ease;
+    }
+    .filter-btn:hover { transform: translateY(-2px); }
+    .filter-btn.active { background: #2e1065; color: #ffffff; }
+
+    .q-list { display: flex; flex-direction: column; gap: 12px; }
+    .q-row {
+      background: rgba(255, 255, 255, 0.84);
+      border-radius: var(--clay-radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--clay-shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .q-row.hidden { display: none; }
+    .q-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .q-title { font-weight: 700; font-size: 1rem; color: var(--color-text-primary); }
+    .q-sub { font-size: 0.88rem; color: var(--color-text-secondary); margin-top: 2px; }
+
+    .sources-list { margin-left: 22px; margin-top: 8px; }
+    .sources-list li { margin-bottom: 6px; }
+    a { color: #5b21b6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="clay-card output-header">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <span class="clay-badge" style="background: var(--color-agents); color: #065f46;">
+          🎓 Computer Science Interview Track
+        </span>
+        <a href="../../../outputs" class="clay-btn" style="padding: 8px 16px; font-size: 0.88rem;">
+          ← Back to AI Outputs
+        </a>
+      </div>
+
+      <h1 class="output-title" style="margin-top: 12px;">
+        Operating Systems Interview Mastery Hub
+      </h1>
+
+      <div class="output-badges">
+        <span class="clay-badge" style="background: var(--color-outputs); color: #9f1239;">Learning Hub</span>
+        <span class="clay-badge">Updated: 2026-11-14</span>
+        <span class="clay-badge">Agent: cs-mentor</span>
+        <span class="clay-badge" style="background: var(--color-agents); color: #065f46;">Complete Series · 6 Modules Live</span>
+      </div>
+
+      <p style="margin-top: 14px; color: var(--color-text-secondary); font-weight: 500;">
+        Friendly, visual, daily-life explanations of Operating Systems built specifically to help you crush technical interviews — from <strong>Fresher</strong> basics all the way to <strong>Senior</strong> production systems questions.
+      </p>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;">
+        <a href="module-1-process-thread.html" class="clay-btn primary">
+          🚀 Start Module 1: Processes &amp; Threads
+        </a>
+        <a href="module-6-interview-drill.html" class="clay-btn">
+          🎯 Jump to Flashcards &amp; Cheat Sheet
+        </a>
+        <a href="#question-matrix" class="clay-btn">
+          📋 Browse All 44 Questions
+        </a>
+      </div>
+    </header>
+
+    <!-- Executive Summary & Progress -->
+    <section class="clay-card agents executive-summary">
+      <h2>1. How This Track Prepares You for Real Interviews</h2>
+      <p>
+        Textbooks teach Operating Systems like a wall of dry definitions. Interviewers don't test definitions—they test <strong>mental models</strong>: <em>"If your server spawns 10,000 threads, what actually breaks?"</em> or <em>"Why doesn't <code>sleep(5)</code> burn 100% CPU?"</em>
+      </p>
+
+      <div class="grid-3">
+        <div class="sub-card">
+          <div>
+            <h3>🏠 Daily-Life Analogies</h3>
+            <p style="font-size: 0.94rem; color: var(--color-text-secondary);">
+              Every topic starts with an everyday story (kitchens, hotels, bank windows) so the "aha!" intuition sticks even under interview pressure.
+            </p>
+          </div>
+        </div>
+        <div class="sub-card">
+          <div>
+            <h3>🎬 Animated Archify Flows</h3>
+            <p style="font-size: 0.94rem; color: var(--color-text-secondary);">
+              Watch state transitions, Copy-on-Write splits, page walks, Futex locks, and Zero-Copy DMA animate step-by-step using 6 Archify diagrams.
+            </p>
+          </div>
+        </div>
+        <div class="sub-card">
+          <div>
+            <h3>🏷️ Fresher → Senior Tags</h3>
+            <p style="font-size: 0.94rem; color: var(--color-text-secondary);">
+              Every question shows the exact depth expected at <strong>Fresher</strong>, <strong>Junior</strong>, <strong>Mid</strong>, and <strong>Senior</strong> interviews—plus common traps.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-card" style="margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <h3 style="margin: 0;">📈 Your Overall Study Progress (Saved in Browser)</h3>
+          <span id="progress-label" style="font-weight: 800; color: var(--color-accent);">0 / 44 Questions Mastered (0%)</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <p style="font-size: 0.86rem; color: var(--color-text-muted); margin: 0;">
+          Tip: Inside Modules 1–5, tick <strong>"Mark Mastered"</strong> on questions you can explain out loud in 30 seconds.
+        </p>
+      </div>
+    </section>
+
+    <!-- Curriculum Roadmap -->
+    <section class="clay-card principles visualizations">
+      <h2>2. Six-Module OS Curriculum Roadmap</h2>
+      <p>
+        Work through Modules 1–5 in order, then drill with Module 6's mock interview flashcards and 1-page printable cheat sheet.
+      </p>
+
+      <div class="grid-2">
+        <!-- Module 1 -->
+        <div class="sub-card" style="border: 2px solid #7c3aed;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">10 Questions · 2 Archify Flows</span>
+            </div>
+            <h3>Module 1: Processes, Threads &amp; CPU Scheduling</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Restaurant kitchen analogy, PCB vs. TCB, 5-state lifecycle, Zombie &amp; Orphan traps, sleep/wakeup hardware interrupts, thread pools, green threads, and load average.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-fresher">Fresher</span>
+              <span class="lvl-badge lvl-junior">Junior</span>
+              <span class="lvl-badge lvl-mid">Mid</span>
+              <span class="lvl-badge lvl-senior">Senior</span>
+            </div>
+            <a href="module-1-process-thread.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 1 →</a>
+          </div>
+        </div>
+
+        <!-- Module 2 -->
+        <div class="sub-card" style="border: 2px solid #0d9488;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">8 Questions · 1 Archify Flow</span>
+            </div>
+            <h3>Module 2: Context Switch, Fork/COW, Debuggers &amp; IPC</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Surgeon switching rooms, TLB flush cost, 1-core vs. multi-core safety, <code>fork()</code> &amp; Copy-on-Write (COW), <code>ptrace</code> debuggers, Pipes, Shared Memory &amp; Signals.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-junior">Junior</span>
+              <span class="lvl-badge lvl-mid">Mid</span>
+              <span class="lvl-badge lvl-senior">Senior</span>
+            </div>
+            <a href="module-2-context-switch-ipc.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 2 →</a>
+          </div>
+        </div>
+
+        <!-- Module 3 -->
+        <div class="sub-card" style="border: 2px solid #0284c7;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">9 Questions · 1 Archify Flow</span>
+            </div>
+            <h3>Module 3: Virtual Memory, Paging, Stack/Heap &amp; Allocators</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Hotel virtual room map, MMU &amp; Page Tables, Minor vs. Major page faults, sharing <code>libc</code> across processes, Thrashing, <code>ptmalloc</code> vs. <code>jemalloc</code> &amp; OOM Killer.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-fresher">Fresher</span>
+              <span class="lvl-badge lvl-junior">Junior</span>
+              <span class="lvl-badge lvl-mid">Mid</span>
+              <span class="lvl-badge lvl-senior">Senior</span>
+            </div>
+            <a href="module-3-virtual-memory.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 3 →</a>
+          </div>
+        </div>
+
+        <!-- Module 4 -->
+        <div class="sub-card" style="border: 2px solid #d97706;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">8 Questions · 1 Archify Flow</span>
+            </div>
+            <h3>Module 4: Concurrency, Locks, Deadlocks &amp; False Sharing</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Baristas vs. Espresso machines, Mutex vs. Semaphore vs. Spinlock vs. RWLock, 4 Deadlock conditions, Priority Inversion, Futex fast/slow paths, and CPU Cache False Sharing.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-fresher">Fresher</span>
+              <span class="lvl-badge lvl-junior">Junior</span>
+              <span class="lvl-badge lvl-mid">Mid</span>
+              <span class="lvl-badge lvl-senior">Senior</span>
+            </div>
+            <a href="module-4-concurrency-locking.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 4 →</a>
+          </div>
+        </div>
+
+        <!-- Module 5 -->
+        <div class="sub-card" style="border: 2px solid #e11d48;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">9 Questions · 1 Archify Flow</span>
+            </div>
+            <h3>Module 5: Kernel Mode, Syscalls, Files &amp; High-Speed I/O</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Bank teller window, "Everything is a file", File Descriptors &amp; Page Cache, concurrent writes, Unix Domain Sockets, <code>epoll</code> (LT vs. ET) &amp; Zero-Copy <code>sendfile</code>.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-fresher">Fresher</span>
+              <span class="lvl-badge lvl-junior">Junior</span>
+              <span class="lvl-badge lvl-mid">Mid</span>
+              <span class="lvl-badge lvl-senior">Senior</span>
+            </div>
+            <a href="module-5-kernel-io-filesystems.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 5 →</a>
+          </div>
+        </div>
+
+        <!-- Module 6 -->
+        <div class="sub-card" style="border: 2px solid #2e1065;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="clay-badge" style="background: #d4f0e8; color: #065f46;">✅ Live</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--color-text-muted);">16 Flashcards · Cheat Sheet</span>
+            </div>
+            <h3>Module 6: Interview Drill, Production Scenarios &amp; Cheat Sheet</h3>
+            <p style="font-size: 0.93rem; color: var(--color-text-secondary);">
+              Interactive Mock Interview Flashcard Deck, Senior debugging war stories (<code>sys</code> CPU spikes, <code>iowait</code> storms, Redis OOM), and a printable 1-page OS summary sheet.
+            </p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <span class="lvl-badge lvl-fresher">All Levels</span>
+            </div>
+            <a href="module-6-interview-drill.html" class="clay-btn primary" style="padding: 9px 18px; font-size: 0.9rem;">Open Module 6 →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Master Question Index -->
+    <section id="question-matrix" class="clay-card rules findings">
+      <h2>3. Master Interview Question Index (44 Questions · Fresher → Senior)</h2>
+      <p>
+        Filter by target career level to practice what interviewers ask at your stage, then click <strong>Study →</strong> to jump straight to that question's 30-second pitch, analogy, and trap!
+      </p>
+
+      <div class="filter-bar" role="group" aria-label="Filter questions by career level">
+        <button class="filter-btn active" data-filter="all">All Levels (<span id="cnt-all">0</span>)</button>
+        <button class="filter-btn" data-filter="fresher">Fresher</button>
+        <button class="filter-btn" data-filter="junior">Junior</button>
+        <button class="filter-btn" data-filter="mid">Mid-Level</button>
+        <button class="filter-btn" data-filter="senior">Senior</button>
+      </div>
+
+      <div class="q-list" id="master-question-list">
+        <!-- Module 1 -->
+        <div class="q-row" data-level="fresher"><div><div class="q-title">1.1 What is a Process vs. a Thread? What are the key differences?</div><div class="q-sub">Module 1 · Restaurant Building vs. Chefs in One Kitchen</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q1" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">1.2 What data do Processes &amp; Threads need to live (PCB vs. TCB)?</div><div class="q-sub">Module 1 · Why a Thread is called a "lightweight process"</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q2" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">1.3 Process States (New, Ready, Running, Waiting, Terminated) &amp; Transitions</div><div class="q-sub">Module 1 · Includes Animated Archify Process Lifecycle Diagram</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q3" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">1.4 Zombie &amp; Orphan Processes: why Zombies can crash a server</div><div class="q-sub">Module 1 · PID exhaustion, wait(), and PID 1 reparenting</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Production</span><a href="module-1-process-thread.html#q4" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">1.5 Multi-Process vs. Multi-Thread: When to choose which (incl. Python GIL)</div><div class="q-sub">Module 1 · Fault isolation vs. shared-memory throughput</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q5" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">1.6 CPU Scheduling Algorithms: FCFS, SJF, Round Robin &amp; MLFQ</div><div class="q-sub">Module 1 · Convoy effect, quantum tradeoffs &amp; interactive Gantt lab</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q6" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">1.7 When a thread sleeps/waits, how does the CPU detect wakeup without polling?</div><div class="q-sub">Module 1 · Includes Animated Archify Sleep/Wakeup Interrupt Flow</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q7" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">1.8 Thread Pools: why use them, sizing, and implementation</div><div class="q-sub">Module 1 · Python &amp; Go bounded worker-pool code</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-1-process-thread.html#q8" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">1.9 Kernel Threads (1:1) vs. User-Space Green Threads / Goroutines (M:N)</div><div class="q-sub">Module 1 · Why Go spawns 100k goroutines cheaply</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Runtime</span><a href="module-1-process-thread.html#q9" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">1.10 Starvation, Priority Aging &amp; Linux Load Average Mystery</div><div class="q-sub">Module 1 · Load Average 50 at 10% CPU (D-state I/O)</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Production</span><a href="module-1-process-thread.html#q10" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+
+        <!-- Module 2 -->
+        <div class="q-row" data-level="junior"><div><div class="q-title">2.1 Child Processes: how fork() and exec() work together</div><div class="q-sub">Module 2 · Return PIDs, inherited FDs, and replacing binary images</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-2-context-switch-ipc.html#q1" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">2.2 How CPU Context Switches between Processes vs. Threads</div><div class="q-sub">Module 2 · Register swap vs. CR3 Page Table &amp; TLB invalidation</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-2-context-switch-ipc.html#q2" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">2.3 Copy-on-Write (COW): what happens when child modifies parent data</div><div class="q-sub">Module 2 · Includes Animated Archify COW Sequence + Redis BGSAVE trap</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-2-context-switch-ipc.html#q3" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">2.4 Data safety during context switches (1 CPU Core vs. Multi-Core)</div><div class="q-sub">Module 2 · Interrupt disabling vs. spinlocks, MESI &amp; memory barriers</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Architecture</span><a href="module-2-context-switch-ipc.html#q4" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">2.5 OS IPC Mechanisms: Pipes, Shared Memory, Queues, Signals &amp; Sockets</div><div class="q-sub">Module 2 · Throughput vs. synchronization tradeoffs</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-2-context-switch-ipc.html#q5" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">2.6 How Debuggers (gdb / ptrace) attach &amp; modify a running process</div><div class="q-sub">Module 2 · PTRACE_ATTACH, SIGSTOP &amp; 0xCC (INT 3) breakpoints</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Internals</span><a href="module-2-context-switch-ipc.html#q6" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">2.7 Direct vs. Indirect Costs of Context Switching</div><div class="q-sub">Module 2 · Cold L1/L2 caches &amp; branch predictor pollution</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Performance</span><a href="module-2-context-switch-ipc.html#q7" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">2.8 Signals &amp; Async-Signal-Safety (why malloc/printf deadlocks)</div><div class="q-sub">Module 2 · Reentrancy traps inside signal handlers</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Production</span><a href="module-2-context-switch-ipc.html#q8" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+
+        <!-- Module 3 -->
+        <div class="q-row" data-level="fresher"><div><div class="q-title">3.1 Stack vs. Heap Space + What happens in memory on app launch</div><div class="q-sub">Module 3 · Memory segments &amp; lazy binary loading</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q1" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="fresher"><div><div class="q-title">3.2 What is Virtual Memory and why do we need it?</div><div class="q-sub">Module 3 · Hotel Virtual Room Map analogy</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q2" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">3.3 How Virtual Memory works (MMU, Page Tables, TLB) &amp; address space size</div><div class="q-sub">Module 3 · Includes Animated Archify Address Translation Workflow</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q3" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">3.4 Paging &amp; Page Faults (Minor vs. Major Faults)</div><div class="q-sub">Module 3 · 4KB Pages/Frames and SSD swap penalty</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q4" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">3.5 Can 2 processes touch each other's memory or map the SAME physical frame?</div><div class="q-sub">Module 3 · Isolation vs. intentional shm / mmap / COW sharing</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q5" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">3.6 How 2 processes share the same library (libc) without duplicating RAM</div><div class="q-sub">Module 3 · PIC .text sharing + private COW .data</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-3-virtual-memory.html#q6" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">3.7 Page Replacement (LRU / Clock) &amp; Memory Thrashing</div><div class="q-sub">Module 3 · Working Set exhaustion &amp; iowait collapse</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Production</span><a href="module-3-virtual-memory.html#q7" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">3.8 Internal vs. External Fragmentation &amp; brk() vs. mmap()</div><div class="q-sub">Module 3 · How allocators request heap memory from Linux</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Internals</span><a href="module-3-virtual-memory.html#q8" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">3.9 ptmalloc vs. jemalloc, Demand Paging &amp; Linux OOM Killer</div><div class="q-sub">Module 3 · Overcommit risks, RSS vs. VSZ &amp; arena contention</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Production</span><a href="module-3-virtual-memory.html#q9" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+
+        <!-- Module 4 -->
+        <div class="q-row" data-level="fresher"><div><div class="q-title">4.1 Concurrency vs. Parallelism (1 Core vs. Multi-Core)</div><div class="q-sub">Module 4 · 1 Barista juggling orders vs. 2 Baristas</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-4-concurrency-locking.html#q1" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="fresher"><div><div class="q-title">4.2 Critical Section, Race Condition &amp; how to fix lost updates</div><div class="q-sub">Module 4 · Interactive Race Condition Stepper Lab</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-4-concurrency-locking.html#q2" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">4.3 Mutex vs. Semaphore vs. Spinlock vs. Read-Write Lock</div><div class="q-sub">Module 4 · Ownership, sleeping vs. spinning, single-core spinlock trap</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-4-concurrency-locking.html#q3" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">4.4 Deadlock (4 Coffman Conditions) &amp; Prevention via Lock Ordering</div><div class="q-sub">Module 4 · Interactive Deadlock Cycle Breaker Lab</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-4-concurrency-locking.html#q4" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">4.5 Deadlock vs. Livelock vs. Starvation</div><div class="q-sub">Module 4 · Frozen hallway vs. stepping left-right forever</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-4-concurrency-locking.html#q5" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">4.6 Priority Inversion &amp; Priority Inheritance (Mars Pathfinder)</div><div class="q-sub">Module 4 · Real-time scheduling lock inversion fix</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Production</span><a href="module-4-concurrency-locking.html#q6" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">4.7 Linux Futex: Fast Userspace CAS vs. Kernel Sleep Path</div><div class="q-sub">Module 4 · Includes Animated Archify Futex Sequence Diagram</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Internals</span><a href="module-4-concurrency-locking.html#q7" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">4.8 CPU Cache Lines, MESI Coherency &amp; False Sharing</div><div class="q-sub">Module 4 · 64-byte alignas(64) padding fix</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">Hardware-OS</span><a href="module-4-concurrency-locking.html#q8" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+
+        <!-- Module 5 -->
+        <div class="q-row" data-level="fresher"><div><div class="q-title">5.1 User Mode (Ring 3) vs. Kernel Mode (Ring 0)</div><div class="q-sub">Module 5 · Bank Lobby vs. Bank Vault protection</div></div><div class="q-meta"><span class="lvl-badge lvl-fresher">Fresher</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q1" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">5.2 How System Calls work under the hood (Trap &amp; Dispatch)</div><div class="q-sub">Module 5 · syscall / sysret privilege transitions</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q2" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="junior"><div><div class="q-title">5.3 Linux "Everything Is a File" &amp; File Descriptors (FD)</div><div class="q-sub">Module 5 · VFS uniform interface for disk, devices &amp; sockets</div></div><div class="q-meta"><span class="lvl-badge lvl-junior">Junior</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q3" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">5.4 I/O Buffering: User Buffers vs. Kernel Page Cache</div><div class="q-sub">Module 5 · Reducing syscalls + fsync() durability</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q4" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">5.5 Concurrent File Access by 2 Processes (O_APPEND &amp; flock)</div><div class="q-sub">Module 5 · Shared vs. independent file cursor offsets</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q5" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">5.6 Sockets as Files &amp; Unix Domain Sockets vs. TCP/IP</div><div class="q-sub">Module 5 · Skipping TCP overhead on localhost</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Core OS</span><a href="module-5-kernel-io-filesystems.html#q6" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="mid"><div><div class="q-title">5.7 Hard vs. Soft Links &amp; Why rm Doesn't Free an Open File</div><div class="q-sub">Module 5 · Inode reference counts + open FDs (lsof +L1)</div></div><div class="q-meta"><span class="lvl-badge lvl-mid">Mid</span><span class="src-badge">Production</span><a href="module-5-kernel-io-filesystems.html#q7" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">5.8 select/poll vs. epoll (LT vs. ET), Thundering Herd &amp; io_uring</div><div class="q-sub">Module 5 · C10K rbtree + rdllist, EAGAIN draining &amp; EPOLLEXCLUSIVE</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">C10K Scale</span><a href="module-5-kernel-io-filesystems.html#q8" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+        <div class="q-row" data-level="senior"><div><div class="q-title">5.9 Zero-Copy (sendfile): eliminating User/Kernel CPU copies</div><div class="q-sub">Module 5 · Includes Animated Archify Zero-Copy Sequence Diagram</div></div><div class="q-meta"><span class="lvl-badge lvl-senior">Senior</span><span class="src-badge">C10K Scale</span><a href="module-5-kernel-io-filesystems.html#q9" class="clay-btn" style="padding:6px 14px;font-size:0.82rem;">Study →</a></div></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="clay-card outputs output-footer">
+      <h2>4. Sources &amp; Methodology</h2>
+      <section class="sources-and-citations">
+        <ul class="sources-list">
+          <li>Remzi &amp; Andrea Arpaci-Dusseau, <em>Operating Systems: Three Easy Pieces (OSTEP)</em>.</li>
+          <li>Michael Kerrisk, <em>The Linux Programming Interface</em> &amp; Linux Kernel man-pages (<code>sched(7)</code>, <code>fork(2)</code>, <code>epoll(7)</code>, <code>futex(2)</code>, <code>sendfile(2)</code>).</li>
+          <li>Brendan Gregg, <em>Systems Performance</em> &amp; Abraham Silberschatz, <em>Operating System Concepts</em>.</li>
+        </ul>
+      </section>
+      <section class="methodology-note" style="margin-top: 14px; font-size: 0.88rem; color: var(--color-text-secondary);">
+        <p style="margin: 0;">
+          <strong>Methodology:</strong> Authored under AI-Usage Output Contract v1.0.0 and Style Contract v1.0.0 (Claymorphism). Six animated flow diagrams generated and verified via Archify v3.2.0.
+        </p>
+      </section>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = 'os-interview-mastered-v1';
+      const TOTAL_QS = 44;
+
+      function updateProgress() {
+        let mastered = [];
+        try {
+          mastered = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        } catch (e) {
+          mastered = [];
+        }
+        const count = mastered.length;
+        const pct = Math.min(100, Math.round((count / TOTAL_QS) * 100));
+        const label = document.getElementById('progress-label');
+        const fill = document.getElementById('progress-fill');
+        if (label) label.textContent = `${count} / ${TOTAL_QS} Questions Mastered (${pct}%)`;
+        if (fill) fill.style.width = `${pct}%`;
+      }
+
+      const rows = Array.from(document.querySelectorAll('#master-question-list .q-row'));
+      const countAll = document.getElementById('cnt-all');
+      if (countAll) countAll.textContent = String(rows.length);
+
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          const filter = btn.getAttribute('data-filter');
+          rows.forEach((row) => {
+            const lvl = row.getAttribute('data-level');
+            row.classList.toggle('hidden', filter !== 'all' && lvl !== filter);
+          });
+        });
+      });
+
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

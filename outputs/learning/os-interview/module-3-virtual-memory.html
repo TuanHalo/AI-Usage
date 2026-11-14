@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Module 3: Virtual Memory, Paging, Stack/Heap &amp; Allocators — OS Interview Mastery</title>
+  <!--
+  metadata:
+    title: "Module 3: Virtual Memory, Paging, Stack/Heap & Allocators"
+    date: "2026-11-14"
+    agent: "cs-mentor"
+    category: "research"
+    tags: ["operating-systems", "virtual-memory", "paging", "stack-heap", "libc", "oom-killer", "archify"]
+    status: "published"
+    summary: "Friendly OS interview guide to Virtual Memory, MMU/TLB, Paging, shared libraries (libc), Stack vs Heap, Thrashing, and jemalloc/OOM Killer."
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clay-radius-sm: 16px; --clay-radius-md: 24px; --clay-radius-lg: 36px;
+      --color-canvas: #f0f0f8; --color-skills: #e4dffd; --color-rules: #d0e8fd; --color-agents: #d4f0e8; --color-principles: #fde8d0; --color-outputs: #fcd5ce;
+      --color-text-primary: #2e1065; --color-text-secondary: #4a3080; --color-text-muted: #6b5d8f; --color-accent: #6d28d9;
+      --shadow-drop: rgba(120,90,180,0.22); --shadow-dark: rgba(100,60,150,0.16); --shadow-light: rgba(255,255,255,0.85);
+      --clay-shadow: 0 20px 40px -15px var(--shadow-drop), inset 0 -8px 16px var(--shadow-dark), inset 0 8px 16px var(--shadow-light);
+      --clay-shadow-sm: 0 10px 20px -8px var(--shadow-drop), inset 0 -4px 8px var(--shadow-dark), inset 0 4px 8px var(--shadow-light);
+      --clay-shadow-pressed: 0 6px 12px -4px var(--shadow-drop), inset 0 -2px 6px var(--shadow-dark), inset 0 3px 6px var(--shadow-light);
+      --font-display: 'Nunito', 'Segoe UI', system-ui, sans-serif; --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--color-canvas); font-family: var(--font-body); color: var(--color-text-primary); line-height: 1.65; padding: 32px 20px 64px; }
+    .container { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+    .clay-card { background: var(--color-skills); border-radius: var(--clay-radius-lg); padding: 32px; box-shadow: var(--clay-shadow); }
+    .clay-card.agents { background: var(--color-agents); --shadow-drop: rgba(40,140,110,0.22); --shadow-dark: rgba(30,110,90,0.15); }
+    .clay-card.principles { background: var(--color-principles); --shadow-drop: rgba(180,100,40,0.22); --shadow-dark: rgba(140,80,30,0.15); }
+    .clay-card.outputs { background: var(--color-outputs); --shadow-drop: rgba(190,70,90,0.22); --shadow-dark: rgba(150,50,70,0.15); }
+    .clay-card.rules { background: var(--color-rules); --shadow-drop: rgba(50,110,180,0.22); --shadow-dark: rgba(40,90,140,0.15); }
+    h1.output-title { font-family: var(--font-display); font-size: clamp(1.85rem, 3.3vw, 2.55rem); font-weight: 900; line-height: 1.15; }
+    h2 { font-family: var(--font-display); font-size: 1.55rem; font-weight: 800; margin-bottom: 12px; }
+    h3 { font-family: var(--font-display); font-size: 1.18rem; font-weight: 800; margin-bottom: 8px; }
+    p { margin-bottom: 12px; font-size: 1.01rem; }
+    ul { margin-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    .output-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .clay-badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: var(--clay-radius-sm); font-size: 0.83rem; font-weight: 700; background: #fff; color: var(--color-text-secondary); box-shadow: var(--clay-shadow-sm); }
+    .clay-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: var(--clay-radius-md); border: none; background: #fff; color: var(--color-text-primary); font-family: var(--font-display); font-weight: 800; font-size: 0.93rem; text-decoration: none; box-shadow: var(--clay-shadow-sm); cursor: pointer; }
+    .clay-btn.primary { background: #6d28d9; color: #fff; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 14px; }
+    .sub-card { background: rgba(255,255,255,0.84); border-radius: var(--clay-radius-md); padding: 22px; box-shadow: var(--clay-shadow-sm); }
+    .archify-frame-wrap { background: #fff; border-radius: var(--clay-radius-md); padding: 14px; box-shadow: var(--clay-shadow-sm); margin-top: 16px; }
+    .archify-frame-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 4px 8px 12px; border-bottom: 1px solid rgba(46,16,101,0.08); margin-bottom: 12px; }
+    .archify-iframe { width: 100%; height: 540px; border: none; border-radius: 16px; background: #0f172a; }
+    .lvl-badge { display: inline-block; padding: 4px 12px; border-radius: var(--clay-radius-sm); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; }
+    .lvl-fresher { background: #d4f0e8; color: #065f46; }
+    .lvl-junior { background: #d0e8fd; color: #075985; }
+    .lvl-mid { background: #fde8d0; color: #92400e; }
+    .lvl-senior { background: #fcd5ce; color: #9f1239; }
+    .src-badge { display: inline-block; padding: 4px 10px; border-radius: var(--clay-radius-sm); font-size: 0.76rem; font-weight: 700; background: #ede9fe; color: #5b21b6; }
+    pre { background: #1e1b4b; color: #eef2ff; padding: 16px 18px; border-radius: var(--clay-radius-sm); overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5; margin: 10px 0 14px; }
+    code { font-family: var(--font-mono); font-size: 0.9em; background: rgba(109,40,217,0.1); padding: 2px 6px; border-radius: 8px; }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .qa-card { background: rgba(255,255,255,0.88); border-radius: var(--clay-radius-md); padding: 26px; box-shadow: var(--clay-shadow-sm); margin-bottom: 20px; }
+    .qa-card.hidden { display: none; }
+    .qa-card.mastered { border: 2px solid #0d9488; }
+    .qa-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+    .pitch-box { background: #ede9fe; border-left: 5px solid #6d28d9; padding: 14px 18px; border-radius: 16px; margin: 12px 0; }
+    .trap-box { background: #fff1f2; border-left: 5px solid #e11d48; padding: 14px 18px; border-radius: 16px; margin-top: 12px; }
+    .analogy-box { background: #ecfdf5; border-left: 5px solid #0d9488; padding: 14px 18px; border-radius: 16px; margin: 12px 0; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 20px; }
+    .filter-btn { padding: 8px 16px; border-radius: var(--clay-radius-sm); border: none; background: #fff; color: var(--color-text-primary); font-weight: 700; font-size: 0.88rem; cursor: pointer; box-shadow: var(--clay-shadow-sm); }
+    .filter-btn.active { background: #2e1065; color: #fff; }
+    .sim-box { border-radius: var(--clay-radius-sm); padding: 14px; margin-top: 10px; background: #f8fafc; border: 2px dashed #94a3b8; }
+    .seg-bar { padding: 8px 12px; border-radius: 14px; margin: 6px 0; font-size: 0.86rem; font-weight: 700; display: flex; justify-content: space-between; }
+    .master-toggle { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: var(--clay-radius-sm); background: #f3f4f6; font-weight: 700; font-size: 0.85rem; cursor: pointer; user-select: none; }
+    .master-toggle input { width: 17px; height: 17px; accent-color: #0d9488; cursor: pointer; }
+    .quiz-option { display: block; width: 100%; text-align: left; padding: 12px 16px; margin: 8px 0; border-radius: var(--clay-radius-sm); border: none; background: #fff; color: var(--color-text-primary); font-weight: 600; cursor: pointer; box-shadow: var(--clay-shadow-sm); }
+    .quiz-option.correct { background: #d4f0e8; color: #065f46; }
+    .quiz-option.wrong { background: #fcd5ce; color: #9f1239; }
+    a { color: #5b21b6; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="clay-card output-header">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="module-2-context-switch-ipc.html" class="clay-btn" style="padding:8px 16px; font-size:0.88rem;">← Module 2</a>
+          <a href="index.html" class="clay-btn" style="padding:8px 16px; font-size:0.88rem;">🏠 OS Hub</a>
+        </div>
+        <span class="clay-badge" style="background:var(--color-agents); color:#065f46;">Module 3 of 6 · Est. 40 mins</span>
+      </div>
+      <h1 class="output-title" style="margin-top:12px;">Module 3: Virtual Memory, Paging, Stack/Heap &amp; Allocators</h1>
+      <div class="output-badges">
+        <span class="clay-badge" style="background:var(--color-outputs); color:#9f1239;">Interactive Lesson</span>
+        <span class="clay-badge">Date: 2026-11-14</span>
+        <span class="clay-badge">Agent: cs-mentor</span>
+        <span class="clay-badge" style="background:var(--color-agents); color:#065f46;">Fresher → Senior</span>
+      </div>
+      <p style="margin-top:12px; color:var(--color-text-secondary);">
+        How can two running apps both believe their variable sits at address <code>0x601000</code> without crashing into each other? Why does <code>malloc(10GB)</code> succeed on a 4 GB laptop? Let's demystify Virtual Memory!
+      </p>
+    </header>
+
+    <section class="clay-card agents executive-summary">
+      <h2>1. Daily-Life Analogies: The Hotel Room Map &amp; Shared Gym</h2>
+      <div class="grid-2">
+        <div class="sub-card">
+          <h3>🏨 Virtual Memory = Every Guest Gets Their Own "Room 101"</h3>
+          <p>Guest A and Guest B both think they live in "Room 101" (Virtual Address). Only the <strong>Hotel Front Desk (MMU + Page Table)</strong> knows Guest A's Room 101 is actually Physical Suite #408 and Guest B's Room 101 is Physical Suite #912!</p>
+        </div>
+        <div class="sub-card">
+          <h3>🏋️ Shared Libraries (<code>libc</code>) = One Hotel Gym</h3>
+          <p>Even though Guest A calls it "Floor 3" and Guest B calls it "Floor 9", the Front Desk maps both virtual maps to the <strong>same physical gym room</strong> in RAM—saving gigabytes of duplicate code across hundreds of processes.</p>
+        </div>
+        <div class="sub-card">
+          <h3>🥞 Stack vs. Heap = Cafeteria Tray Stack vs. Warehouse</h3>
+          <p><strong>Stack</strong> is fast LIFO plates: push on function entry, pop on return, tiny (~8 MB). <strong>Heap</strong> is a giant storage warehouse: ask the manager (<code>malloc</code>/GC) for a custom shelf of any size, keep it as long as you want, clean it up carefully.</p>
+        </div>
+        <div class="sub-card">
+          <h3>📦 Thrashing = Moving Boxes All Day, Doing Zero Work</h3>
+          <p>If your desk only fits 3 folders (RAM) and you need 10 folders constantly, you spend 99% of your day walking to the basement storage room (Swap Disk) and 1% actually reading!</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="clay-card principles visualizations">
+      <h2>2. Animated Flow (Archify) &amp; Interactive Address Translator</h2>
+      <div class="archify-frame-wrap">
+        <div class="archify-frame-bar">
+          <div>
+            <strong>🎬 Flow (Archify Workflow): Virtual Address → TLB → Page Table → Physical RAM</strong>
+            <div style="font-size:0.85rem; color:var(--color-text-muted);">Trace the fast TLB Hit path vs. Page Table Walk vs. Major Page Fault from Disk Swap.</div>
+          </div>
+          <a href="../../diagrams/os-virtual-memory-translation/os-virtual-memory-translation.html" target="_blank" class="clay-btn" style="padding:7px 14px; font-size:0.84rem;">Open Fullscreen ↗</a>
+        </div>
+        <iframe class="archify-iframe" src="../../diagrams/os-virtual-memory-translation/os-virtual-memory-translation.html" title="Virtual Memory Address Translation Archify Diagram" loading="lazy"></iframe>
+      </div>
+
+      <div class="grid-2" style="margin-top:22px;">
+        <div class="sub-card">
+          <h3>🧮 Interactive Lab A: Virtual → Physical Address Translator</h3>
+          <p style="font-size:0.92rem; color:var(--color-text-secondary);">Page size = 4 KB (<code>0x1000</code>, lower 12 bits = Offset). Pick a scenario to trace the MMU:</p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
+            <button class="clay-btn primary vm-btn" data-vm="tlb" style="padding:8px 12px; font-size:0.82rem;">0x0040201A (TLB Hit)</button>
+            <button class="clay-btn vm-btn" data-vm="walk" style="padding:8px 12px; font-size:0.82rem;">0x00805044 (TLB Miss)</button>
+            <button class="clay-btn vm-btn" data-vm="fault" style="padding:8px 12px; font-size:0.82rem;">0x00F01008 (Page Fault)</button>
+          </div>
+          <div id="vm-sim" class="sim-box"></div>
+        </div>
+
+        <div class="sub-card">
+          <h3>🗺️ Visual B: Inside a Process's Virtual Address Space</h3>
+          <div class="seg-bar" style="background:#fcd5ce;"><span>Kernel Space (Protected — Ring 0 Only)</span><span>High Addr</span></div>
+          <div class="seg-bar" style="background:#fde8d0;"><span>Stack ↓ (Local vars, return addrs, ~8MB)</span><span>Grows Down</span></div>
+          <div class="seg-bar" style="background:#d0e8fd;"><span>Memory-Mapped Region (<code>libc.so</code>, <code>mmap</code>)</span><span>Shared/RO</span></div>
+          <div class="seg-bar" style="background:#d4f0e8;"><span>Heap ↑ (<code>malloc</code>, objects, <code>new</code>)</span><span>Grows Up</span></div>
+          <div class="seg-bar" style="background:#e4dffd;"><span>Data &amp; BSS (Globals) + Text (Machine Code)</span><span>Low Addr</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="clay-card rules findings">
+      <h2>3. Interview Question Deep-Dive (Fresher → Senior)</h2>
+      <div class="filter-bar" role="group" aria-label="Filter Module 3 questions by level">
+        <button class="filter-btn active" data-filter="all">All (9)</button>
+        <button class="filter-btn" data-filter="fresher">Fresher (2)</button>
+        <button class="filter-btn" data-filter="junior">Junior (3)</button>
+        <button class="filter-btn" data-filter="mid">Mid-Level (3)</button>
+        <button class="filter-btn" data-filter="senior">Senior (1)</button>
+      </div>
+
+      <article id="q1" class="qa-card" data-level="fresher">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-fresher">Fresher</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q1. Stack vs. Heap Space + What happens in memory when you launch an app?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q1"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "The <strong>Stack</strong> is per-thread, LIFO-managed, ultra-fast (just moves a CPU stack pointer), and stores local variables and call frames. The <strong>Heap</strong> is shared across threads, dynamically allocated (<code>malloc</code>/<code>new</code>), and lives until freed or garbage-collected. When you launch an app, the OS loader creates a fresh virtual address space, maps the binary's Text/Data segments and shared libraries lazily (without loading the whole file into RAM upfront!), sets up an initial Stack, and jumps to <code>_start</code>."</div>
+      </article>
+
+      <article id="q2" class="qa-card" data-level="fresher">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-fresher">Fresher</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q2. What is Virtual Memory, and why do we need it?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q2"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "Virtual Memory is an abstraction layer giving every process its own private, contiguous-looking address space backed by fragmented physical RAM and disk swap. We need it for three reasons: <strong>1) Isolation &amp; Security</strong> (Process A can't read Process B's secrets), <strong>2) Simplicity</strong> (compilers always use predictable addresses), and <strong>3) Efficiency</strong> (only actively used pages live in RAM, and libraries can be shared)."</div>
+      </article>
+
+      <article id="q3" class="qa-card" data-level="junior">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-junior">Junior</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q3. How does Virtual Memory work (MMU, Page Tables, TLB) &amp; how large is it?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q3"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "The CPU's <strong>MMU</strong> translates every Virtual Address into a Physical Address using per-process multi-level <strong>Page Tables</strong> (usually 4KB pages). To avoid slow RAM lookups on every instruction, the MMU caches hot translations inside the <strong>TLB (Translation Lookaside Buffer)</strong>. Size-wise: a 32-bit OS has a 4 GB virtual address space; a 64-bit x86-64 CPU typically uses 48-bit virtual addresses = <strong>256 TB</strong> per process!"</div>
+      </article>
+
+      <article id="q4" class="qa-card" data-level="junior">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-junior">Junior</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q4. What is Paging &amp; a Page Fault (Minor vs. Major)?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q4"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "Paging divides virtual memory into fixed-size <strong>Pages</strong> (usually 4 KB) and physical RAM into matching <strong>Frames</strong>, eliminating external RAM fragmentation. A <strong>Page Fault</strong> fires when code accesses a valid virtual page not yet mapped in the page table: a <strong>Minor Fault</strong> resolves in RAM (e.g., lazy zero-page allocation or shared cache), while a <strong>Major Fault</strong> must fetch the page from disk/swap—thousands of times slower."</div>
+      </article>
+
+      <article id="q5" class="qa-card" data-level="mid">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-mid">Mid</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q5. Can 2 processes touch each other's address space? Trap: Can 2 processes map to the SAME physical address?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q5"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "By default, <strong>no</strong>—two processes cannot arbitrarily read or modify each other's virtual memory because their Page Tables point to completely separate physical frames. <strong>HOWEVER</strong>, two processes <em>very commonly</em> map different virtual addresses to the <strong>same physical address</strong> intentionally: via <strong>Shared Memory (<code>shm</code>)</strong>, <strong><code>mmap()</code></strong>, <strong>Copy-on-Write after <code>fork()</code></strong>, and <strong>Shared Libraries (<code>libc</code>)</strong>!"</div>
+        <div class="trap-box"><strong>⚠️ Classic Interview Confusion:</strong> Separate virtual address spaces ≠ zero shared physical RAM! Virtual memory isolates <em>unless</em> the kernel explicitly maps two PTEs to the same physical frame.</div>
+      </article>
+
+      <article id="q6" class="qa-card" data-level="mid">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-mid">Mid</span> <span class="src-badge">Core OS</span><h3 style="margin-top:8px;">Q6. How do 2 processes share the same library (e.g., <code>libc</code>) without duplicating RAM?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q6"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "Shared libraries (<code>.so</code> / <code>.dll</code>) are compiled as <strong>Position-Independent Code (PIC)</strong>. The OS loads <code>libc</code>'s read-only machine code (<code>.text</code>) into physical RAM once and maps those same physical frames into every process's virtual address space—even at different virtual addresses (ASLR). Only each process's writable global data (<code>.data</code> / GOT) gets private Copy-on-Write pages."</div>
+      </article>
+
+      <article id="q7" class="qa-card" data-level="junior">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-junior">Junior</span> <span class="src-badge">Production</span><h3 style="margin-top:8px;">Q7. Page Replacement (LRU / Clock) &amp; What is Thrashing?</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q7"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "When RAM is full, the OS evicts pages using approximations of <strong>LRU</strong> like the <strong>Clock (Second-Chance)</strong> algorithm. <strong>Thrashing</strong> occurs when the combined <em>Working Set</em> (actively needed pages) of running apps exceeds physical RAM: the OS constantly swaps pages in and out of disk, CPU utilization collapses, and <code>iowait</code> skyrockets."</div>
+      </article>
+
+      <article id="q8" class="qa-card" data-level="mid">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-mid">Mid</span> <span class="src-badge">Internals</span><h3 style="margin-top:8px;">Q8. Internal vs. External Fragmentation &amp; <code>brk()</code> vs. <code>mmap()</code></h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q8"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "<strong>Internal fragmentation</strong> is wasted space <em>inside</em> an allocated block (e.g., allocating 100 bytes inside a 4KB page). <strong>External fragmentation</strong> is free memory split into tiny non-contiguous holes between allocations. In user-space allocators, small allocations grow the heap via <code>brk()</code>, while huge allocations (&gt;128KB in glibc) use <code>mmap()</code> so they can be cleanly unmapped back to the OS on <code>free()</code>."</div>
+      </article>
+
+      <article id="q9" class="qa-card" data-level="senior">
+        <div class="qa-header">
+          <div><span class="lvl-badge lvl-senior">Senior</span> <span class="src-badge">Production</span><h3 style="margin-top:8px;">Q9. <code>ptmalloc</code> vs. <code>jemalloc</code>, Lazy Demand Paging &amp; Linux OOM Killer</h3></div>
+          <label class="master-toggle"><input type="checkbox" class="master-cb" data-qid="m3-q9"> Mark Mastered</label>
+        </div>
+        <div class="pitch-box"><strong>🎙️ 30-Second Answer:</strong> "<code>malloc()</code> only reserves <em>virtual</em> address space—physical RAM isn't committed until your code actually writes to those pages (Demand Paging). Because Linux enables <strong>Memory Overcommit</strong> by default, apps can allocate more virtual memory than physical RAM exists; if everyone touches it later, the kernel invokes the <strong>OOM Killer</strong> to terminate the highest <code>oom_score</code> process. Meanwhile, multi-threaded servers often swap <code>glibc ptmalloc</code> for <code>jemalloc</code> or <code>tcmalloc</code> to reduce heap fragmentation and arena lock contention."</div>
+      </article>
+    </section>
+
+    <section class="clay-card outputs">
+      <h2>4. Quick Interview Drill</h2>
+      <div class="grid-2">
+        <div class="sub-card">
+          <h3>Scenario 1 (Mid)</h3>
+          <p style="font-size:0.93rem;">100 microservices run on one Linux host, each dynamically linked to a 2 MB <code>libc.so</code>. Roughly how much physical RAM does <code>libc</code>'s code section consume?</p>
+          <button class="quiz-option" data-correct="true" data-msg="Yes! Read-only .text pages are loaded once into physical RAM and shared across all 100 page tables.">A. ~2 MB total, shared across all 100 processes.</button>
+          <button class="quiz-option" data-correct="false" data-msg="That would only happen with static linking—dynamic shared libraries exist precisely to share .text frames!">B. 200 MB (2 MB duplicated 100 times).</button>
+          <div class="quiz-feedback" style="font-size:0.88rem; font-weight:700; margin-top:8px;"></div>
+        </div>
+        <div class="sub-card">
+          <h3>Scenario 2 (Senior)</h3>
+          <p style="font-size:0.93rem;">A C service calls <code>char *p = malloc(1024 * 1024 * 1024);</code> (1 GB) on a container with 512 MB RAM and never writes to <code>p</code>. Does it immediately crash?</p>
+          <button class="quiz-option" data-correct="true" data-msg="Spot on! Virtual space is reserved immediately (VSZ jumps), while RSS stays near 0 until pages are touched—when OOM Killer could strike!">A. No—thanks to demand paging &amp; overcommit, it only crashes when you actually write to those pages.</button>
+          <button class="quiz-option" data-correct="false" data-msg="malloc() rarely touches physical RAM immediately; Linux commits physical frames lazily on first write page fault.">B. Yes, malloc immediately zeroes 1 GB of physical RAM.</button>
+          <div class="quiz-feedback" style="font-size:0.88rem; font-weight:700; margin-top:8px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="clay-card output-footer">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+        <a href="module-2-context-switch-ipc.html" class="clay-btn">← Previous: Module 2</a>
+        <a href="module-4-concurrency-locking.html" class="clay-btn primary">Next: Module 4 — Concurrency, Locks &amp; Deadlocks →</a>
+      </div>
+      <h2>5. Citations &amp; Methodology</h2>
+      <section class="sources-and-citations">
+        <ul style="margin-left:22px;">
+          <li>Remzi &amp; Andrea Arpaci-Dusseau, <em>Operating Systems: Three Easy Pieces (OSTEP)</em> — Chapters 13–23 (Paging, TLBs, Swapping).</li>
+          <li>Ulrich Drepper, <em>How To Write Shared Libraries</em> (PIC, GOT/PLT) &amp; Linux <code>proc_pid_oom_score(5)</code>.</li>
+        </ul>
+      </section>
+      <section class="methodology-note" style="margin-top:12px; font-size:0.88rem; color:var(--color-text-secondary);">
+        <p style="margin:0;"><strong>Methodology:</strong> Authored under AI-Usage Output Contract v1.0.0 &amp; Style Contract v1.0.0. Animated translation workflow rendered via Archify v3.2.0.</p>
+      </section>
+    </footer>
+  </div>
+  <script>
+    (function () {
+      const KEY = 'os-interview-mastered-v1';
+      function load() { try { return new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch (e) { return new Set(); } }
+      const mastered = load();
+      document.querySelectorAll('.master-cb').forEach((cb) => {
+        const id = cb.dataset.qid, card = cb.closest('.qa-card');
+        if (mastered.has(id)) { cb.checked = true; card && card.classList.add('mastered'); }
+        cb.addEventListener('change', () => {
+          cb.checked ? (mastered.add(id), card && card.classList.add('mastered')) : (mastered.delete(id), card && card.classList.remove('mastered'));
+          localStorage.setItem(KEY, JSON.stringify(Array.from(mastered)));
+        });
+      });
+      const cards = Array.from(document.querySelectorAll('.qa-card'));
+      document.querySelectorAll('.filter-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          const f = btn.dataset.filter;
+          cards.forEach((c) => c.classList.toggle('hidden', f !== 'all' && c.dataset.level !== f));
+        });
+      });
+      const vmSim = document.getElementById('vm-sim');
+      const vmData = {
+        tlb: '<strong>Virtual Addr:</strong> <code>0x0040201A</code> → VPN: <code>0x00402</code> | Offset: <code>0x01A</code><br>⚡ <strong>TLB HIT!</strong> Found Frame <code>0x19A</code> in ~1 ns.<br><strong>Physical Addr:</strong> <code>0x19A01A</code> (0 extra RAM reads!)',
+        walk: '<strong>Virtual Addr:</strong> <code>0x00805044</code> → VPN: <code>0x00805</code> | Offset: <code>0x044</code><br>🔍 <strong>TLB Miss</strong> → MMU walks 4-level Page Table in RAM → finds Frame <code>0x7F2</code> → caches in TLB.<br><strong>Physical Addr:</strong> <code>0x7F2044</code>',
+        fault: '<strong>Virtual Addr:</strong> <code>0x00F01008</code> → Present Bit = <code>0</code>!<br>🚨 <strong>Major Page Fault Trap!</strong> OS suspends thread, reads 4KB from Swap Disk into Frame <code>0x30C</code>, updates PTE, and restarts instruction!'
+      };
+      function showVm(k) { if (vmSim) vmSim.innerHTML = vmData[k]; }
+      document.querySelectorAll('.vm-btn').forEach((b) => b.addEventListener('click', () => {
+        document.querySelectorAll('.vm-btn').forEach((x) => x.classList.remove('primary'));
+        b.classList.add('primary'); showVm(b.dataset.vm);
+      }));
+      showVm('tlb');
+      document.querySelectorAll('.quiz-option').forEach((opt) => opt.addEventListener('click', () => {
+        const card = opt.closest('.sub-card'), fb = card.querySelector('.quiz-feedback');
+        card.querySelectorAll('.quiz-option').forEach((o) => o.classList.remove('correct', 'wrong'));
+        const ok = opt.dataset.correct === 'true';
+        opt.classList.add(ok ? 'correct' : 'wrong');
+        fb.textContent = opt.dataset.msg; fb.style.color = ok ? '#065f46' : '#9f1239';
+      }));
+    })();
+  </script>
+</body>
+</html>
+
