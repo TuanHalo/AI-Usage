@@ -99,6 +99,30 @@
                   ]
     },
     {
+        "name":  "humanizer",
+        "version":  "1.0.0",
+        "description":  "Delegates AI prose humanization and de-slopping to the local Humanizer skill package without duplicating its upstream pattern catalog. Use this skill whenever editing, rewriting, or reviewing prose to remove AI tells such as not-X-but-Y contrasts, one-line closers, staged run-ups, forced triads, universal em dashes, inflated claims, sales language, overused AI words, or chatbot residue.",
+        "tags":  [
+                     "writing",
+                     "humanizer",
+                     "editing",
+                     "prose",
+                     "style"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Resolve Local Humanizer Package",
+                      "Determine Input Mode and Voice",
+                      "Run the Four-Pass Rewrite",
+                      "Deliver Mode-Specific Output"
+                  ]
+    },
+    {
         "name":  "slide-generator",
         "version":  "1.0.0",
         "description":  "Guides users from a presentation topic through multi-source research, concern alignment, slide-by-slide content approval, visual style sampling, and final PPTX generation. Use this skill whenever the user asks to create, design, or generate presentation slides or a PowerPoint deck.",
