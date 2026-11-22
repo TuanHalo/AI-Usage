@@ -49,7 +49,7 @@
     .sub-card { background: rgba(255,255,255,0.84); border-radius: var(--clay-radius-md); padding: 22px; box-shadow: var(--clay-shadow-sm); }
     .archify-frame-wrap { background: #fff; border-radius: var(--clay-radius-md); padding: 14px; box-shadow: var(--clay-shadow-sm); margin-top: 16px; }
     .archify-frame-bar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 4px 8px 12px; border-bottom: 1px solid rgba(46,16,101,0.08); margin-bottom: 12px; }
-    .archify-iframe { width: 100%; height: 550px; border: none; border-radius: 16px; background: #0f172a; }
+    .archify-iframe { width: 100%; height: 550px; border: none; border-radius: 16px; background: #f8fafc; }
     .lvl-badge { display: inline-block; padding: 4px 12px; border-radius: var(--clay-radius-sm); font-size: 0.78rem; font-weight: 800; text-transform: uppercase; }
     .lvl-fresher { background: #d4f0e8; color: #065f46; }
     .lvl-junior { background: #d0e8fd; color: #075985; }
@@ -76,6 +76,10 @@
     .quiz-option.wrong { background: #fcd5ce; color: #9f1239; }
     a { color: #5b21b6; font-weight: 700; }
   </style>
+  <!-- AI-Usage Shared Theme (Light/Dark) & Bilingual (EN/VI) Controller -->
+  <link rel="stylesheet" href="../../shared/output-prefs.css">
+  <script src="../../shared/output-i18n-data.js"></script>
+  <script src="../../shared/output-prefs.js"></script>
 </head>
 <body>
   <div class="container">
@@ -129,9 +133,9 @@
             <strong>🎬 Flow (Archify Sequence): Traditional <code>read()+write()</code> vs. Zero-Copy <code>sendfile()</code></strong>
             <div style="font-size:0.85rem; color:var(--color-text-muted);">Compare 4 context switches + 2 wasted CPU copies against 2 context switches + 0 CPU copies!</div>
           </div>
-          <a href="../../diagrams/os-zero-copy-sendfile/os-zero-copy-sendfile.html" target="_blank" class="clay-btn" style="padding:7px 14px; font-size:0.84rem;">Open Fullscreen ↗</a>
+          <a href="../../diagrams/os-zero-copy-sendfile/os-zero-copy-sendfile.html?theme=light" target="_blank" class="clay-btn" style="padding:7px 14px; font-size:0.84rem;">Open Fullscreen ↗</a>
         </div>
-        <iframe class="archify-iframe" src="../../diagrams/os-zero-copy-sendfile/os-zero-copy-sendfile.html" title="Zero-Copy sendfile Archify Diagram" loading="lazy"></iframe>
+        <iframe class="archify-iframe" src="../../diagrams/os-zero-copy-sendfile/os-zero-copy-sendfile.html?theme=light" title="Zero-Copy sendfile Archify Diagram" loading="lazy"></iframe>
       </div>
 
       <div class="grid-2" style="margin-top:22px;">
