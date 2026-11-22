@@ -50,6 +50,30 @@
                   ]
     },
     {
+        "name":  "conversation-flow",
+        "version":  "1.0.0",
+        "description":  "Transforms raw multi-turn AI conversations or current session transcripts from Claude, Gemini, Grok, ChatGPT, and coding agents into a structured ConversationFlow v1 JSON payload tracking raw prompts, expected vs actual output, and scope deltas. Use whenever analyzing or visualizing an AI conversation flow.",
+        "tags":  [
+                     "conversation-flow",
+                     "visualization",
+                     "prompt-tracking",
+                     "expected-output",
+                     "multi-ai"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Capture or Receive Conversation",
+                      "Preserve Verbatim Prompts \u0026 Parse Contract Blocks",
+                      "Extract Expected vs. Actual \u0026 Classify Delta",
+                      "Emit ConversationFlow v1 JSON"
+                  ]
+    },
+    {
         "name":  "git-commit",
         "version":  "1.0.0",
         "description":  "Analyzes modified and untracked files, groups logically related changes into atomic commits, and drafts Conventional Commit messages adhering to commit best practices. Use this skill when the user asks to stage, commit, or create git commits for their code changes.",

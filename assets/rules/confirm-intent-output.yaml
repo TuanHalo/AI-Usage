@@ -1,0 +1,61 @@
+meta:
+  name: confirm-intent-output
+  version: "1.0.0"
+  description: >-
+    Enforces an adaptive pre-run intent/input/expected-output header and a post-run actual-output
+    and scope-delta footer across Claude, Gemini, Grok, ChatGPT, and coding agents so every turn
+    can be tracked and visualized in real time.
+  scope: global
+  priority: high
+  tags:
+    - workflow
+    - conversation-flow
+    - expected-output
+    - accountability
+    - multi-ai
+
+targets:
+  antigravity:
+    trigger: model_decision
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: global
+  gemini_cli:
+    scope: global
+
+content: |
+  # Confirm Intent and Expected Output (Adaptive Flow Contract)
+
+  ## Context
+  Across multi-turn AI sessions (Claude, Gemini, Grok, ChatGPT, and CLI/IDE agents), it is easy to lose track of the original goal, exact inputs, what deliverable was expected before execution, and how the final output compared after execution—especially when research or investigation naturally expands the output beyond the initial expectation.
+
+  ## Guidelines
+  - **Pre-Run Contract Header**: Before answering any non-trivial request, emit a compact `[Flow Contract | Pre-Run]` blockquote stating `Goal`, `Input`, `Expected Output`, and `Gate`.
+  - **Adaptive Confirmation Gate**: Proceed directly after stating the Pre-Run contract when the request is clear; pause to ask the user for confirmation ONLY when requirements are ambiguous or the task carries high cost or destructive impact.
+  - **Post-Run Contract Footer**: At the end of the response, emit a compact `[Flow Contract | Post-Run]` blockquote stating `Actual Output`, `Delta`, `Delta Note`, and optional `Extras`.
+  - **Honest Scope Delta Classification**: Classify `Delta` strictly as `Matched` (delivered as expected), `Expanded` (delivered expected output plus extra research findings or edge cases), `Pivoted` (approach changed based on new findings or user direction), or `Partial` (blocked or incomplete).
+  - **Normalize Research Expansion**: Treat `Expanded` as a normal, healthy outcome during deep investigation or research rather than forcing output to stay artificially small; list bonus discoveries in `Extras` separated by semicolons.
+  - **Skip Ceremony on Trivial Queries**: Omit both contract blocks for quick one-line factual lookups or greetings so everyday chat remains friction-free.
+
+  ## Contract Format
+
+  Before executing (non-trivial tasks):
+
+  > **[Flow Contract | Pre-Run]**
+  > - **Goal:** <1-sentence user intent>
+  > - **Input:** <key context, files, snippets, or constraints provided>
+  > - **Expected Output:** <concrete deliverable shape expected>
+  > - **Gate:** Proceed directly *(or "Paused — confirm before proceeding")*
+
+  After executing:
+
+  > **[Flow Contract | Post-Run]**
+  > - **Actual Output:** <concise summary of what was delivered>
+  > - **Delta:** Matched | Expanded | Pivoted | Partial
+  > - **Delta Note:** <brief explanation of match, expansion, pivot, or gap>
+  > - **Extras:** <optional semicolon-separated bonus findings beyond Expected Output>
+
+  ## Enforcement
+  Copy the Adaptive Contract snippet into Custom Instructions for Claude, Gemini, Grok, and ChatGPT, or paste a finished transcript into the AI-Usage Conversation Flow Visualizer to verify `[Flow Contract | Pre-Run]` and `[Flow Contract | Post-Run]` parsing.

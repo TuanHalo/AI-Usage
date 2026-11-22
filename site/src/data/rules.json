@@ -1,3 +1,24 @@
 ﻿[
-
+    {
+        "name":  "confirm-intent-output",
+        "version":  "1.0.0",
+        "scope":  "global",
+        "priority":  "high",
+        "description":  "Enforces an adaptive pre-run intent/input/expected-output header and a post-run actual-output and scope-delta footer across Claude, Gemini, Grok, ChatGPT, and coding agents so every turn can be tracked and visualized in real time.",
+        "tags":  [
+                     "workflow",
+                     "conversation-flow",
+                     "expected-output",
+                     "accountability",
+                     "multi-ai"
+                 ],
+        "guidelines":  [
+                           "**Pre-Run Contract Header**: Before answering any non-trivial request, emit a compact `[Flow Contract | Pre-Run]` blockquote stating `Goal`, `Input`, `Expected Output`, and `Gate`.",
+                           "**Adaptive Confirmation Gate**: Proceed directly after stating the Pre-Run contract when the request is clear; pause to ask the user for confirmation ONLY when requirements are ambiguous or the task carries high cost or destructive impact.",
+                           "**Post-Run Contract Footer**: At the end of the response, emit a compact `[Flow Contract | Post-Run]` blockquote stating `Actual Output`, `Delta`, `Delta Note`, and optional `Extras`.",
+                           "**Honest Scope Delta Classification**: Classify `Delta` strictly as `Matched` (delivered as expected), `Expanded` (delivered expected output plus extra research findings or edge cases), `Pivoted` (approach changed based on new findings or user direction), or `Partial` (blocked or incomplete).",
+                           "**Normalize Research Expansion**: Treat `Expanded` as a normal, healthy outcome during deep investigation or research rather than forcing output to stay artificially small; list bonus discoveries in `Extras` separated by semicolons.",
+                           "**Skip Ceremony on Trivial Queries**: Omit both contract blocks for quick one-line factual lookups or greetings so everyday chat remains friction-free."
+                       ]
+    }
 ]
