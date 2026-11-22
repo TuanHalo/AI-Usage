@@ -2,11 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
+import T from '../components/T.astro';
 ---
 
 <BaseLayout
-  title="Conversation Flow Visualizer — AI-Usage"
-  description="Track raw AI prompts, expected vs. actual output, and research scope expansion in real time for Gemini (Antigravity) and Claude Desktop."
+  titleKey="meta.visualizer.title"
+  descriptionKey="meta.visualizer.desc"
   wide={true}
 >
   <section class="viz-hero">
@@ -14,32 +15,31 @@ import ClayBadge from '../components/ClayBadge.astro';
       <div class="viz-hero-top">
         <div>
           <div class="viz-pill-row">
-            <ClayBadge class="viz-privacy-pill">🔒 100% Local — Zero Cloud Upload</ClayBadge>
-            <ClayBadge class="viz-pill-soft">Antigravity • Claude Desktop • Claude Code</ClayBadge>
+            <ClayBadge class="viz-privacy-pill"><T k="viz.hero.privacy" /></ClayBadge>
+            <ClayBadge class="viz-pill-soft"><T k="viz.hero.platforms" /></ClayBadge>
           </div>
-          <h1 class="viz-title">🧭 PromptFlow — Conversation Flow Visualizer</h1>
+          <h1 class="viz-title"><T k="viz.hero.title" /></h1>
           <p class="viz-subtitle">
-            Never forget what you asked, what input you gave, what output was expected, or how research expanded the final answer.
-            Stream live from <strong>Gemini (Antigravity)</strong> &amp; <strong>Claude Desktop</strong> or paste any transcript below.
+            <T k="viz.hero.subtitle" html={true} />
           </p>
         </div>
       </div>
 
       <div class="viz-quick-actions">
         <button type="button" class="clay-btn viz-btn-primary" id="btn-demo-contract">
-          ✨ Load Adaptive Contract Demo
+          <T k="viz.actions.demoContract" />
         </button>
         <button type="button" class="clay-btn" id="btn-demo-raw">
-          💬 Load Raw Chat Demo
+          <T k="viz.actions.demoRaw" />
         </button>
         <button type="button" class="clay-btn" id="btn-open-desktop-modal">
-          🖥️ Connect Antigravity &amp; Claude Desktop
+          <T k="viz.actions.connectDesktop" />
         </button>
         <button type="button" class="clay-btn" id="btn-open-rule-modal">
-          📋 Get Adaptive Contract Rule
+          <T k="viz.actions.getRule" />
         </button>
         <button type="button" class="clay-btn" id="btn-toggle-history">
-          📚 Saved Flows (<span id="saved-count">0</span>)
+          <T k="viz.actions.savedFlows" /> (<span id="saved-count">0</span>)
         </button>
       </div>
     </ClayCard>
@@ -53,18 +53,18 @@ import ClayBadge from '../components/ClayBadge.astro';
     <div class="viz-drawer-head">
       <div>
         <div class="viz-pill-row" style="margin-bottom: 6px;">
-          <span class="clay-badge viz-live-dot" id="desktop-status-badge">🟢 Desktop Bridge Live</span>
-          <span class="viz-muted-sm" id="desktop-session-count">0 sessions detected</span>
+          <span class="clay-badge viz-live-dot" id="desktop-status-badge"><T k="viz.desktop.badge" /></span>
+          <span class="viz-muted-sm" id="desktop-session-count">0 session(s) detected</span>
         </div>
-        <h2 class="viz-h2">🖥️ Live Desktop Sessions (Antigravity &amp; Claude Desktop)</h2>
+        <h2 class="viz-h2"><T k="viz.desktop.title" /></h2>
       </div>
       <div class="viz-btn-group">
         <label class="viz-toggle-label">
           <input type="checkbox" id="chk-auto-follow" checked />
-          <span>🔄 Auto-Follow Active</span>
+          <span><T k="viz.desktop.autoFollow" /></span>
         </label>
         <button type="button" class="clay-btn viz-btn-sm" id="btn-refresh-desktop">
-          ↻ Refresh
+          <T k="viz.desktop.refresh" />
         </button>
       </div>
     </div>
@@ -75,15 +75,15 @@ import ClayBadge from '../components/ClayBadge.astro';
   <section id="history-drawer" class="clay-card rules viz-drawer hidden" aria-label="Locally saved flows">
     <div class="viz-drawer-head">
       <div>
-        <h2 class="viz-h2">📚 Locally Saved Flows (Browser Only)</h2>
-        <p class="viz-muted">Stored exclusively in your browser <code>localStorage</code>. Never synced to GitHub or external servers.</p>
+        <h2 class="viz-h2"><T k="viz.history.title" /></h2>
+        <p class="viz-muted"><T k="viz.history.subtitle" html={true} /></p>
       </div>
       <div class="viz-btn-group">
         <button type="button" class="clay-btn viz-btn-sm viz-btn-danger" id="btn-clear-history">
-          🗑️ Clear All
+          <T k="viz.history.clearAll" />
         </button>
         <button type="button" class="clay-btn viz-btn-sm" id="btn-close-history">
-          ✕ Close
+          <T k="viz.common.close" />
         </button>
       </div>
     </div>
@@ -94,9 +94,9 @@ import ClayBadge from '../components/ClayBadge.astro';
   <section class="clay-card viz-intake-card" id="intake-section">
     <div class="viz-intake-head">
       <div>
-        <h2 class="viz-h2">📥 Conversation Input (Raw Chat, Flow-Contract, or JSON)</h2>
+        <h2 class="viz-h2"><T k="viz.intake.title" /></h2>
         <p class="viz-muted">
-          Paste a chat directly, paste JSON from the <strong>Analyzer Prompt</strong>, or use the live Desktop Bridge above.
+          <T k="viz.intake.subtitle" html={true} />
         </p>
       </div>
       <button type="button" class="clay-btn viz-btn-sm" id="btn-toggle-intake">
@@ -111,13 +111,14 @@ import ClayBadge from '../components/ClayBadge.astro';
         rows="9"
         placeholder="Paste your conversation from Antigravity, Claude Desktop, Gemini, Grok, ChatGPT, or structured ConversationFlow JSON here..."
         aria-label="Conversation transcript or JSON input"
+        data-i18n-attr="placeholder:viz.intake.placeholder;aria-label:viz.intake.ariaLabel"
       ></textarea>
 
       <div class="viz-intake-controls">
         <label class="viz-select-wrap">
-          <span class="viz-label-inline">Platform</span>
+          <span class="viz-label-inline"><T k="viz.intake.platformLabel" /></span>
           <select id="platform-select" class="viz-select">
-            <option value="generic">Auto-Detect</option>
+            <option value="generic" data-i18n="viz.intake.platformAuto">Auto-Detect</option>
             <option value="antigravity">Antigravity (Gemini)</option>
             <option value="claude">Claude</option>
             <option value="gemini">Gemini</option>
@@ -128,13 +129,13 @@ import ClayBadge from '../components/ClayBadge.astro';
 
         <div class="viz-btn-group">
           <button type="button" class="clay-btn viz-btn-primary" id="btn-visualize">
-            ✨ Visualize Flow
+            <T k="viz.intake.visualizeBtn" />
           </button>
           <button type="button" class="clay-btn" id="btn-copy-analyzer">
-            📋 Copy Analyzer Prompt (Zero-API)
+            <T k="viz.intake.copyAnalyzerBtn" />
           </button>
           <button type="button" class="clay-btn" id="btn-clear-input">
-            Clear
+            <T k="viz.intake.clearBtn" />
           </button>
         </div>
       </div>
@@ -155,36 +156,43 @@ import ClayBadge from '../components/ClayBadge.astro';
             type="text"
             class="viz-title-input"
             aria-label="Conversation title"
+            data-i18n-attr="aria-label:viz.mission.titleAria"
           />
         </div>
         <div class="viz-btn-group">
           <button type="button" class="clay-btn viz-btn-sm" id="btn-export-html">
-            🌐 Export Standalone HTML
+            <T k="viz.mission.exportHtml" />
           </button>
           <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-md">
-            📋 Copy Markdown
+            <T k="viz.mission.copyMd" />
           </button>
           <button type="button" class="clay-btn viz-btn-sm" id="btn-export-json">
-            💾 Download JSON
+            <T k="viz.mission.exportJson" />
           </button>
           <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-save-local">
-            📌 Save Locally
+            <T k="viz.mission.saveLocal" />
           </button>
         </div>
       </div>
 
       <div class="viz-mission-grid">
         <div class="viz-mission-box">
-          <label class="viz-sub-label" for="overall-goal-input">🎯 Original Goal (Editable)</label>
+          <label class="viz-sub-label" for="overall-goal-input"><T k="viz.mission.goalLabel" /></label>
           <textarea id="overall-goal-input" class="viz-inline-area" rows="2"></textarea>
         </div>
         <div class="viz-mission-box">
-          <label class="viz-sub-label" for="final-outcome-input">🏁 Final Outcome (Editable)</label>
+          <label class="viz-sub-label" for="final-outcome-input"><T k="viz.mission.outcomeLabel" /></label>
           <textarea id="final-outcome-input" class="viz-inline-area" rows="2"></textarea>
         </div>
       </div>
 
-      <div class="viz-filter-row" id="delta-filters" role="group" aria-label="Filter turns by scope delta"></div>
+      <div
+        class="viz-filter-row"
+        id="delta-filters"
+        role="group"
+        aria-label="Filter turns by scope delta"
+        data-i18n-attr="aria-label:viz.mission.filterAria"
+      ></div>
     </div>
 
     <!-- Two-Column Synchronized Stage -->
@@ -192,14 +200,20 @@ import ClayBadge from '../components/ClayBadge.astro';
       <div class="clay-card viz-map-panel">
         <div class="viz-panel-head">
           <div>
-            <h2 class="viz-h2">🗺️ Conversation Flow Map</h2>
-            <p class="viz-muted-sm">Click a turn or use ↑ / ↓ arrows to inspect</p>
+            <h2 class="viz-h2"><T k="viz.map.title" /></h2>
+            <p class="viz-muted-sm"><T k="viz.map.subtitle" /></p>
           </div>
           <button type="button" class="clay-btn viz-btn-sm" id="btn-add-turn">
-            + Add Turn
+            <T k="viz.map.addTurn" />
           </button>
         </div>
-        <div id="flow-map-list" class="viz-flow-list" role="listbox" aria-label="Conversation turns"></div>
+        <div
+          id="flow-map-list"
+          class="viz-flow-list"
+          role="listbox"
+          aria-label="Conversation turns"
+          data-i18n-attr="aria-label:viz.map.listAria"
+        ></div>
       </div>
 
       <div class="clay-card viz-inspector-panel" id="turn-inspector" aria-live="polite"></div>
@@ -211,17 +225,17 @@ import ClayBadge from '../components/ClayBadge.astro';
     <div class="clay-card rules viz-dialog-card">
       <div class="viz-drawer-head">
         <div>
-          <h2 class="viz-h2">📋 Adaptive Flow Contract Rule</h2>
+          <h2 class="viz-h2"><T k="viz.ruleModal.title" /></h2>
           <p class="viz-muted">
-            Works in Antigravity, Claude Desktop, Claude Code, Gemini, and Grok. States Goal, Input &amp; Expected Output upfront (only pausing if ambiguous) and records Actual Output + Delta (including research expansion) at the end.
+            <T k="viz.ruleModal.desc" />
           </p>
         </div>
-        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-rule-modal">✕ Close</button>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-rule-modal"><T k="viz.common.close" /></button>
       </div>
       <pre id="rule-snippet-preview" class="viz-code-block"></pre>
       <div class="viz-btn-group" style="margin-top: 16px;">
         <button type="button" class="clay-btn viz-btn-primary" id="btn-copy-rule-snippet">
-          📋 Copy Adaptive Rule Snippet
+          <T k="viz.ruleModal.copyBtn" />
         </button>
       </div>
     </div>
@@ -232,18 +246,18 @@ import ClayBadge from '../components/ClayBadge.astro';
     <div class="clay-card principles viz-dialog-card">
       <div class="viz-drawer-head">
         <div>
-          <h2 class="viz-h2">🖥️ Real-Time Desktop Setup (Antigravity &amp; Claude Desktop)</h2>
+          <h2 class="viz-h2"><T k="viz.desktopModal.title" /></h2>
           <p class="viz-muted">
-            Watch your desktop AI conversations stream live into PromptFlow on <code>127.0.0.1:4328</code> — zero copy-pasting.
+            <T k="viz.desktopModal.desc" html={true} />
           </p>
         </div>
-        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-desktop-modal">✕ Close</button>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-desktop-modal"><T k="viz.common.close" /></button>
       </div>
 
       <div class="viz-setup-section">
-        <h3 class="viz-h3">1. Start the Local Desktop Live Bridge (Antigravity + Claude Code Auto-Watched)</h3>
+        <h3 class="viz-h3"><T k="viz.desktopModal.step1Title" /></h3>
         <p class="viz-muted">
-          Automatically watches Antigravity <code>transcript.jsonl</code> and Claude Code <code>.jsonl</code> files in real time and serves this Visualizer:
+          <T k="viz.desktopModal.step1Desc" html={true} />
         </p>
         <pre class="viz-code-block">cd d:\IT\AI-Usage\site
 npm run desktop:live
@@ -251,30 +265,30 @@ npm run desktop:live
       </div>
 
       <div class="viz-setup-section">
-        <h3 class="viz-h3">2. Connect Claude Desktop (Chat Tab) via Local Stdio MCP</h3>
+        <h3 class="viz-h3"><T k="viz.desktopModal.step2Title" /></h3>
         <p class="viz-muted">
-          Run <code>.\scripts\setup-desktop-mcp.ps1 -Target claude-desktop -Apply</code> (creates a <code>.bak</code> backup) or add this to <code>%APPDATA%\Claude\claude_desktop_config.json</code>, then restart Claude Desktop:
+          <T k="viz.desktopModal.step2Desc" html={true} />
         </p>
         <pre id="claude-mcp-preview" class="viz-code-block"></pre>
         <div class="viz-btn-group" style="margin-top: 10px;">
           <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-copy-claude-mcp">
-            📋 Copy Claude Desktop MCP JSON
+            <T k="viz.desktopModal.copyClaudeMcp" />
           </button>
           <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-claude-instructions">
-            📋 Copy Claude Desktop Custom Instructions
+            <T k="viz.desktopModal.copyClaudeInst" />
           </button>
         </div>
       </div>
 
       <div class="viz-setup-section">
-        <h3 class="viz-h3">3. (Optional) Register MCP in Antigravity (<code>~/.gemini/config/mcp_config.json</code>)</h3>
+        <h3 class="viz-h3"><T k="viz.desktopModal.step3Title" html={true} /></h3>
         <p class="viz-muted">
-          Antigravity transcripts already stream automatically in Step 1, or add the MCP server for explicit Expected-vs-Actual logging:
+          <T k="viz.desktopModal.step3Desc" />
         </p>
         <pre id="agy-mcp-preview" class="viz-code-block"></pre>
         <div class="viz-btn-group" style="margin-top: 10px;">
           <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-agy-mcp">
-            📋 Copy Antigravity MCP JSON
+            <T k="viz.desktopModal.copyAgyMcp" />
           </button>
         </div>
       </div>
@@ -309,12 +323,12 @@ npm run desktop:live
 
   .viz-privacy-pill,
   .viz-live-dot {
-    background: #d4f0e8 !important;
-    color: #065f46 !important;
+    background: var(--status-success-bg) !important;
+    color: var(--status-success-fg) !important;
   }
 
   .viz-pill-soft {
-    background: rgba(255, 255, 255, 0.85) !important;
+    background: var(--color-surface-soft) !important;
   }
 
   .viz-title {
@@ -340,7 +354,7 @@ npm run desktop:live
 
   .viz-btn-primary {
     background-color: var(--color-accent) !important;
-    color: #ffffff !important;
+    color: var(--color-on-accent) !important;
   }
 
   .viz-btn-sm {
@@ -350,16 +364,16 @@ npm run desktop:live
   }
 
   .viz-btn-danger {
-    background-color: #fcd5ce !important;
-    color: #9f1239 !important;
+    background-color: var(--status-danger-bg) !important;
+    color: var(--status-danger-fg) !important;
   }
 
   .viz-toast {
     margin-bottom: 18px;
     padding: 14px 20px;
     border-radius: var(--clay-radius-md);
-    background: #d4f0e8;
-    color: #065f46;
+    background: var(--status-success-bg);
+    color: var(--status-success-fg);
     font-weight: 700;
     box-shadow: var(--clay-shadow-sm);
   }
@@ -383,7 +397,7 @@ npm run desktop:live
     gap: 8px;
     padding: 8px 14px;
     border-radius: var(--clay-radius-sm);
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--color-surface-soft);
     font-weight: 700;
     font-size: 0.88rem;
     cursor: pointer;
@@ -418,7 +432,7 @@ npm run desktop:live
   .viz-setup-section {
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(46, 16, 101, 0.1);
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .viz-muted {
@@ -446,7 +460,7 @@ npm run desktop:live
   }
 
   .viz-intake-card {
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     margin-bottom: 24px;
     padding: 24px 28px;
   }
@@ -460,13 +474,13 @@ npm run desktop:live
   .viz-title-input,
   .viz-select {
     width: 100%;
-    border: 2px solid rgba(124, 58, 237, 0.14);
+    border: 2px solid var(--color-input-border);
     border-radius: var(--clay-radius-sm);
-    background: #f8f7fc;
+    background: var(--color-surface-sunken);
     color: var(--color-text-primary);
     font-family: var(--font-body);
     padding: 14px 16px;
-    box-shadow: inset 0 3px 8px rgba(100, 60, 150, 0.08);
+    box-shadow: inset 0 3px 8px var(--color-input-shadow);
     transition: var(--clay-transition);
   }
 
@@ -482,7 +496,7 @@ npm run desktop:live
   .viz-select:focus {
     outline: none;
     border-color: var(--color-accent);
-    background: #ffffff;
+    background: var(--color-surface);
   }
 
   .viz-intake-controls {
@@ -516,8 +530,8 @@ npm run desktop:live
     margin-top: 14px;
     padding: 12px 16px;
     border-radius: var(--clay-radius-sm);
-    background: #fde8d0;
-    color: #9a3412;
+    background: var(--status-warn-bg);
+    color: var(--status-warn-fg);
     font-size: 0.9rem;
     font-weight: 600;
   }
@@ -541,7 +555,7 @@ npm run desktop:live
     font-size: 1.45rem;
     font-weight: 800;
     padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.82);
+    background: var(--color-surface-soft);
   }
 
   .viz-mission-grid {
@@ -552,7 +566,7 @@ npm run desktop:live
   }
 
   .viz-mission-box {
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--color-surface-soft);
     border-radius: var(--clay-radius-md);
     padding: 14px 16px;
   }
@@ -589,12 +603,12 @@ npm run desktop:live
 
   .viz-map-panel,
   .viz-inspector-panel {
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     padding: 24px;
     height: 100vh;
     min-height: 720px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(124, 58, 237, 0.28) transparent;
+    scrollbar-color: var(--color-scrollbar) transparent;
   }
 
   .viz-map-panel {
@@ -625,7 +639,7 @@ npm run desktop:live
     overflow-y: auto;
     padding: 4px 6px 8px 2px;
     scrollbar-width: thin;
-    scrollbar-color: rgba(124, 58, 237, 0.28) transparent;
+    scrollbar-color: var(--color-scrollbar) transparent;
   }
 
   @media (max-width: 920px) {
@@ -655,7 +669,7 @@ npm run desktop:live
   }
 
   .viz-dialog::backdrop {
-    background: rgba(46, 16, 101, 0.35);
+    background: var(--color-backdrop);
     backdrop-filter: blur(4px);
   }
 
@@ -669,7 +683,7 @@ npm run desktop:live
 
   .viz-code-block {
     margin-top: 10px;
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--color-surface-soft);
     padding: 14px 16px;
     border-radius: var(--clay-radius-sm);
     font-family: var(--font-mono);
@@ -677,7 +691,7 @@ npm run desktop:live
     white-space: pre-wrap;
     word-break: break-word;
     color: var(--color-text-primary);
-    box-shadow: inset 0 2px 6px rgba(100, 60, 150, 0.1);
+    box-shadow: inset 0 2px 6px var(--color-input-shadow);
   }
 
   :global(.viz-session-btn) {
@@ -685,7 +699,7 @@ npm run desktop:live
     border: 2px solid transparent;
     border-radius: var(--clay-radius-md);
     padding: 12px 14px;
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--color-surface-soft);
     color: var(--color-text-primary);
     cursor: pointer;
     box-shadow: var(--clay-shadow-sm);
@@ -696,12 +710,12 @@ npm run desktop:live
   }
 
   :global(.viz-session-btn:hover) {
-    background: #ffffff;
+    background: var(--color-surface);
     transform: translateY(-2px);
   }
 
   :global(.viz-session-btn.active) {
-    background: #ffffff;
+    background: var(--color-surface);
     border-color: var(--color-accent);
   }
 
@@ -709,7 +723,7 @@ npm run desktop:live
     border: none;
     border-radius: var(--clay-radius-sm);
     padding: 8px 14px;
-    background: rgba(255, 255, 255, 0.85);
+    background: var(--color-surface-soft);
     color: var(--color-text-primary);
     font-family: var(--font-display);
     font-weight: 700;
@@ -721,7 +735,7 @@ npm run desktop:live
 
   :global(.viz-filter-pill.active) {
     background: var(--color-accent);
-    color: #ffffff;
+    color: var(--color-on-accent);
   }
 
   :global(.viz-connector) {
@@ -738,7 +752,7 @@ npm run desktop:live
     width: 3px;
     height: 20px;
     border-radius: 99px;
-    background: rgba(124, 58, 237, 0.25);
+    background: var(--color-connector);
   }
 
   :global(.viz-node-btn) {
@@ -747,7 +761,7 @@ npm run desktop:live
     border: 2px solid transparent;
     border-radius: var(--clay-radius-md);
     padding: 14px 16px;
-    background: #f8f7fc;
+    background: var(--color-surface-sunken);
     color: var(--color-text-primary);
     cursor: pointer;
     box-shadow: var(--clay-shadow-sm);
@@ -758,12 +772,12 @@ npm run desktop:live
   }
 
   :global(.viz-node-btn:hover) {
-    background: #ffffff;
+    background: var(--color-surface);
     transform: translateY(-2px);
   }
 
   :global(.viz-node-btn.active) {
-    background: #f3f0ff;
+    background: var(--color-surface-active);
     border-color: var(--color-accent);
   }
 
@@ -800,11 +814,11 @@ npm run desktop:live
     white-space: nowrap;
   }
 
-  :global(.viz-delta-matched) { background: #d4f0e8; color: #065f46; }
-  :global(.viz-delta-expanded) { background: #e4dffd; color: #5b21b6; }
-  :global(.viz-delta-pivoted) { background: #fde8d0; color: #9a3412; }
-  :global(.viz-delta-partial) { background: #fcd5ce; color: #9f1239; }
-  :global(.viz-delta-pending) { background: #d0e8fd; color: #075985; }
+  :global(.viz-delta-matched) { background: var(--status-success-bg); color: var(--status-success-fg); }
+  :global(.viz-delta-expanded) { background: var(--status-expanded-bg); color: var(--status-expanded-fg); }
+  :global(.viz-delta-pivoted) { background: var(--status-warn-bg); color: var(--status-warn-fg); }
+  :global(.viz-delta-partial) { background: var(--status-danger-bg); color: var(--status-danger-fg); }
+  :global(.viz-delta-pending) { background: var(--status-info-bg); color: var(--status-info-fg); }
 
   :global(.viz-inspector-head) {
     display: flex;
@@ -816,11 +830,11 @@ npm run desktop:live
   }
 
   :global(.viz-raw-box) {
-    background: #f8f7fc;
+    background: var(--color-surface-sunken);
     border-radius: var(--clay-radius-md);
     padding: 14px 16px;
     margin-bottom: 14px;
-    box-shadow: inset 0 2px 6px rgba(100, 60, 150, 0.08);
+    box-shadow: inset 0 2px 6px var(--color-input-shadow);
   }
 
   :global(.viz-raw-pre) {
@@ -849,13 +863,13 @@ npm run desktop:live
     padding: 16px;
   }
 
-  :global(.viz-compare-card.expected) { background: #e8f3fe; }
-  :global(.viz-compare-card.actual) { background: #e6f6f0; }
+  :global(.viz-compare-card.expected) { background: var(--color-expected-bg); }
+  :global(.viz-compare-card.actual) { background: var(--color-actual-bg); }
 
   :global(.viz-extras-card) {
     border-radius: var(--clay-radius-md);
     padding: 16px;
-    background: #f3f0ff;
+    background: var(--color-surface-active);
     margin-bottom: 14px;
   }
 
@@ -874,7 +888,7 @@ npm run desktop:live
   }
 
   :global(.viz-history-item) {
-    background: rgba(255, 255, 255, 0.88);
+    background: var(--color-surface-soft);
     border-radius: var(--clay-radius-md);
     padding: 14px 16px;
     box-shadow: var(--clay-shadow-sm);

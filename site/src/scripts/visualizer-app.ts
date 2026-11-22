@@ -1,3 +1,4 @@
+import { getLang, onLangChange, t } from '../i18n/runtime';
 import {
   buildAnalyzerPrompt,
   getAdaptiveRuleSnippet,
@@ -101,7 +102,7 @@ async function copyText(text: string, confirmationMessage: string): Promise<void
     await navigator.clipboard.writeText(text);
     showToast(confirmationMessage);
   } catch {
-    showToast('Clipboard write blocked — select and copy manually.');
+    showToast(t('viz.toast.clipboardBlocked'));
   }
 }
 
@@ -153,11 +154,12 @@ function renderDesktopLiveBar(): void {
   }
 
   bar.classList.remove('hidden');
-  countEl.textContent = `${state.desktopSessions.length} session(s) detected`;
+  countEl.textContent = t('viz.rt.sessionsDetected', {
+    n: state.desktopSessions.length,
+  });
 
   if (state.desktopSessions.length === 0) {
-    listEl.innerHTML =
-      '<p class="viz-muted">No desktop AI transcripts found yet. Send a message in Antigravity, Claude Code, or Claude Desktop (with PromptFlow MCP enabled).</p>';
+    listEl.innerHTML = `<p class="viz-muted">${escapeHtml(t('viz.rt.noDesktopSessions'))}</p>`;
     return;
   }
 
@@ -166,8 +168,8 @@ function renderDesktopLiveBar(): void {
     .map((s) => {
       const isActive = s.id === state.activeDesktopSessionId;
       const statusBadge = s.isStreaming
-        ? '<span class="viz-delta-badge viz-delta-pivoted">⚡ Running</span>'
-        : `<span class="viz-delta-badge viz-delta-matched">${s.turnCount} turns</span>`;
+        ? `<span class="viz-delta-badge viz-delta-pivoted">${escapeHtml(t('viz.rt.statusRunning'))}</span>`
+        : `<span class="viz-delta-badge viz-delta-matched">${escapeHtml(t('viz.rt.turnsCount', { n: s.turnCount }))}</span>`;
       return `<button type="button" class="viz-session-btn ${isActive ? 'active' : ''}" data-session-id="${escapeHtml(s.id)}">
         <div class="viz-node-top">
           <span class="viz-muted-sm" style="font-weight:800;">${escapeHtml(formatSourceLabel(s.source))}</span>
@@ -204,8 +206,7 @@ function renderHistoryDrawer(): void {
   if (!listEl) return;
 
   if (entries.length === 0) {
-    listEl.innerHTML =
-      '<p class="viz-muted">No locally saved flows yet. Click <strong>📌 Save Locally</strong> on any visualized conversation.</p>';
+    listEl.innerHTML = `<p class="viz-muted">${t('viz.rt.noSavedFlows')}</p>`;
     return;
   }
 
@@ -215,11 +216,11 @@ function renderHistoryDrawer(): void {
       <div class="viz-history-item" data-entry-id="${escapeHtml(entry.id)}">
         <div style="font-family:var(--font-display);font-weight:800;">${escapeHtml(entry.flow.title)}</div>
         <div class="viz-muted-sm">
-          ${escapeHtml(entry.flow.platform.toUpperCase())} • ${entry.flow.turns.length} turns • ${escapeHtml(entry.savedAt.slice(0, 16).replace('T', ' '))}
+          ${escapeHtml(entry.flow.platform.toUpperCase())} • ${escapeHtml(t('viz.rt.turnsCount', { n: entry.flow.turns.length }))} • ${escapeHtml(entry.savedAt.slice(0, 16).replace('T', ' '))}
         </div>
         <div class="viz-btn-group">
-          <button type="button" class="clay-btn viz-btn-sm" data-action="load-entry" data-id="${escapeHtml(entry.id)}">Load</button>
-          <button type="button" class="clay-btn viz-btn-sm viz-btn-danger" data-action="delete-entry" data-id="${escapeHtml(entry.id)}">Delete</button>
+          <button type="button" class="clay-btn viz-btn-sm" data-action="load-entry" data-id="${escapeHtml(entry.id)}">${escapeHtml(t('viz.rt.loadBtn'))}</button>
+          <button type="button" class="clay-btn viz-btn-sm viz-btn-danger" data-action="delete-entry" data-id="${escapeHtml(entry.id)}">${escapeHtml(t('viz.rt.deleteBtn'))}</button>
         </div>
       </div>`
     )
@@ -243,20 +244,20 @@ function renderMissionSummary(flow: ConversationFlow): void {
   if (pillsEl) {
     const modeLabel =
       flow.parseMode === 'flow-contract'
-        ? 'Flow Contract'
+        ? t('viz.rt.modeFlowContract')
         : flow.parseMode === 'structured-json'
-          ? 'Structured JSON'
+          ? t('viz.rt.modeStructuredJson')
           : flow.parseMode === 'live-transcript'
-            ? 'Live Desktop Transcript'
+            ? t('viz.rt.modeLiveTranscript')
             : flow.parseMode === 'mcp-live'
-              ? 'Live MCP Session'
-              : 'Heuristic Parse';
+              ? t('viz.rt.modeMcpLive')
+              : t('viz.rt.modeHeuristic');
     const liveTag = flow.isStreaming
-      ? '<span class="viz-delta-badge viz-delta-pivoted">⚡ Live Updating</span>'
+      ? `<span class="viz-delta-badge viz-delta-pivoted">${escapeHtml(t('viz.rt.liveUpdating'))}</span>`
       : '';
     pillsEl.innerHTML = [
       `<span class="clay-badge">${escapeHtml(flow.platform.toUpperCase())}</span>`,
-      `<span class="clay-badge">${flow.turns.length} Turns</span>`,
+      `<span class="clay-badge">${escapeHtml(t('viz.rt.turnsCountCap', { n: flow.turns.length }))}</span>`,
       `<span class="clay-badge">${escapeHtml(modeLabel)}</span>`,
       liveTag,
     ].join('');
@@ -285,12 +286,12 @@ function renderMissionSummary(flow: ConversationFlow): void {
     }
 
     const filters: ReadonlyArray<{ readonly key: DeltaStatus | 'all'; readonly label: string }> = [
-      { key: 'all', label: `All (${flow.turns.length})` },
-      { key: 'matched', label: `✓ Matched (${counts.matched})` },
-      { key: 'expanded', label: `✨ Expanded (${counts.expanded})` },
-      { key: 'pivoted', label: `↻ Pivoted (${counts.pivoted})` },
-      { key: 'partial', label: `⚠ Partial (${counts.partial})` },
-      { key: 'pending', label: `○ Needs Review (${counts.pending})` },
+      { key: 'all', label: t('viz.rt.filterAll', { n: flow.turns.length }) },
+      { key: 'matched', label: t('viz.rt.filterMatched', { n: counts.matched }) },
+      { key: 'expanded', label: t('viz.rt.filterExpanded', { n: counts.expanded }) },
+      { key: 'pivoted', label: t('viz.rt.filterPivoted', { n: counts.pivoted }) },
+      { key: 'partial', label: t('viz.rt.filterPartial', { n: counts.partial }) },
+      { key: 'pending', label: t('viz.rt.filterPending', { n: counts.pending }) },
     ];
 
     filterRow.innerHTML = filters
@@ -308,8 +309,7 @@ function renderFlowMap(flow: ConversationFlow): void {
 
   const visibleTurns = getFilteredTurns(flow);
   if (visibleTurns.length === 0) {
-    listEl.innerHTML =
-      '<p class="viz-muted">No turns match the active filter. Click <strong>All</strong> above to view every turn.</p>';
+    listEl.innerHTML = `<p class="viz-muted">${t('viz.rt.noTurnsMatchFilter')}</p>`;
     return;
   }
 
@@ -328,7 +328,7 @@ function renderFlowMap(flow: ConversationFlow): void {
     const extrasLabel = turn.extras.length > 0 ? ` +${turn.extras.length}` : '';
     const promptPreview = turn.rawUserMessage.replace(/\s+/g, ' ').trim();
     const deltaLabel = turn.isStreaming
-      ? '⚡ Running…'
+      ? t('viz.rt.statusRunningEllipsis')
       : `${formatDeltaLabel(turn.delta)}${extrasLabel}`;
 
     parts.push(
@@ -347,7 +347,7 @@ function renderFlowMap(flow: ConversationFlow): void {
         </div>
         <div class="viz-node-prompt">“${escapeHtml(promptPreview)}”</div>
         <div class="viz-muted-sm">
-          ${turn.contractDetected ? '🛡️ Flow Contract' : '🔍 Heuristic'} • ${escapeHtml(turn.relation)}
+          ${escapeHtml(turn.contractDetected ? t('viz.rt.tagContract') : t('viz.rt.tagHeuristic'))} • ${escapeHtml(turn.relation)}
         </div>
       </button>`
     );
@@ -365,10 +365,12 @@ function renderTurnInspector(flow: ConversationFlow): void {
   if (!inspector) return;
 
   const selectedTurn =
-    flow.turns.find((t) => t.id === state.selectedTurnId) ?? flow.turns[0] ?? null;
+    flow.turns.find((turn) => turn.id === state.selectedTurnId) ??
+    flow.turns[0] ??
+    null;
 
   if (!selectedTurn) {
-    inspector.innerHTML = '<p class="viz-muted">No turn selected.</p>';
+    inspector.innerHTML = `<p class="viz-muted">${escapeHtml(t('viz.rt.noTurnSelected'))}</p>`;
     return;
   }
 
@@ -376,22 +378,22 @@ function renderTurnInspector(flow: ConversationFlow): void {
     inspector.innerHTML = `
       <div class="viz-inspector-head">
         <div>
-          <span class="clay-badge">Editing Turn #${selectedTurn.index}</span>
-          <h2 class="viz-h2" style="margin-top:8px;">✏️ Edit Turn Details</h2>
+          <span class="clay-badge">${escapeHtml(t('viz.rt.editingTurnBadge', { index: selectedTurn.index }))}</span>
+          <h2 class="viz-h2" style="margin-top:8px;">${escapeHtml(t('viz.rt.editTurnHeading'))}</h2>
         </div>
         <div class="viz-btn-group">
-          <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-save-turn-edit">💾 Apply Changes</button>
-          <button type="button" class="clay-btn viz-btn-sm" id="btn-cancel-turn-edit">Cancel</button>
+          <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-save-turn-edit">${escapeHtml(t('viz.rt.applyChangesBtn'))}</button>
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-cancel-turn-edit">${escapeHtml(t('viz.rt.cancelBtn'))}</button>
         </div>
       </div>
       <form id="turn-edit-form" class="viz-edit-form">
         <label>
-          <span class="viz-sub-label">Turn Title</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldTurnTitle'))}</span>
           <input name="title" type="text" class="viz-inline-area" value="${escapeHtml(selectedTurn.title)}" />
         </label>
         <div class="viz-compare-grid" style="margin:0;">
           <label>
-            <span class="viz-sub-label">Transition Relation</span>
+            <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldRelation'))}</span>
             <select name="relation" class="viz-select" style="width:100%;">
               ${(['initial', 'follow-up', 'clarification', 'research-detour', 'pivot', 'refinement'] as const)
                 .map(
@@ -402,7 +404,7 @@ function renderTurnInspector(flow: ConversationFlow): void {
             </select>
           </label>
           <label>
-            <span class="viz-sub-label">Scope Delta</span>
+            <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldDelta'))}</span>
             <select name="delta" class="viz-select" style="width:100%;">
               ${(['matched', 'expanded', 'pivoted', 'partial', 'pending'] as const)
                 .map(
@@ -414,31 +416,31 @@ function renderTurnInspector(flow: ConversationFlow): void {
           </label>
         </div>
         <label>
-          <span class="viz-sub-label">Raw User Message (Verbatim)</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldRawPrompt'))}</span>
           <textarea name="rawUserMessage" class="viz-inline-area" rows="3">${escapeHtml(selectedTurn.rawUserMessage)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Intent</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldIntent'))}</span>
           <textarea name="intent" class="viz-inline-area" rows="2">${escapeHtml(selectedTurn.intent)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Input Summary</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldInputSummary'))}</span>
           <textarea name="inputSummary" class="viz-inline-area" rows="2">${escapeHtml(selectedTurn.inputSummary)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Expected Output</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldExpected'))}</span>
           <textarea name="expectedOutput" class="viz-inline-area" rows="3">${escapeHtml(selectedTurn.expectedOutput)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Actual Output</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldActual'))}</span>
           <textarea name="actualOutput" class="viz-inline-area" rows="3">${escapeHtml(selectedTurn.actualOutput)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Delta Note</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldDeltaNote'))}</span>
           <textarea name="deltaNote" class="viz-inline-area" rows="2">${escapeHtml(selectedTurn.deltaNote)}</textarea>
         </label>
         <label>
-          <span class="viz-sub-label">Extra / Bonus Findings (One per line)</span>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldExtras'))}</span>
           <textarea name="extras" class="viz-inline-area" rows="3">${escapeHtml(selectedTurn.extras.join('\n'))}</textarea>
         </label>
       </form>
@@ -449,7 +451,7 @@ function renderTurnInspector(flow: ConversationFlow): void {
   const extrasSection =
     selectedTurn.extras.length > 0
       ? `<div class="viz-extras-card">
-          <div class="viz-sub-label">✨ Bonus / Research Discoveries Beyond Expected (${selectedTurn.extras.length})</div>
+          <div class="viz-sub-label">${escapeHtml(t('viz.rt.extrasHeading', { n: selectedTurn.extras.length }))}</div>
           <ul class="viz-extras-list">
             ${selectedTurn.extras.map((ex) => `<li>${escapeHtml(ex)}</li>`).join('')}
           </ul>
@@ -457,8 +459,8 @@ function renderTurnInspector(flow: ConversationFlow): void {
       : '';
 
   const toolSummarySection = selectedTurn.toolSummary
-    ? `<div class="viz-raw-box" style="background:#f3f8ff;">
-        <span class="viz-sub-label">🛠️ Tools Executed</span>
+    ? `<div class="viz-raw-box" style="background:var(--color-expected-bg);">
+        <span class="viz-sub-label">${escapeHtml(t('viz.rt.toolsExecuted'))}</span>
         <div style="color:var(--color-text-secondary);font-size:0.9rem;">${escapeHtml(selectedTurn.toolSummary)}</div>
       </div>`
     : '';
@@ -466,7 +468,7 @@ function renderTurnInspector(flow: ConversationFlow): void {
   const rawAssistantSection = selectedTurn.rawAssistantMessage
     ? `<details style="margin-top:10px;">
         <summary style="cursor:pointer;font-weight:700;color:var(--color-text-secondary);">
-          📄 View Full Raw Assistant Reply
+          ${escapeHtml(t('viz.rt.viewRawReply'))}
         </summary>
         <div class="viz-raw-box" style="margin-top:10px;">
           <pre class="viz-raw-pre">${escapeHtml(selectedTurn.rawAssistantMessage)}</pre>
@@ -476,14 +478,14 @@ function renderTurnInspector(flow: ConversationFlow): void {
 
   const deleteButtonHtml =
     flow.turns.length > 1
-      ? `<button type="button" class="clay-btn viz-btn-sm viz-btn-danger" id="btn-delete-turn">🗑️ Delete</button>`
+      ? `<button type="button" class="clay-btn viz-btn-sm viz-btn-danger" id="btn-delete-turn">${escapeHtml(t('viz.rt.deleteTurnBtn'))}</button>`
       : '';
 
   inspector.innerHTML = `
     <div class="viz-inspector-head">
       <div>
         <div class="viz-pill-row" style="margin-bottom:8px;">
-          <span class="clay-badge">Turn #${selectedTurn.index}</span>
+          <span class="clay-badge">${escapeHtml(t('viz.rt.turnBadge', { index: selectedTurn.index }))}</span>
           <span class="clay-badge">${escapeHtml(selectedTurn.relation)}</span>
           <span class="viz-delta-badge viz-delta-${selectedTurn.delta}">
             ${escapeHtml(formatDeltaLabel(selectedTurn.delta))}${selectedTurn.extras.length > 0 ? ` (+${selectedTurn.extras.length})` : ''}
@@ -492,33 +494,33 @@ function renderTurnInspector(flow: ConversationFlow): void {
         <h2 class="viz-h2">${escapeHtml(selectedTurn.title)}</h2>
       </div>
       <div class="viz-btn-group">
-        <button type="button" class="clay-btn viz-btn-sm" id="btn-edit-turn">✏️ Edit Turn</button>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-edit-turn">${escapeHtml(t('viz.rt.editTurnBtn'))}</button>
         ${deleteButtonHtml}
       </div>
     </div>
 
     <div class="viz-raw-box">
       <div class="viz-drawer-head" style="align-items:center;">
-        <span class="viz-sub-label" style="margin:0;">💬 Verbatim Raw User Message</span>
+        <span class="viz-sub-label" style="margin:0;">${escapeHtml(t('viz.rt.verbatimPromptLabel'))}</span>
         <div class="viz-btn-group">
           <button type="button" class="clay-btn viz-btn-sm" id="btn-toggle-raw-prompt">
-            ${state.isPromptExpanded ? 'Collapse' : 'Expand'}
+            ${escapeHtml(state.isPromptExpanded ? t('viz.rt.collapseBtn') : t('viz.rt.expandBtn'))}
           </button>
           <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-raw-prompt">
-            📋 Copy Prompt
+            ${escapeHtml(t('viz.rt.copyPromptBtn'))}
           </button>
         </div>
       </div>
       <pre class="viz-raw-pre ${state.isPromptExpanded ? '' : 'clamped'}">${escapeHtml(selectedTurn.rawUserMessage)}</pre>
     </div>
 
-    <div class="viz-raw-box" style="background:#ffffff;border:1px solid rgba(124,58,237,0.1);">
+    <div class="viz-raw-box" style="background:var(--color-surface);border:1px solid var(--color-border-subtle);">
       <div style="margin-bottom:8px;">
-        <span class="viz-sub-label">🎯 Intent</span>
+        <span class="viz-sub-label">${escapeHtml(t('viz.rt.intentLabel'))}</span>
         <div>${escapeHtml(selectedTurn.intent)}</div>
       </div>
       <div>
-        <span class="viz-sub-label">🧩 Inputs &amp; Constraints</span>
+        <span class="viz-sub-label">${escapeHtml(t('viz.rt.inputsLabel'))}</span>
         <div style="color:var(--color-text-secondary);">${escapeHtml(selectedTurn.inputSummary)}</div>
       </div>
     </div>
@@ -527,19 +529,19 @@ function renderTurnInspector(flow: ConversationFlow): void {
 
     <div class="viz-compare-grid">
       <div class="viz-compare-card expected">
-        <div class="viz-sub-label">📋 Expected Output</div>
+        <div class="viz-sub-label">${escapeHtml(t('viz.rt.expectedLabel'))}</div>
         <div>${escapeHtml(selectedTurn.expectedOutput)}</div>
       </div>
       <div class="viz-compare-card actual">
-        <div class="viz-sub-label">📦 Actual Output (After Run)</div>
+        <div class="viz-sub-label">${escapeHtml(t('viz.rt.actualLabel'))}</div>
         <div>${escapeHtml(selectedTurn.actualOutput)}</div>
       </div>
     </div>
 
     ${
       selectedTurn.deltaNote
-        ? `<div class="viz-raw-box" style="background:#fef9f3;">
-            <span class="viz-sub-label">🔍 Delta &amp; Scope Shift Note</span>
+        ? `<div class="viz-raw-box" style="background:var(--status-warn-bg);">
+            <span class="viz-sub-label">${escapeHtml(t('viz.rt.deltaNoteLabel'))}</span>
             <div>${escapeHtml(selectedTurn.deltaNote)}</div>
           </div>`
         : ''
@@ -560,8 +562,8 @@ function renderAll(): void {
   if (intakeBody && intakeToggle) {
     intakeBody.classList.toggle('hidden', state.isIntakeCollapsed);
     intakeToggle.textContent = state.isIntakeCollapsed
-      ? '▼ Expand Input'
-      : '▲ Collapse Input';
+      ? t('viz.intake.expand')
+      : t('viz.intake.collapse');
   }
 
   const workspace = getEl<HTMLElement>('workspace-section');
@@ -598,7 +600,7 @@ function applyFlowLive(flow: ConversationFlow, sessionId: string): void {
   if (
     switchedSession ||
     !state.selectedTurnId ||
-    !flow.turns.some((t) => t.id === state.selectedTurnId) ||
+    !flow.turns.some((turn) => turn.id === state.selectedTurnId) ||
     (wasOnLatestTurn && flow.turns.length > prevTurnCount)
   ) {
     state.selectedTurnId = flow.turns[flow.turns.length - 1]?.id ?? null;
@@ -755,19 +757,23 @@ function bindStaticEvents(): void {
   getEl<HTMLButtonElement>('btn-demo-contract')?.addEventListener('click', () => {
     const preset = SAMPLE_PRESETS[0];
     if (!preset || !rawInput || !platformSelect) return;
-    rawInput.value = preset.rawText;
+    const text =
+      getLang() === 'vi' && preset.rawTextVi ? preset.rawTextVi : preset.rawText;
+    rawInput.value = text;
     platformSelect.value = preset.platform;
-    applyParsedInput(preset.rawText, preset.platform, true);
-    showToast('Loaded Adaptive Contract Demo (4 turns).');
+    applyParsedInput(text, preset.platform, true);
+    showToast(t('viz.toast.demoContractLoaded'));
   });
 
   getEl<HTMLButtonElement>('btn-demo-raw')?.addEventListener('click', () => {
     const preset = SAMPLE_PRESETS[1];
     if (!preset || !rawInput || !platformSelect) return;
-    rawInput.value = preset.rawText;
+    const text =
+      getLang() === 'vi' && preset.rawTextVi ? preset.rawTextVi : preset.rawText;
+    rawInput.value = text;
     platformSelect.value = preset.platform;
-    applyParsedInput(preset.rawText, preset.platform, true);
-    showToast('Loaded Raw Unstructured Chat Demo (3 turns).');
+    applyParsedInput(text, preset.platform, true);
+    showToast(t('viz.toast.demoRawLoaded'));
   });
 
   getEl<HTMLButtonElement>('btn-visualize')?.addEventListener('click', () => {
@@ -786,21 +792,18 @@ function bindStaticEvents(): void {
         : state.flow
           ? state.flow.turns
               .map(
-                (t) =>
-                  `User:\n${t.rawUserMessage}\n\nAssistant:\n${t.rawAssistantMessage || t.actualOutput}`
+                (turn) =>
+                  `User:\n${turn.rawUserMessage}\n\nAssistant:\n${turn.rawAssistantMessage || turn.actualOutput}`
               )
               .join('\n\n')
           : '';
     if (!text.trim()) {
-      showToast('Paste a conversation first before copying the Analyzer Prompt.');
+      showToast(t('viz.toast.pasteFirst'));
       return;
     }
     const hint = (platformSelect?.value as AIPlatform | undefined) ?? 'generic';
     const prompt = buildAnalyzerPrompt(text, hint);
-    void copyText(
-      prompt,
-      'Analyzer Prompt copied! Paste into Antigravity / Claude Desktop, then paste the returned JSON back here.'
-    );
+    void copyText(prompt, t('viz.toast.analyzerCopied'));
   });
 
   getEl<HTMLButtonElement>('btn-clear-input')?.addEventListener('click', () => {
@@ -829,7 +832,7 @@ function bindStaticEvents(): void {
       }
       return undefined;
     });
-    showToast('Refreshed desktop sessions.');
+    showToast(t('viz.toast.desktopRefreshed'));
   });
   getEl<HTMLDivElement>('desktop-sessions-list')?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-session-id]');
@@ -870,7 +873,7 @@ function bindStaticEvents(): void {
     if (!key) return;
     state.deltaFilter = key;
     const filtered = getFilteredTurns(state.flow);
-    if (filtered.length > 0 && !filtered.some((t) => t.id === state.selectedTurnId)) {
+    if (filtered.length > 0 && !filtered.some((turn) => turn.id === state.selectedTurnId)) {
       state.selectedTurnId = filtered[0]?.id ?? null;
     }
     renderAll();
@@ -891,7 +894,7 @@ function bindStaticEvents(): void {
     if (!state.flow || (e.key !== 'ArrowDown' && e.key !== 'ArrowUp')) return;
     e.preventDefault();
     const visible = getFilteredTurns(state.flow);
-    const currentIdx = visible.findIndex((t) => t.id === state.selectedTurnId);
+    const currentIdx = visible.findIndex((turn) => turn.id === state.selectedTurnId);
     if (currentIdx === -1) return;
     const nextIdx =
       e.key === 'ArrowDown'
@@ -911,14 +914,14 @@ function bindStaticEvents(): void {
     const newTurn: ConversationTurn = {
       id: `turn-${Date.now().toString(36)}`,
       index: nextIndex,
-      title: `Turn ${nextIndex} (Manual)`,
+      title: t('viz.rt.newTurnTitle', { index: nextIndex }),
       relation: 'follow-up',
-      rawUserMessage: 'Enter your exact raw prompt here…',
+      rawUserMessage: t('viz.rt.newTurnPrompt'),
       rawAssistantMessage: '',
-      intent: 'Describe what you wanted in this turn',
-      inputSummary: 'Inputs and constraints',
-      expectedOutput: 'What deliverable was expected',
-      actualOutput: 'What the AI delivered',
+      intent: t('viz.rt.newTurnIntent'),
+      inputSummary: t('viz.rt.newTurnInput'),
+      expectedOutput: t('viz.rt.newTurnExpected'),
+      actualOutput: t('viz.rt.newTurnActual'),
       delta: 'pending',
       deltaNote: '',
       extras: [],
@@ -978,15 +981,15 @@ function bindStaticEvents(): void {
       }));
       state.isEditingTurn = false;
       renderAll();
-      showToast('Updated turn in Flow Map.');
+      showToast(t('viz.toast.turnUpdated'));
       return;
     }
 
     if (btn.id === 'btn-delete-turn') {
       if (state.flow.turns.length <= 1 || !state.selectedTurnId) return;
       const remaining = state.flow.turns
-        .filter((t) => t.id !== state.selectedTurnId)
-        .map((t, i) => ({ ...t, index: i + 1 }));
+        .filter((turn) => turn.id !== state.selectedTurnId)
+        .map((turn, i) => ({ ...turn, index: i + 1 }));
       state.flow = {
         ...state.flow,
         turns: remaining,
@@ -994,7 +997,7 @@ function bindStaticEvents(): void {
       state.selectedTurnId = remaining[0]?.id ?? null;
       state.isEditingTurn = false;
       renderAll();
-      showToast('Removed turn from flow.');
+      showToast(t('viz.toast.turnRemoved'));
       return;
     }
 
@@ -1005,9 +1008,9 @@ function bindStaticEvents(): void {
     }
 
     if (btn.id === 'btn-copy-raw-prompt') {
-      const turn = state.flow.turns.find((t) => t.id === state.selectedTurnId);
+      const turn = state.flow.turns.find((item) => item.id === state.selectedTurnId);
       if (turn) {
-        void copyText(turn.rawUserMessage, 'Verbatim user prompt copied.');
+        void copyText(turn.rawUserMessage, t('viz.toast.promptCopied'));
       }
     }
   });
@@ -1017,12 +1020,12 @@ function bindStaticEvents(): void {
     if (!state.flow) return;
     const html = exportFlowAsStandaloneHtml(state.flow);
     downloadFile(html, `${slugifyTitle(state.flow.title)}.html`, 'text/html;charset=utf-8');
-    showToast('Exported offline standalone HTML flow.');
+    showToast(t('viz.toast.exportedHtml'));
   });
 
   getEl<HTMLButtonElement>('btn-copy-md')?.addEventListener('click', () => {
     if (!state.flow) return;
-    void copyText(exportFlowAsMarkdown(state.flow), 'Markdown flow recap copied.');
+    void copyText(exportFlowAsMarkdown(state.flow), t('viz.toast.copiedMd'));
   });
 
   getEl<HTMLButtonElement>('btn-export-json')?.addEventListener('click', () => {
@@ -1032,7 +1035,7 @@ function bindStaticEvents(): void {
       `${slugifyTitle(state.flow.title)}.flow.local.json`,
       'application/json;charset=utf-8'
     );
-    showToast('Downloaded ConversationFlow v1 JSON.');
+    showToast(t('viz.toast.exportedJson'));
   });
 
   getEl<HTMLButtonElement>('btn-save-local')?.addEventListener('click', () => {
@@ -1040,7 +1043,7 @@ function bindStaticEvents(): void {
     const saved = saveFlowEntry(state.flow, state.activeSavedId);
     state.activeSavedId = saved[0]?.id;
     renderHistoryDrawer();
-    showToast('Saved locally in your browser (localStorage).');
+    showToast(t('viz.toast.savedLocal'));
   });
 
   // Local History Drawer
@@ -1055,7 +1058,7 @@ function bindStaticEvents(): void {
     clearAllSavedFlows();
     state.activeSavedId = undefined;
     renderHistoryDrawer();
-    showToast('Cleared all locally saved flows.');
+    showToast(t('viz.toast.clearedHistory'));
   });
   getEl<HTMLDivElement>('history-list')?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
@@ -1081,7 +1084,7 @@ function bindStaticEvents(): void {
       state.isIntakeCollapsed = true;
       historyDrawer?.classList.add('hidden');
       renderAll();
-      showToast(`Loaded saved flow "${entry.flow.title}".`);
+      showToast(t('viz.toast.loadedSavedFlow', { title: entry.flow.title }));
     }
   });
 
@@ -1100,7 +1103,7 @@ function bindStaticEvents(): void {
   getEl<HTMLButtonElement>('btn-copy-rule-snippet')?.addEventListener('click', () => {
     void copyText(
       getAdaptiveRuleSnippet(),
-      'Adaptive Contract rule copied!'
+      t('viz.toast.ruleCopied')
     );
   });
 
@@ -1121,19 +1124,19 @@ function bindStaticEvents(): void {
   getEl<HTMLButtonElement>('btn-copy-claude-mcp')?.addEventListener('click', () => {
     void copyText(
       mcpSnippet,
-      'Claude Desktop MCP JSON copied! Add to %APPDATA%\\Claude\\claude_desktop_config.json.'
+      t('viz.toast.claudeMcpCopied')
     );
   });
   getEl<HTMLButtonElement>('btn-copy-claude-instructions')?.addEventListener('click', () => {
     void copyText(
       getClaudeDesktopInstructionSnippet(),
-      'Claude Desktop Custom Instructions copied!'
+      t('viz.toast.claudeInstCopied')
     );
   });
   getEl<HTMLButtonElement>('btn-copy-agy-mcp')?.addEventListener('click', () => {
     void copyText(
       mcpSnippet,
-      'Antigravity MCP JSON copied! Add to ~/.gemini/config/mcp_config.json.'
+      t('viz.toast.agyMcpCopied')
     );
   });
 }
@@ -1144,7 +1147,7 @@ async function importFromUrlHashIfPresent(): Promise<void> {
   }
   const imported = await decodeFlowFromHash(window.location.hash);
   if (!imported) {
-    showToast('Could not decode #flow= payload from URL hash.');
+    showToast(t('viz.toast.hashDecodeFailed'));
     return;
   }
   state.flow = imported;
@@ -1158,11 +1161,35 @@ async function importFromUrlHashIfPresent(): Promise<void> {
     `${window.location.pathname}${window.location.search}`
   );
   renderAll();
-  showToast(`Imported ${imported.platform.toUpperCase()} flow from URL hash.`);
+  showToast(
+    t('viz.toast.hashImported', {
+      platform: imported.platform.toUpperCase(),
+    })
+  );
 }
 
 async function init(): Promise<void> {
   bindStaticEvents();
+  onLangChange((lang) => {
+    const rawInput = getEl<HTMLTextAreaElement>('raw-input');
+    const platformSelect = getEl<HTMLSelectElement>('platform-select');
+    if (rawInput) {
+      for (const preset of SAMPLE_PRESETS) {
+        if (
+          rawInput.value === preset.rawText ||
+          (preset.rawTextVi && rawInput.value === preset.rawTextVi)
+        ) {
+          const nextText =
+            lang === 'vi' && preset.rawTextVi ? preset.rawTextVi : preset.rawText;
+          rawInput.value = nextText;
+          if (platformSelect) platformSelect.value = preset.platform;
+          applyParsedInput(nextText, preset.platform, state.isIntakeCollapsed);
+          return;
+        }
+      }
+    }
+    renderAll();
+  });
   renderAll();
   await importFromUrlHashIfPresent();
   await connectDesktopBridge();

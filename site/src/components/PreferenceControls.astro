@@ -1,0 +1,43 @@
+---
+import T from './T.astro';
+---
+
+<div class="pref-controls">
+  <div
+    class="pref-lang-group"
+    role="group"
+    aria-label="Switch language"
+    data-i18n-attr="aria-label:prefs.lang.label"
+  >
+    <button
+      type="button"
+      class="pref-lang-btn"
+      data-set-lang="en"
+      aria-pressed="true"
+    >
+      EN
+    </button>
+    <button
+      type="button"
+      class="pref-lang-btn"
+      data-set-lang="vi"
+      aria-pressed="false"
+    >
+      VI
+    </button>
+  </div>
+
+  <button
+    type="button"
+    class="pref-theme-btn"
+    id="btn-theme-toggle"
+    aria-label="Toggle Dark / Light theme"
+    title="Toggle Dark / Light theme"
+    data-i18n-attr="aria-label:prefs.theme.toggle;title:prefs.theme.toggle"
+  >
+    <span class="theme-icon-light" aria-hidden="true">🌙</span>
+    <span class="theme-icon-dark" aria-hidden="true">☀️</span>
+    <span class="theme-icon-light"><T k="prefs.theme.dark" /></span>
+    <span class="theme-icon-dark"><T k="prefs.theme.light" /></span>
+  </button>
+</div>

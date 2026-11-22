@@ -1,0 +1,18 @@
+---
+import { translate, type TKey, type TParams } from '../i18n/index';
+
+interface Props {
+  k?: TKey;
+  params?: TParams;
+  en?: string;
+  vi?: string;
+  html?: boolean;
+}
+
+const { k, params, en: rawEn, vi: rawVi, html = false } = Astro.props;
+
+const textEn = k ? translate('en', k, params) : (rawEn ?? '');
+const textVi = k ? translate('vi', k, params) : (rawVi ?? rawEn ?? '');
+---
+
+{html ? (<><span class="i18n" lang="en" set:html={textEn} /><span class="i18n" lang="vi" set:html={textVi} /></>) : (<><span class="i18n" lang="en">{textEn}</span><span class="i18n" lang="vi">{textVi}</span></>)}

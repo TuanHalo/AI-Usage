@@ -1,14 +1,17 @@
 ---
 import ClayButton from './ClayButton.astro';
+import PreferenceControls from './PreferenceControls.astro';
+import T from './T.astro';
+import type { TKey } from '../i18n/index';
 
-const navItems = [
-  { label: 'Overview', href: `${import.meta.env.BASE_URL}` },
-  { label: 'Visualizer', href: `${import.meta.env.BASE_URL}visualizer` },
-  { label: 'Skills', href: `${import.meta.env.BASE_URL}skills` },
-  { label: 'Rules', href: `${import.meta.env.BASE_URL}rules` },
-  { label: 'Agents', href: `${import.meta.env.BASE_URL}agents` },
-  { label: 'Principles', href: `${import.meta.env.BASE_URL}principles` },
-  { label: 'Outputs', href: `${import.meta.env.BASE_URL}outputs` },
+const navItems: ReadonlyArray<{ readonly labelKey: TKey; readonly href: string }> = [
+  { labelKey: 'nav.overview', href: `${import.meta.env.BASE_URL}` },
+  { labelKey: 'nav.visualizer', href: `${import.meta.env.BASE_URL}visualizer` },
+  { labelKey: 'nav.skills', href: `${import.meta.env.BASE_URL}skills` },
+  { labelKey: 'nav.rules', href: `${import.meta.env.BASE_URL}rules` },
+  { labelKey: 'nav.agents', href: `${import.meta.env.BASE_URL}agents` },
+  { labelKey: 'nav.principles', href: `${import.meta.env.BASE_URL}principles` },
+  { labelKey: 'nav.outputs', href: `${import.meta.env.BASE_URL}outputs` },
 ];
 ---
 
@@ -23,15 +26,17 @@ const navItems = [
       {navItems.map((item) => (
         <li>
           <a href={item.href} class="clay-nav-link">
-            {item.label}
+            <T k={item.labelKey} />
           </a>
         </li>
       ))}
     </ul>
 
-    <ClayButton href="https://github.com/TuanHalo/AI-Usage" class="github-btn">
-      ⭐ GitHub
-    </ClayButton>
+    <div class="clay-nav-actions">
+      <PreferenceControls />
+      <ClayButton href="https://github.com/TuanHalo/AI-Usage" class="github-btn">
+        ⭐ GitHub
+      </ClayButton>
+    </div>
   </nav>
 </header>
-

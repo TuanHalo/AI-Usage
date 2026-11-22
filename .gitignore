@@ -20,3 +20,7 @@ private-flows/
 *.flow.local.*
 desktop/dist/
 
+# Synced static outputs copied from /outputs into Astro public dir
+site/public/outputs/shared/
+site/public/outputs/learning/
+site/public/outputs/diagrams/

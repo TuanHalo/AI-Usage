@@ -105,6 +105,7 @@ export interface SamplePreset {
   readonly description: string;
   readonly platform: AIPlatform;
   readonly rawText: string;
+  readonly rawTextVi?: string;
 }
 
 export interface SavedFlowEntry {

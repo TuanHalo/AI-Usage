@@ -315,8 +315,8 @@
     .packet-traveler {
       position: absolute;
       top: 6px;
-      left: 8%;
-      transform: translateX(-50%);
+      left: 10px;
+      transform: translateX(0);
       padding: 8px 14px;
       border-radius: var(--clay-radius-sm);
       font-family: var(--font-mono);
@@ -325,7 +325,7 @@
       white-space: nowrap;
       z-index: 3;
       box-shadow: 0 8px 20px rgba(46, 16, 101, 0.16);
-      transition: left 0.55s cubic-bezier(0.34, 1.35, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease;
+      transition: left 0.55s cubic-bezier(0.34, 1.35, 0.64, 1), transform 0.55s cubic-bezier(0.34, 1.35, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease;
       border: 2px solid #e11d48;
       background: #ffe4e6;
       color: #881337;
@@ -581,6 +581,10 @@
       .clay-card:hover, .clay-btn:hover, .hop-node:hover { transform: none !important; }
     }
   </style>
+  <!-- AI-Usage Shared Theme (Light/Dark) & Bilingual (EN/VI) Controller -->
+  <link rel="stylesheet" href="../../shared/output-prefs.css">
+  <script src="../../shared/output-i18n-data.js"></script>
+  <script src="../../shared/output-prefs.js"></script>
 </head>
 <body>
   <div class="container">
@@ -1764,8 +1768,18 @@ export async function handleEncryptedCheckout(
         }
 
         if (dtsPacketEl) {
-          const leftPct = 8.3 + dtsStep * 16.65;
-          dtsPacketEl.style.left = `${leftPct}%`;
+          const maxIdx = steps.length - 1;
+          if (dtsStep === 0) {
+            dtsPacketEl.style.left = '8px';
+            dtsPacketEl.style.transform = 'translateX(0)';
+          } else if (dtsStep === maxIdx) {
+            dtsPacketEl.style.left = 'calc(100% - 8px)';
+            dtsPacketEl.style.transform = 'translateX(-100%)';
+          } else {
+            const leftPct = 8.3 + dtsStep * 16.65;
+            dtsPacketEl.style.left = `${leftPct}%`;
+            dtsPacketEl.style.transform = 'translateX(-50%)';
+          }
           dtsPacketEl.className = `packet-traveler ${cur.pState}`;
           dtsPacketEl.textContent = cur.packet;
         }

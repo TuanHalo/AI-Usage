@@ -2,28 +2,78 @@
 import '../styles/clay.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { translate, type TKey } from '../i18n/index';
 
 interface Props {
   title?: string;
   description?: string;
+  titleKey?: TKey;
+  descriptionKey?: TKey;
   wide?: boolean;
 }
 
 const {
-  title = 'AI-Usage — Universal AI Hub',
-  description = 'Canonical AI rules, skills, agents, principles and rich research outputs styled in Claymorphism.',
+  titleKey = 'meta.home.title',
+  descriptionKey = 'meta.home.desc',
+  title,
+  description,
   wide = false,
 } = Astro.props;
+
+const resolvedTitle = title ?? translate('en', titleKey);
+const resolvedDescription = description ?? translate('en', descriptionKey);
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html
+  lang="en"
+  data-lang="en"
+  data-theme="light"
+  data-title-key={title ? undefined : titleKey}
+  data-desc-key={description ? undefined : descriptionKey}
+>
 <head>
+  <script is:inline>
+    (function () {
+      var d = document.documentElement;
+      try {
+        var s = window.localStorage;
+        var t = s ? s.getItem('ai-usage:theme') : null;
+        if (t !== 'light' && t !== 'dark') {
+          t =
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        }
+        var q = new URLSearchParams(window.location.search).get('lang');
+        if ((q === 'en' || q === 'vi') && s) {
+          s.setItem('ai-usage:lang', q);
+        }
+        var l =
+          q === 'en' || q === 'vi'
+            ? q
+            : s
+              ? s.getItem('ai-usage:lang')
+              : null;
+        if (l !== 'en' && l !== 'vi') {
+          l = 'en';
+        }
+        d.dataset.theme = t;
+        d.dataset.lang = l;
+        d.lang = l;
+      } catch (e) {
+        d.dataset.theme = 'light';
+        d.dataset.lang = 'en';
+        d.lang = 'en';
+      }
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
-  <title>{title}</title>
-  <meta name="description" content={description} />
+  <title>{resolvedTitle}</title>
+  <meta name="description" content={resolvedDescription} />
   <!-- Google Fonts: Nunito, Inter, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +87,8 @@ const {
     </main>
     <Footer />
   </div>
+  <script>
+    import '../scripts/preferences';
+  </script>
 </body>
 </html>
-

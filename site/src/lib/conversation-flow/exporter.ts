@@ -1,7 +1,7 @@
 import type { ConversationFlow, DeltaStatus } from './types';
 
-export function escapeHtml(value: string): string {
-  return value
+export function escapeHtml(raw: string): string {
+  return raw
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -33,53 +33,24 @@ export function exportFlowAsMarkdown(flow: ConversationFlow): string {
     `# ${flow.title}`,
     '',
     `- **Platform:** ${flow.platform}`,
-    `- **Parse Mode:** ${flow.parseMode}`,
-    `- **Generated:** ${flow.createdAt}`,
+    `- **Captured:** ${flow.createdAt}`,
     `- **Turns:** ${flow.turns.length}`,
+    `- **Original Goal:** ${flow.overallGoal}`,
+    `- **Final Outcome:** ${flow.finalOutcome}`,
     '',
-    `## Original Goal`,
-    flow.overallGoal,
+    '---',
     '',
-    `## Final Outcome`,
-    flow.finalOutcome,
-    '',
-    `## Delta Overview`,
-    '',
-    `| # | Turn | Relation | Expected vs Actual | Delta |`,
-    `| :--- | :--- | :--- | :--- | :--- |`,
   ];
 
   for (const turn of flow.turns) {
-    const cleanTitle = turn.title.replace(/\|/g, '\\|');
-    const cleanExpected = turn.expectedOutput.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
-    const deltaText =
-      turn.extras.length > 0
-        ? `${formatDeltaLabel(turn.delta)} (+${turn.extras.length})`
-        : formatDeltaLabel(turn.delta);
     lines.push(
-      `| ${turn.index} | ${cleanTitle} | ${turn.relation} | ${cleanExpected} | ${deltaText} |`
+      `## Turn ${turn.index}: ${turn.title} [${formatDeltaLabel(turn.delta)}]`
     );
-  }
-
-  lines.push('', '## Turn-by-Turn Breakdown', '');
-
-  for (const turn of flow.turns) {
-    lines.push(
-      `### Turn ${turn.index}: ${turn.title} (${formatDeltaLabel(turn.delta)})`,
-      '',
-      `**Transition:** \`${turn.relation}\``,
-      '',
-      `**Raw User Message (Verbatim):**`,
-      '```text',
-      turn.rawUserMessage,
-      '```',
-      '',
-      `- **Intent:** ${turn.intent}`,
-      `- **Input Summary:** ${turn.inputSummary}`,
-      `- **Expected Output:** ${turn.expectedOutput}`,
-      `- **Actual Output:** ${turn.actualOutput}`
-    );
-
+    lines.push(`- **Relation:** \`${turn.relation}\``);
+    lines.push(`- **Intent:** ${turn.intent}`);
+    lines.push(`- **Input Summary:** ${turn.inputSummary}`);
+    lines.push(`- **Expected Output:** ${turn.expectedOutput}`);
+    lines.push(`- **Actual Output:** ${turn.actualOutput}`);
     if (turn.deltaNote) {
       lines.push(`- **Delta Note:** ${turn.deltaNote}`);
     }
@@ -87,37 +58,49 @@ export function exportFlowAsMarkdown(flow: ConversationFlow): string {
       lines.push(`- **Tools Executed:** ${turn.toolSummary}`);
     }
     if (turn.extras.length > 0) {
-      lines.push(`- **Extra / Bonus Findings:**`);
+      lines.push(`- **Bonus / Research Extras:**`);
       for (const extra of turn.extras) {
         lines.push(`  - ${extra}`);
       }
     }
+    lines.push('');
+    lines.push('### Verbatim User Prompt');
+    lines.push('```text');
+    lines.push(turn.rawUserMessage.replace(/```/g, 'ʼʼʼ'));
+    lines.push('```');
     lines.push('');
   }
 
   return lines.join('\n');
 }
 
-function deltaBadgeColors(delta: DeltaStatus): { readonly bg: string; readonly fg: string } {
+function deltaBadgeColors(delta: DeltaStatus): {
+  readonly bg: string;
+  readonly fg: string;
+} {
   switch (delta) {
     case 'matched':
-      return { bg: '#d4f0e8', fg: '#065f46' };
+      return { bg: 'var(--status-ok-bg)', fg: 'var(--status-ok-fg)' };
     case 'expanded':
-      return { bg: '#e4dffd', fg: '#5b21b6' };
+      return { bg: 'var(--status-exp-bg)', fg: 'var(--status-exp-fg)' };
     case 'pivoted':
-      return { bg: '#fde8d0', fg: '#9a3412' };
+      return { bg: 'var(--status-warn-bg)', fg: 'var(--status-warn-fg)' };
     case 'partial':
-      return { bg: '#fcd5ce', fg: '#9f1239' };
+      return { bg: 'var(--status-err-bg)', fg: 'var(--status-err-fg)' };
     case 'pending':
-      return { bg: '#d0e8fd', fg: '#075985' };
+      return { bg: 'var(--status-info-bg)', fg: 'var(--status-info-fg)' };
   }
+}
+
+function dualSpan(enText: string, viText: string): string {
+  return `<span class="i18n" lang="en">${enText}</span><span class="i18n" lang="vi">${viText}</span>`;
 }
 
 export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
   const safeTitle = escapeHtml(flow.title);
+  const safePlatform = escapeHtml(flow.platform.toUpperCase());
   const safeGoal = escapeHtml(flow.overallGoal);
   const safeOutcome = escapeHtml(flow.finalOutcome);
-  const safePlatform = escapeHtml(flow.platform.toUpperCase());
   const safeDate = escapeHtml(flow.createdAt.slice(0, 10));
 
   const turnCardsHtml = flow.turns
@@ -126,16 +109,21 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
       const extrasHtml =
         turn.extras.length > 0
           ? `<div class="extras-box">
-               <div class="sub-label">Bonus / Extra Discoveries (${turn.extras.length})</div>
-               <ul>${turn.extras.map((ex) => `<li>${escapeHtml(ex)}</li>`).join('')}</ul>
-             </div>`
+              <div class="sub-label">✨ ${dualSpan(
+                `Bonus / Research Discoveries Beyond Expected (${turn.extras.length})`,
+                `Phát hiện Nghiên cứu Bổ sung Ngoài Kỳ vọng (${turn.extras.length})`
+              )}</div>
+              <ul>
+                ${turn.extras.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+              </ul>
+            </div>`
           : '';
 
       const rawAssistantHtml = turn.rawAssistantMessage
         ? `<details class="raw-assistant">
-             <summary>View Raw Assistant Reply</summary>
-             <pre>${escapeHtml(turn.rawAssistantMessage)}</pre>
-           </details>`
+            <summary>${dualSpan('View Full Assistant Response', 'Xem Toàn bộ Phản hồi của AI')}</summary>
+            <pre>${escapeHtml(turn.rawAssistantMessage)}</pre>
+          </details>`
         : '';
 
       return `<article class="turn-card" id="turn-${turn.index}">
@@ -150,25 +138,25 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
           </span>
         </div>
         <div class="raw-prompt">
-          <div class="sub-label">Verbatim Raw User Message</div>
+          <div class="sub-label">${dualSpan('Verbatim Raw User Message', 'Tin nhắn Người dùng Nguyên bản (Raw Prompt)')}</div>
           <pre>${escapeHtml(turn.rawUserMessage)}</pre>
         </div>
         <div class="intent-row">
-          <div><strong>Intent:</strong> ${escapeHtml(turn.intent)}</div>
-          <div><strong>Input:</strong> ${escapeHtml(turn.inputSummary)}</div>
+          <div><strong>${dualSpan('Intent:', 'Ý định:')}</strong> ${escapeHtml(turn.intent)}</div>
+          <div><strong>${dualSpan('Input:', 'Đầu vào:')}</strong> ${escapeHtml(turn.inputSummary)}</div>
         </div>
         <div class="compare-grid">
           <div class="compare-box expected">
-            <div class="sub-label">Expected Output</div>
+            <div class="sub-label">${dualSpan('Expected Output', 'Kết quả Kỳ vọng')}</div>
             <p>${escapeHtml(turn.expectedOutput)}</p>
           </div>
           <div class="compare-box actual">
-            <div class="sub-label">Actual Output</div>
+            <div class="sub-label">${dualSpan('Actual Output', 'Kết quả Thực tế')}</div>
             <p>${escapeHtml(turn.actualOutput)}</p>
           </div>
         </div>
-        ${turn.deltaNote ? `<p class="delta-note"><strong>Delta Note:</strong> ${escapeHtml(turn.deltaNote)}</p>` : ''}
-        ${turn.toolSummary ? `<p class="delta-note"><strong>Tools Executed:</strong> ${escapeHtml(turn.toolSummary)}</p>` : ''}
+        ${turn.deltaNote ? `<p class="delta-note"><strong>${dualSpan('Delta Note:', 'Ghi chú Độ lệch:')}</strong> ${escapeHtml(turn.deltaNote)}</p>` : ''}
+        ${turn.toolSummary ? `<p class="delta-note"><strong>${dualSpan('Tools Executed:', 'Công cụ đã Thực thi:')}</strong> ${escapeHtml(turn.toolSummary)}</p>` : ''}
         ${extrasHtml}
         ${rawAssistantHtml}
       </article>`;
@@ -183,18 +171,60 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
     .join('');
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${safeTitle} — Conversation Flow Export</title>
   <style>
     :root {
+      color-scheme: light;
       --canvas: #f0f0f8;
+      --surface: #ffffff;
+      --surface-soft: rgba(255,255,255,.85);
+      --surface-sunken: #f8f7fc;
+      --hero-bg: #e4dffd;
       --text: #2e1065;
       --text-2: #4a3080;
       --muted: #6b5f8f;
+      --accent: #7c3aed;
+      --on-accent: #ffffff;
+      --expected-bg: #eef6ff;
+      --actual-bg: #edf9f5;
+      --extras-bg: #f3f0ff;
+      --status-ok-bg: #d4f0e8; --status-ok-fg: #065f46;
+      --status-exp-bg: #e4dffd; --status-exp-fg: #5b21b6;
+      --status-warn-bg: #fde8d0; --status-warn-fg: #9a3412;
+      --status-err-bg: #fcd5ce; --status-err-fg: #9f1239;
+      --status-info-bg: #d0e8fd; --status-info-fg: #075985;
       --clay: 0 18px 36px -14px rgba(120,90,180,.22), inset 0 -6px 14px rgba(100,60,150,.12), inset 0 6px 14px rgba(255,255,255,.88);
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #14111d;
+      --surface: #201b2e;
+      --surface-soft: rgba(18,14,28,.65);
+      --surface-sunken: #181423;
+      --hero-bg: #251e3e;
+      --text: #f3f0ff;
+      --text-2: #cec4f2;
+      --muted: #9e91c4;
+      --accent: #a78bfa;
+      --on-accent: #190d2c;
+      --expected-bg: #16293c;
+      --actual-bg: #142e28;
+      --extras-bg: #2e2550;
+      --status-ok-bg: #11362d; --status-ok-fg: #6ee7b7;
+      --status-exp-bg: #2e2550; --status-exp-fg: #ddd6fe;
+      --status-warn-bg: #3b2815; --status-warn-fg: #fdba74;
+      --status-err-bg: #401c24; --status-err-fg: #fda4af;
+      --status-info-bg: #142f47; --status-info-fg: #7dd3fc;
+      --clay: 0 18px 36px -14px rgba(0,0,0,.58), inset 0 -6px 14px rgba(0,0,0,.44), inset 0 6px 14px rgba(255,255,255,.07);
+    }
+    html[data-lang="en"] .i18n[lang="vi"],
+    html:not([data-lang]) .i18n[lang="vi"],
+    html[data-lang="vi"] .i18n[lang="en"] {
+      display: none !important;
     }
     * { box-sizing: border-box; }
     body {
@@ -204,26 +234,44 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
       color: var(--text);
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.55;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
     .wrap { max-width: 1020px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
     .hero, .turn-card {
-      background: #ffffff;
+      background: var(--surface);
       border-radius: 30px;
       padding: 24px 28px;
       box-shadow: var(--clay);
     }
-    .hero { background: #e4dffd; }
+    .hero { background: var(--hero-bg); }
+    .hero-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
     h1 { margin: 0 0 10px; font-size: 1.9rem; line-height: 1.2; }
     h2 { margin: 0; font-size: 1.18rem; }
-    .badges, .quick-nav, .turn-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .badges, .quick-nav, .turn-meta, .pref-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .pill {
       display: inline-block;
       padding: 4px 12px;
       border-radius: 999px;
-      background: #fff;
+      background: var(--surface);
+      color: var(--text);
       font-size: 0.82rem;
       font-weight: 700;
-      box-shadow: 0 4px 10px rgba(120,90,180,.14);
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    }
+    .pref-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 5px 11px;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    html[data-lang="en"] .pref-btn[data-set-lang="en"],
+    html[data-lang="vi"] .pref-btn[data-set-lang="vi"] {
+      background: var(--accent);
+      color: var(--on-accent);
     }
     .mission-grid, .compare-grid {
       display: grid;
@@ -232,13 +280,13 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
       margin-top: 14px;
     }
     .mission-box, .compare-box, .raw-prompt, .extras-box {
-      background: rgba(255,255,255,.85);
+      background: var(--surface-soft);
       border-radius: 18px;
       padding: 14px 16px;
     }
-    .compare-box.expected { background: #eef6ff; }
-    .compare-box.actual { background: #edf9f5; }
-    .extras-box { background: #f3f0ff; margin-top: 12px; }
+    .compare-box.expected { background: var(--expected-bg); }
+    .compare-box.actual { background: var(--actual-bg); }
+    .extras-box { background: var(--extras-bg); margin-top: 12px; }
     .extras-box ul { margin: 6px 0 0 18px; padding: 0; }
     .sub-label {
       font-size: 0.76rem;
@@ -248,7 +296,7 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
       color: var(--muted);
       margin-bottom: 6px;
     }
-    .raw-prompt { background: #f8f7fc; margin-top: 12px; }
+    .raw-prompt { background: var(--surface-sunken); margin-top: 12px; }
     pre {
       margin: 0;
       white-space: pre-wrap;
@@ -263,36 +311,43 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
     .nav-pill {
       text-decoration: none;
       color: var(--text);
-      background: #fff;
+      background: var(--surface);
       padding: 6px 12px;
       border-radius: 14px;
       font-size: 0.84rem;
       font-weight: 700;
-      box-shadow: 0 4px 10px rgba(120,90,180,.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,.12);
     }
     .raw-assistant { margin-top: 12px; }
     .raw-assistant summary { cursor: pointer; font-weight: 700; color: var(--muted); font-size: 0.88rem; }
-    .raw-assistant pre { margin-top: 8px; background: #f8f7fc; padding: 12px; border-radius: 14px; }
+    .raw-assistant pre { margin-top: 8px; background: var(--surface-sunken); padding: 12px; border-radius: 14px; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body>
   <main class="wrap">
     <section class="hero">
-      <div class="badges" style="margin-bottom:10px;">
-        <span class="pill">${safePlatform}</span>
-        <span class="pill">${flow.turns.length} Turns</span>
-        <span class="pill">${safeDate}</span>
-        <span class="pill">Offline Self-Contained Export</span>
+      <div class="hero-top">
+        <div class="badges">
+          <span class="pill">${safePlatform}</span>
+          <span class="pill">${flow.turns.length} ${dualSpan('Turns', 'Lượt')}</span>
+          <span class="pill">${safeDate}</span>
+          <span class="pill">${dualSpan('Offline Self-Contained Export', 'Bản xuất Độc lập Ngoại tuyến')}</span>
+        </div>
+        <div class="pref-bar">
+          <button type="button" class="pref-btn" data-set-lang="en">EN</button>
+          <button type="button" class="pref-btn" data-set-lang="vi">VI</button>
+          <button type="button" class="pref-btn" id="btn-export-theme">🌙 / ☀️</button>
+        </div>
       </div>
       <h1>${safeTitle}</h1>
       <div class="mission-grid">
         <div class="mission-box">
-          <div class="sub-label">Original Goal</div>
+          <div class="sub-label">${dualSpan('Original Goal', 'Mục tiêu Ban đầu')}</div>
           <p style="margin:0;">${safeGoal}</p>
         </div>
         <div class="mission-box">
-          <div class="sub-label">Final Outcome</div>
+          <div class="sub-label">${dualSpan('Final Outcome', 'Kết quả Cuối cùng')}</div>
           <p style="margin:0;">${safeOutcome}</p>
         </div>
       </div>
@@ -300,6 +355,29 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
     <nav class="quick-nav" aria-label="Turn shortcuts">${quickNavHtml}</nav>
     ${turnCardsHtml}
   </main>
+  <script>
+    (function(){
+      var d = document.documentElement;
+      try {
+        var t = localStorage.getItem('ai-usage:theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var l = localStorage.getItem('ai-usage:lang') || 'en';
+        d.dataset.theme = t; d.dataset.lang = l; d.lang = l;
+      } catch(e) {}
+      document.addEventListener('click', function(e){
+        var b = e.target.closest('[data-set-lang]');
+        if (b) {
+          var nl = b.getAttribute('data-set-lang');
+          d.dataset.lang = nl; d.lang = nl;
+          try { localStorage.setItem('ai-usage:lang', nl); } catch(err) {}
+        }
+        if (e.target.closest('#btn-export-theme')) {
+          var nt = d.dataset.theme === 'dark' ? 'light' : 'dark';
+          d.dataset.theme = nt;
+          try { localStorage.setItem('ai-usage:theme', nt); } catch(err) {}
+        }
+      });
+    })();
+  </script>
 </body>
 </html>`;
 }

@@ -3,14 +3,16 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
+    "predev": "node ../scripts/sync-outputs.mjs",
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node ../scripts/sync-outputs.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "tsc --noEmit && tsc --noEmit -p ../desktop/tsconfig.json",
-    "build:desktop": "node ../scripts/build-desktop.mjs",
-    "desktop:live": "node ../scripts/build-desktop.mjs && node ../desktop/dist/live-server.mjs",
+    "build:desktop": "node ../scripts/sync-outputs.mjs && node ../scripts/build-desktop.mjs",
+    "desktop:live": "node ../scripts/sync-outputs.mjs && node ../scripts/build-desktop.mjs && node ../desktop/dist/live-server.mjs",
     "test": "node ../scripts/run-tests.mjs"
   },
   "dependencies": {
@@ -19,4 +21,3 @@
     "@astrojs/sitemap": "^3.2.0"
   }
 }
-
