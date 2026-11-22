@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security &amp; Encryption Mastery: Protecting Credit Cards (FE → BE)</title>
+  <!--
+  metadata:
+    title: "Security & Encryption Mastery: Protecting Credit Cards (FE → BE)"
+    date: "2026-11-22"
+    agent: "security-mentor"
+    category: "research"
+    tags: ["security", "encryption", "jwe", "pci-dss", "web-crypto", "tokenization", "archify"]
+    status: "published"
+    summary: "Friendly, animated guide to Encryption, Decryption, Secrets Management, and PCI DSS 4.0 Frontend-to-Backend credit card protection with live Web Crypto API labs, strict TypeScript blueprints, and 3 validated Archify diagrams."
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clay-radius-sm: 16px;
+      --clay-radius-md: 24px;
+      --clay-radius-lg: 36px;
+      --clay-radius-xl: 48px;
+
+      --color-canvas: #f0f0f8;
+      --color-skills: #e4dffd;
+      --color-rules: #d0e8fd;
+      --color-agents: #d4f0e8;
+      --color-principles: #fde8d0;
+      --color-outputs: #fcd5ce;
+
+      --color-text-primary: #2e1065;
+      --color-text-secondary: #4a3080;
+      --color-text-muted: #6b5d8f;
+      --color-accent: #6d28d9;
+
+      --shadow-drop: rgba(120, 90, 180, 0.22);
+      --shadow-dark: rgba(100, 60, 150, 0.16);
+      --shadow-light: rgba(255, 255, 255, 0.85);
+
+      --clay-shadow:
+        0 20px 40px -15px var(--shadow-drop),
+        inset 0 -8px 16px var(--shadow-dark),
+        inset 0 8px 16px var(--shadow-light);
+
+      --clay-shadow-sm:
+        0 10px 20px -8px var(--shadow-drop),
+        inset 0 -4px 8px var(--shadow-dark),
+        inset 0 4px 8px var(--shadow-light);
+
+      --clay-shadow-pressed:
+        0 6px 12px -4px var(--shadow-drop),
+        inset 0 -2px 6px var(--shadow-dark),
+        inset 0 3px 6px var(--shadow-light);
+
+      --font-display: 'Nunito', 'Segoe UI', system-ui, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--color-canvas);
+      font-family: var(--font-body);
+      color: var(--color-text-primary);
+      line-height: 1.65;
+      padding: 32px 20px 64px;
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    main.output-body {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .clay-card {
+      background-color: var(--color-skills);
+      border-radius: var(--clay-radius-lg);
+      padding: 32px;
+      box-shadow: var(--clay-shadow);
+      transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.28s ease;
+    }
+
+    .clay-card.agents { background-color: var(--color-agents); --shadow-drop: rgba(40, 140, 110, 0.22); --shadow-dark: rgba(30, 110, 90, 0.15); }
+    .clay-card.principles { background-color: var(--color-principles); --shadow-drop: rgba(180, 100, 40, 0.22); --shadow-dark: rgba(140, 80, 30, 0.15); }
+    .clay-card.outputs { background-color: var(--color-outputs); --shadow-drop: rgba(190, 70, 90, 0.22); --shadow-dark: rgba(150, 50, 70, 0.15); }
+    .clay-card.rules { background-color: var(--color-rules); --shadow-drop: rgba(50, 110, 180, 0.22); --shadow-dark: rgba(40, 90, 140, 0.15); }
+
+    h1.output-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.85rem, 3.3vw, 2.65rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h2 { font-family: var(--font-display); font-size: 1.55rem; font-weight: 800; margin-bottom: 12px; }
+    h3 { font-family: var(--font-display); font-size: 1.18rem; font-weight: 800; margin-bottom: 8px; }
+    h4 { font-family: var(--font-display); font-size: 1.02rem; font-weight: 800; margin-bottom: 6px; }
+    p { margin-bottom: 12px; font-size: 1.01rem; }
+    ul, ol { margin-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+    a { color: #5b21b6; font-weight: 700; }
+
+    .output-badges { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+    .clay-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.83rem;
+      font-weight: 700;
+      background-color: #ffffff;
+      color: var(--color-text-secondary);
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .clay-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--clay-radius-md);
+      border: none;
+      background-color: #ffffff;
+      color: var(--color-text-primary);
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.92rem;
+      text-decoration: none;
+      box-shadow: var(--clay-shadow-sm);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .clay-btn:hover { transform: translateY(-2px); }
+    .clay-btn:active { transform: scale(0.97); box-shadow: var(--clay-shadow-pressed); }
+    .clay-btn.primary { background-color: #6d28d9; color: #ffffff; }
+    .clay-btn.teal { background-color: #0d9488; color: #ffffff; }
+    .clay-btn.danger { background-color: #be123c; color: #ffffff; }
+    .clay-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 14px; }
+
+    .sub-card {
+      background: rgba(255, 255, 255, 0.86);
+      border-radius: var(--clay-radius-md);
+      padding: 22px;
+      box-shadow: var(--clay-shadow-sm);
+    }
+
+    .clay-input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--clay-radius-sm);
+      border: 2px solid rgba(109, 40, 217, 0.2);
+      background: #ffffff;
+      color: var(--color-text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: inset 0 3px 8px rgba(46, 16, 101, 0.09);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .clay-input:focus {
+      border-color: #6d28d9;
+      box-shadow: inset 0 3px 8px rgba(46, 16, 101, 0.09), 0 0 0 4px rgba(109, 40, 217, 0.16);
+    }
+
+    pre {
+      background: #1e1b4b;
+      color: #eef2ff;
+      padding: 16px 18px;
+      border-radius: var(--clay-radius-sm);
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.52;
+      margin: 10px 0 14px;
+    }
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.89em;
+      background: rgba(109, 40, 217, 0.1);
+      padding: 2px 7px;
+      border-radius: var(--clay-radius-sm);
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+
+    .mono-box {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      word-break: break-all;
+      background: #f8fafc;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 12px 14px;
+      border-radius: var(--clay-radius-sm);
+      line-height: 1.48;
+      margin: 8px 0;
+    }
+
+    .callout {
+      padding: 16px 20px;
+      border-radius: var(--clay-radius-md);
+      margin: 12px 0;
+      box-shadow: var(--clay-shadow-sm);
+    }
+    .callout.info { background: #ede9fe; border-left: 5px solid #6d28d9; }
+    .callout.good { background: #ecfdf5; border-left: 5px solid #0d9488; }
+    .callout.warn { background: #fffbeb; border-left: 5px solid #d97706; }
+    .callout.danger { background: #fff1f2; border-left: 5px solid #e11d48; }
+
+    /* Designed-to-Scale Inspired Light Animated Packet Stage */
+    .dts-stage {
+      background: #ffffff;
+      color: var(--color-text-primary);
+      border: 1px solid rgba(109, 40, 217, 0.14);
+      border-radius: var(--clay-radius-md);
+      padding: 24px;
+      box-shadow: var(--clay-shadow-sm);
+      margin-top: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dts-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(109, 40, 217, 0.12) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    .dts-inner { position: relative; z-index: 1; }
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .mode-tab {
+      padding: 10px 16px;
+      border-radius: var(--clay-radius-sm);
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #334155;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 0.86rem;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+    .mode-tab:hover { transform: translateY(-2px); background: #e2e8f0; color: #0f172a; }
+    .mode-tab.active {
+      background: #6d28d9;
+      border-color: #6d28d9;
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(109, 40, 217, 0.28);
+    }
+
+    .pipeline-track-wrap {
+      position: relative;
+      padding: 58px 10px 18px;
+      margin: 10px 0 18px;
+      overflow-x: auto;
+    }
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(128px, 1fr));
+      gap: 12px;
+      min-width: 790px;
+      position: relative;
+    }
+    .pipeline-line {
+      position: absolute;
+      top: 96px;
+      left: 7%;
+      right: 7%;
+      height: 4px;
+      background: linear-gradient(90deg, rgba(148, 163, 184, 0.42), rgba(14, 165, 233, 0.65), rgba(16, 185, 129, 0.65));
+      border-radius: var(--clay-radius-sm);
+      z-index: 0;
+    }
+    .pipeline-line::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, rgba(255,255,255,0.85) 0 10px, transparent 10px 22px);
+      background-size: 44px 4px;
+      animation: flowDash 1.4s linear infinite;
+      opacity: 0.7;
+    }
+    @keyframes flowDash {
+      from { background-position-x: 0; }
+      to { background-position-x: 44px; }
+    }
+
+    .packet-traveler {
+      position: absolute;
+      top: 6px;
+      left: 8%;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border-radius: var(--clay-radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+      z-index: 3;
+      box-shadow: 0 8px 20px rgba(46, 16, 101, 0.16);
+      transition: left 0.55s cubic-bezier(0.34, 1.35, 0.64, 1), background-color 0.3s ease, border-color 0.3s ease;
+      border: 2px solid #e11d48;
+      background: #ffe4e6;
+      color: #881337;
+    }
+    .packet-traveler.state-plain { background: #ffe4e6; border-color: #e11d48; color: #881337; }
+    .packet-traveler.state-tls { background: #ccfbf1; border-color: #0d9488; color: #115e59; }
+    .packet-traveler.state-exposed { background: #fef3c7; border-color: #d97706; color: #92400e; }
+    .packet-traveler.state-jwe { background: #ede9fe; border-color: #7c3aed; color: #4c1d95; }
+    .packet-traveler.state-token { background: #d1fae5; border-color: #059669; color: #065f46; }
+
+    .hop-node {
+      position: relative;
+      z-index: 2;
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-radius: var(--clay-radius-sm);
+      padding: 14px 10px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(46, 16, 101, 0.06);
+      transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .hop-node:hover { transform: translateY(-3px); border-color: #94a3b8; }
+    .hop-node.active {
+      border-color: #0284c7;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2), 0 10px 22px rgba(2, 132, 199, 0.18);
+      transform: translateY(-4px);
+    }
+    .hop-node.risk { border-color: #fb7185; background: #fffafb; }
+    .hop-node.safe { border-color: #34d399; background: #f7fefb; }
+    .hop-node.bypass { opacity: 0.6; border-style: dashed; background: #f8fafc; }
+
+    .hop-icon { font-size: 1.55rem; display: block; margin-bottom: 4px; }
+    .hop-title { font-family: var(--font-display); font-weight: 800; font-size: 0.88rem; color: #0f172a; }
+    .hop-sub { font-size: 0.76rem; color: #475569; margin-top: 3px; }
+    .hop-pill {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 9px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+    .pill-bad { background: #ffe4e6; color: #9f1239; }
+    .pill-warn { background: #fef3c7; color: #92400e; }
+    .pill-ok { background: #d1fae5; color: #065f46; }
+    .pill-bypass { background: #e2e8f0; color: #475569; }
+
+    .dts-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f1f5f9;
+      border-radius: var(--clay-radius-sm);
+      border: 1px solid #cbd5e1;
+    }
+
+    .inspector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .inspector-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: var(--clay-radius-sm);
+      padding: 14px;
+    }
+    .inspector-label {
+      font-size: 0.76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .inspector-val {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    /* Lab 3: 6-step JWE Crypto Pipeline */
+    .jwe-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .jwe-step-card {
+      background: #ffffff;
+      border-radius: var(--clay-radius-md);
+      padding: 16px;
+      box-shadow: var(--clay-shadow-sm);
+      border: 2px solid transparent;
+      opacity: 0.55;
+      transform: scale(0.99);
+      transition: all 0.32s ease;
+    }
+    .jwe-step-card.done {
+      opacity: 1;
+      transform: scale(1);
+      border-color: #0d9488;
+    }
+    .jwe-step-card.active {
+      opacity: 1;
+      transform: translateY(-3px);
+      border-color: #6d28d9;
+      box-shadow: 0 14px 28px -8px rgba(109, 40, 217, 0.35);
+    }
+    .jwe-step-card.failed {
+      opacity: 1;
+      border-color: #e11d48;
+      background: #fff1f2;
+    }
+
+    .jwe-token-parts {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.5;
+      word-break: break-all;
+      background: #f8fafc;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 12px 14px;
+      border-radius: var(--clay-radius-sm);
+    }
+    .jwe-p-hdr { color: #db2777; font-weight: 600; }
+    .jwe-p-key { color: #0284c7; font-weight: 600; }
+    .jwe-p-iv  { color: #b45309; font-weight: 600; }
+    .jwe-p-ct  { color: #047857; font-weight: 600; }
+    .jwe-p-tag { color: #6d28d9; font-weight: 600; }
+
+    /* Archify Embed Frames */
+    .archify-frame-wrap {
+      background: #ffffff;
+      border-radius: var(--clay-radius-md);
+      padding: 14px;
+      box-shadow: var(--clay-shadow-sm);
+      margin-top: 18px;
+    }
+    .archify-frame-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 4px 8px 12px;
+      border-bottom: 1px solid rgba(46, 16, 101, 0.08);
+      margin-bottom: 12px;
+    }
+    .archify-iframe {
+      width: 100%;
+      height: 560px;
+      border: none;
+      border-radius: var(--clay-radius-sm);
+      background: #f8fafc;
+    }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin: 12px 0; }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      min-width: 700px;
+    }
+    th, td { padding: 12px 14px; text-align: left; font-size: 0.92rem; vertical-align: top; }
+    th { font-weight: 800; color: var(--color-text-secondary); }
+    td { background: rgba(255, 255, 255, 0.88); border-radius: var(--clay-radius-sm); }
+
+    /* Quiz & Checklist */
+    .quiz-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border-radius: var(--clay-radius-sm);
+      border: none;
+      background: #ffffff;
+      color: var(--color-text-primary);
+      font-weight: 600;
+      font-size: 0.92rem;
+      cursor: pointer;
+      box-shadow: var(--clay-shadow-sm);
+      transition: transform 0.16s ease;
+    }
+    .quiz-option:hover { transform: translateY(-1px); }
+    .quiz-option.correct { background: #d4f0e8; color: #065f46; }
+    .quiz-option.wrong { background: #fcd5ce; color: #9f1239; }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 14px 16px;
+      border-radius: var(--clay-radius-sm);
+      box-shadow: var(--clay-shadow-sm);
+      cursor: pointer;
+    }
+    .check-item input {
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      accent-color: #0d9488;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .check-item.checked { border: 2px solid #0d9488; background: #ecfdf5; }
+
+    .progress-track {
+      background: rgba(255, 255, 255, 0.78);
+      border-radius: var(--clay-radius-md);
+      height: 22px;
+      padding: 4px;
+      box-shadow: inset 0 2px 6px rgba(46, 16, 101, 0.14);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: var(--clay-radius-sm);
+      background: linear-gradient(90deg, #6d28d9, #0d9488);
+      transition: width 0.35s ease;
+    }
+
+    .badge-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: var(--clay-radius-sm);
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+    .tag-good { background: #d4f0e8; color: #065f46; }
+    .tag-warn { background: #fde8d0; color: #92400e; }
+    .tag-bad  { background: #fcd5ce; color: #9f1239; }
+    .tag-info { background: #d0e8fd; color: #075985; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .clay-card, .clay-btn, .packet-traveler, .hop-node, .jwe-step-card, .mode-tab, .quiz-option, .progress-fill {
+        transition: none !important;
+        animation: none !important;
+      }
+      .pipeline-line::after { animation: none !important; }
+      .clay-card:hover, .clay-btn:hover, .hop-node:hover { transform: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <header class="clay-card output-header">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <span class="clay-badge" style="background: var(--color-agents); color: #065f46;">
+          🔐 Interactive Security &amp; System Design Guide
+        </span>
+        <span class="clay-badge" id="crypto-engine-badge" style="background: #ede9fe; color: #5b21b6;">
+          ⚡ Checking browser Web Crypto API...
+        </span>
+      </div>
+
+      <h1 class="output-title" style="margin-top: 14px;">
+        Security &amp; Encryption Mastery: Protecting Credit Cards from Frontend to Backend
+      </h1>
+
+      <div class="output-badges">
+        <span class="clay-badge" style="background: var(--color-outputs); color: #9f1239;">Category: Security Lab</span>
+        <span class="clay-badge">Date: 2026-11-22</span>
+        <span class="clay-badge">Agent: security-mentor</span>
+        <span class="clay-badge" style="background: var(--color-rules); color: #075985;">Status: Published</span>
+        <span class="clay-badge">PCI DSS v4.0 + RFC 7516 (JWE)</span>
+      </div>
+
+      <p style="margin-top: 14px; color: var(--color-text-secondary);">
+        <strong>Your real-world problem:</strong> A customer types their credit card number into your Frontend (FE), and right now it gets sent to your Backend (BE) without application-layer protection. Let's fix that — and along the way, learn how <strong>Encryption, Decryption, Hashing, TLS, and Secrets Management</strong> work using friendly analogies, live browser cryptography, and animated flows!
+      </p>
+    </header>
+
+    <main class="output-body">
+      <!-- SECTION 1: EXECUTIVE SUMMARY & ANALOGIES -->
+      <section class="clay-card agents executive-summary">
+        <h2>1. The Friendly Big Picture: From Postcards to Armored Vaults</h2>
+        <p>
+          Think of sending a raw credit card number from your Frontend to your Backend like writing your Visa number on a <strong>paper postcard</strong> and tossing it into public mail. Anyone along the route — public Wi-Fi routers, proxies, CDN nodes, or log collectors — can read it.
+        </p>
+
+        <div class="callout warn">
+          <strong>⚠️ Surprising Catch: Why HTTPS (TLS) Alone Isn't Always Enough!</strong><br>
+          Putting that postcard inside a sealed armored truck (<strong>HTTPS / TLS 1.3</strong>) stops coffee-shop Wi-Fi hackers! <em>However</em>, the truck usually unloads at your <strong>Load Balancer or API Gateway</strong> (called <em>TLS Termination</em>). Once unloaded, internal HTTP logs, APM tools (Datadog/Sentry), and your web server memory all see the raw card number in plaintext — pulling your entire backend into strict <strong>PCI DSS</strong> audit scope.
+        </div>
+
+        <h3 style="margin-top: 18px;">5 Everyday Analogies (Never Confuse These Again!)</h3>
+        <div class="grid-3">
+          <div class="sub-card">
+            <h3>🔤 1. Encoding (Base64)</h3>
+            <span class="badge-tag tag-bad">NOT Security!</span>
+            <p style="margin-top: 8px;"><strong>Analogy: Pig Latin.</strong> It just changes how letters look so systems can carry binary safely over JSON/URLs.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);">Zero secret key needed — any attacker runs <code>atob()</code> and reads your card in 1 millisecond.</p>
+          </div>
+
+          <div class="sub-card">
+            <h3>🍓 2. Hashing (SHA-256 / Argon2id)</h3>
+            <span class="badge-tag tag-info">One-Way Only</span>
+            <p style="margin-top: 8px;"><strong>Analogy: A Fruit Smoothie.</strong> You can blend strawberries into a smoothie, and match a recipe later, but you can <em>never</em> un-blend the smoothie back into whole berries.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);">Perfect for <strong>passwords</strong> (with a random Salt), but <em>useless</em> for sending a card number that your payment gateway must charge.</p>
+          </div>
+
+          <div class="sub-card">
+            <h3>🔑 3. Symmetric (AES-256-GCM)</h3>
+            <span class="badge-tag tag-good">Fast + Tamper Proof</span>
+            <p style="margin-top: 8px;"><strong>Analogy: A Shared Safe Key.</strong> One secret key both locks and unlocks the box. Modern CPUs run AES blazingly fast.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);"><strong>Catch:</strong> If you put that shared key in Frontend JavaScript, anyone opening browser DevTools steals it!</p>
+          </div>
+
+          <div class="sub-card">
+            <h3>🔓 4. Asymmetric (RSA-OAEP / ECC)</h3>
+            <span class="badge-tag tag-info">Public Lock, Private Key</span>
+            <p style="margin-top: 8px;"><strong>Analogy: Open Padlocks + Bank Key.</strong> The server hands out unlocked <strong>Public Padlocks</strong> to every browser. Anyone can snap one shut, but <em>only</em> the server's secret <strong>Private Key</strong> opens it.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);">Solves key sharing, though RSA math is slower and limited in payload size.</p>
+          </div>
+
+          <div class="sub-card">
+            <h3>📦 5. Hybrid JWE (RSA + AES-GCM)</h3>
+            <span class="badge-tag tag-good">Best App-Layer Lock</span>
+            <p style="margin-top: 8px;"><strong>Analogy: Padlock Guarding a Disposable Safe Key.</strong> Frontend invents a brand-new 1-time AES safe key, locks the credit card inside, and locks that tiny AES key with the server's RSA Public Padlock.</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);">Standardized as <strong>JWE (RFC 7516)</strong> — fast, safe, and detects even a 1-bit tamper!</p>
+          </div>
+
+          <div class="sub-card">
+            <h3>🎟️ 6. Hosted Fields + Tokenization</h3>
+            <span class="badge-tag tag-good">Gold Standard (PCI SAQ A)</span>
+            <p style="margin-top: 8px;"><strong>Analogy: Valet Parking Ticket.</strong> The customer hands their card directly to a certified PCI Vault inside an isolated iframe. Your app only holds a claim ticket (<code>tok_9f3a</code>).</p>
+            <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-secondary);">Even if a hacker steals your logs or DB, <code>tok_9f3a</code> cannot be spent elsewhere.</p>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 22px;">System Design Foundations (Reused &amp; Expanded from <em>Designed to Scale: 07. Security</em>)</h3>
+        <div class="grid-3">
+          <div class="sub-card">
+            <h4>🚚 Pillar 1: Data in Transit</h4>
+            <p style="margin: 0; font-size: 0.92rem; color: var(--color-text-secondary);">
+              <strong>TLS 1.3 (HTTPS)</strong> uses an asymmetric handshake to verify the server certificate and negotiate ephemeral symmetric session keys in 1 round trip — encrypting all traffic over public networks. Adding <strong>JWE</strong> adds a second lock inside the HTTP body so proxies can't peek.
+            </p>
+          </div>
+          <div class="sub-card">
+            <h4>🏦 Pillar 2: Data at Rest</h4>
+            <p style="margin: 0; font-size: 0.92rem; color: var(--color-text-secondary);">
+              Never store raw PAN or CVV in plain DB columns! Production vaults use <strong>Envelope Encryption</strong>: a fast Data Encryption Key (<code>DEK</code>, AES-256) encrypts each record, while a Master Key (<code>KEK</code>) inside <strong>KMS / HSM</strong> encrypts the DEK itself.
+            </p>
+          </div>
+          <div class="sub-card">
+            <h4>🗝️ Pillar 3: Secrets &amp; Key Rotation</h4>
+            <p style="margin: 0; font-size: 0.92rem; color: var(--color-text-secondary);">
+              Never hardcode private keys, DB passwords, or API keys in Frontend code or Git commits. Keep secrets in <strong>HashiCorp Vault / AWS KMS</strong>, tag public keys with a Key ID (<code>kid</code>), and rotate keys regularly with zero downtime.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: INTERACTIVE ANIMATED LABS -->
+      <section class="clay-card principles visualizations">
+        <h2>2. Interactive Cryptography &amp; Animated Packet Labs</h2>
+        <p>
+          Don't just read theory — type test data below and watch real cryptographic bytes transform in your browser!
+        </p>
+
+        <!-- LAB 1 -->
+        <div class="sub-card" style="margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h3>🧪 Lab 1: Live Encoding vs. Hashing vs. Encryption Transformer</h3>
+            <span class="badge-tag tag-warn">Use fake test numbers only!</span>
+          </div>
+          <p style="font-size: 0.92rem; color: var(--color-text-secondary); margin-top: 6px;">
+            Edit the input below and watch why <strong>Base64</strong> is insecure, why <strong>SHA-256</strong> cannot be decrypted, and how <strong>AES-256-GCM</strong> protects both secrecy and integrity.
+          </p>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0;">
+            <input id="lab1-input" class="clay-input" style="max-width: 340px;" type="text" value="4242-4242-4242-4242" aria-label="Sample card input for Lab 1">
+            <button id="lab1-reencrypt" class="clay-btn primary" type="button">🎲 Re-Encrypt AES-GCM (New Random IV)</button>
+          </div>
+
+          <div class="grid-3">
+            <!-- Base64 -->
+            <div style="background: #fff1f2; padding: 16px; border-radius: var(--clay-radius-md); border: 2px solid #fda4af;">
+              <h4>1. Base64 (Encoding)</h4>
+              <span class="badge-tag tag-bad">Reversible by Anyone</span>
+              <div id="lab1-b64-out" class="mono-box"></div>
+              <button id="lab1-b64-decode" class="clay-btn" type="button" style="padding: 8px 14px; font-size: 0.82rem;">🔓 Decode (No Key Needed)</button>
+              <div id="lab1-b64-msg" style="font-size: 0.84rem; margin-top: 8px; font-weight: 700; color: #9f1239;"></div>
+            </div>
+
+            <!-- SHA-256 -->
+            <div style="background: #eff6ff; padding: 16px; border-radius: var(--clay-radius-md); border: 2px solid #93c5fd;">
+              <h4>2. SHA-256 (One-Way Hash)</h4>
+              <span class="badge-tag tag-info">Irreversible Fingerprint</span>
+              <div id="lab1-sha-out" class="mono-box"></div>
+              <button id="lab1-sha-reverse" class="clay-btn" type="button" style="padding: 8px 14px; font-size: 0.82rem;">🚫 Try to Decrypt Back</button>
+              <div id="lab1-sha-msg" style="font-size: 0.84rem; margin-top: 8px; font-weight: 700; color: #075985;"></div>
+            </div>
+
+            <!-- AES-256-GCM -->
+            <div style="background: #ecfdf5; padding: 16px; border-radius: var(--clay-radius-md); border: 2px solid #6ee7b7;">
+              <h4>3. AES-256-GCM (Encryption)</h4>
+              <span class="badge-tag tag-good">Needs Key + Verifies Tamper</span>
+              <div id="lab1-aes-out" class="mono-box"></div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button id="lab1-aes-ok" class="clay-btn teal" type="button" style="padding: 8px 12px; font-size: 0.8rem;">🔑 Decrypt (Right Key)</button>
+                <button id="lab1-aes-bad" class="clay-btn danger" type="button" style="padding: 8px 12px; font-size: 0.8rem;">🧨 Wrong Key</button>
+              </div>
+              <div id="lab1-aes-msg" style="font-size: 0.84rem; margin-top: 8px; font-weight: 700; color: #065f46;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAB 2: DESIGNED-TO-SCALE STYLE ANIMATED PACKET JOURNEY -->
+        <div style="margin-top: 24px;">
+          <h3>🎬 Lab 2: Animated Packet Journey — "What Does the Hacker See?"</h3>
+          <p style="font-size: 0.94rem; color: var(--color-text-secondary);">
+            Inspired by <em>designed-to-scale.vercel.app</em>: switch between the 4 architectures and press <strong>▶ Play</strong> (or click any hop) to watch how the credit card packet changes from Browser to Vault!
+          </p>
+
+          <div class="dts-stage">
+            <div class="dts-inner">
+              <div class="mode-tabs" role="tablist" aria-label="Architecture security mode selector">
+                <button class="mode-tab active" data-mode="plain" type="button">❌ 1. Plaintext (Current Problem)</button>
+                <button class="mode-tab" data-mode="tls" type="button">⚠️ 2. HTTPS / TLS 1.3 Only</button>
+                <button class="mode-tab" data-mode="jwe" type="button">🛡️ 3. Hybrid JWE + TLS 1.3 (FE → BE)</button>
+                <button class="mode-tab" data-mode="hosted" type="button">🏆 4. Hosted Fields + Tokenization (Gold)</button>
+              </div>
+
+              <div class="pipeline-track-wrap">
+                <div class="pipeline-line"></div>
+                <div id="dts-packet" class="packet-traveler state-plain">💳 4242-4242-4242-4242</div>
+                <div id="dts-pipeline" class="pipeline-grid"></div>
+              </div>
+
+              <div class="dts-controls">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <button id="dts-play" class="clay-btn primary" type="button" style="padding: 8px 14px; font-size: 0.84rem;">▶ Play</button>
+                  <button id="dts-prev" class="clay-btn" type="button" style="padding: 8px 12px; font-size: 0.84rem;">⏮ Prev</button>
+                  <button id="dts-next" class="clay-btn" type="button" style="padding: 8px 12px; font-size: 0.84rem;">⏭ Next</button>
+                  <button id="dts-replay" class="clay-btn" type="button" style="padding: 8px 12px; font-size: 0.84rem;">↻ Replay</button>
+                </div>
+                <div id="dts-step-indicator" style="font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: #5b21b6;">
+                  Step 1 / 6
+                </div>
+              </div>
+
+              <div id="dts-narration" style="margin-top: 14px; padding: 14px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--clay-radius-sm); font-size: 0.94rem; color: #1e293b;"></div>
+
+              <div class="inspector-grid">
+                <div class="inspector-card">
+                  <div class="inspector-label">🕵️ Wi-Fi / ISP Sniffer Sees</div>
+                  <div id="insp-wifi" class="inspector-val"></div>
+                </div>
+                <div class="inspector-card">
+                  <div class="inspector-label">🌐 Edge Proxy / APM Logs See</div>
+                  <div id="insp-proxy" class="inspector-val"></div>
+                </div>
+                <div class="inspector-card">
+                  <div class="inspector-label">🖥️ Your Backend Server Sees</div>
+                  <div id="insp-backend" class="inspector-val"></div>
+                </div>
+                <div class="inspector-card">
+                  <div class="inspector-label">📋 PCI DSS 4.0 Scope Impact</div>
+                  <div id="insp-pci" class="inspector-val"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LAB 3: REAL WEB CRYPTO API HYBRID JWE SIMULATOR -->
+        <div class="sub-card" style="margin-top: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h3>🔐 Lab 3: Real FE → BE Hybrid Encryption Simulator (RSA-OAEP-256 + AES-256-GCM)</h3>
+            <span id="lab3-kid-badge" class="badge-tag tag-info">Active Server Key ID: key-2026-11-v1</span>
+          </div>
+          <p style="font-size: 0.92rem; color: var(--color-text-secondary); margin-top: 6px;">
+            This lab generates a real 2048-bit RSA keypair inside your browser, encrypts the fake card below into an <strong>RFC 7516 JWE</strong> string, and decrypts it on the simulated Backend. Toggle <strong>"Flip 1 Byte in Transit"</strong> to watch AES-GCM catch an attacker!
+          </p>
+
+          <div class="grid-3" style="margin-top: 12px;">
+            <div>
+              <label for="cc-pan" style="display:block; font-weight:700; font-size:0.84rem; margin-bottom:4px;">Fake Test Card Number</label>
+              <input id="cc-pan" class="clay-input" type="text" value="4242 4242 4242 4242">
+            </div>
+            <div>
+              <label for="cc-exp" style="display:block; font-weight:700; font-size:0.84rem; margin-bottom:4px;">Expiry (MM/YY)</label>
+              <input id="cc-exp" class="clay-input" type="text" value="12/28">
+            </div>
+            <div>
+              <label for="cc-cvv" style="display:block; font-weight:700; font-size:0.84rem; margin-bottom:4px;">Fake CVV</label>
+              <input id="cc-cvv" class="clay-input" type="text" value="123">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 14px;">
+            <button id="lab3-run-all" class="clay-btn primary" type="button">▶ Animate All 6 Steps</button>
+            <button id="lab3-step-next" class="clay-btn" type="button">⏭ Next Step</button>
+            <button id="lab3-reset" class="clay-btn" type="button">↺ Reset</button>
+            <button id="lab3-rotate-key" class="clay-btn" type="button">🔄 Rotate Server RSA Key (kid)</button>
+            <label style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: var(--clay-radius-md); background: #fff1f2; color: #9f1239; font-weight: 800; font-size: 0.86rem; cursor: pointer; box-shadow: var(--clay-shadow-sm);">
+              <input id="lab3-tamper-cb" type="checkbox" style="width: 17px; height: 17px; accent-color: #e11d48;">
+              😈 Flip 1 Byte in Transit (MITM Tamper)
+            </label>
+          </div>
+
+          <div id="lab3-steps-grid" class="jwe-steps">
+            <div class="jwe-step-card" id="jwe-s1">
+              <span class="badge-tag tag-info">Step 1 · Frontend</span>
+              <h4 style="margin-top:6px;">Serialize Card Payload JSON</h4>
+              <div id="jwe-out-1" class="mono-box">Waiting to run...</div>
+            </div>
+            <div class="jwe-step-card" id="jwe-s2">
+              <span class="badge-tag tag-info">Step 2 · Frontend</span>
+              <h4 style="margin-top:6px;">Fresh 256-bit AES CEK + 12B IV</h4>
+              <div id="jwe-out-2" class="mono-box">Waiting to run...</div>
+            </div>
+            <div class="jwe-step-card" id="jwe-s3">
+              <span class="badge-tag tag-info">Step 3 · Frontend</span>
+              <h4 style="margin-top:6px;">AES-256-GCM Ciphertext + 16B Tag</h4>
+              <div id="jwe-out-3" class="mono-box">Waiting to run...</div>
+            </div>
+            <div class="jwe-step-card" id="jwe-s4">
+              <span class="badge-tag tag-info">Step 4 · Frontend</span>
+              <h4 style="margin-top:6px;">Wrap CEK via RSA-OAEP-256 Public Key</h4>
+              <div id="jwe-out-4" class="mono-box">Waiting to run...</div>
+            </div>
+            <div class="jwe-step-card" id="jwe-s5">
+              <span class="badge-tag tag-warn">Step 5 · Wire (TLS 1.3)</span>
+              <h4 style="margin-top:6px;">Compact JWE (5 Dot-Separated Parts)</h4>
+              <div id="jwe-out-5" class="jwe-token-parts">header.encryptedKey.iv.ciphertext.tag</div>
+            </div>
+            <div class="jwe-step-card" id="jwe-s6">
+              <span class="badge-tag tag-good">Step 6 · Backend + KMS</span>
+              <h4 style="margin-top:6px;">Unwrap CEK, Verify AuthTag &amp; Wipe RAM</h4>
+              <div id="jwe-out-6" class="mono-box">Waiting to run...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: EMBEDDED ARCHIFY DIAGRAMS -->
+      <section class="clay-card rules visualizations">
+        <h2>3. Animated System Diagrams (Archify Showcase)</h2>
+        <p>
+          Explore these 3 validated Archify diagrams directly below. Use the <strong>Live / Still</strong> button inside each viewer to pause or trace animated paths, click any node to inspect details, or open fullscreen.
+        </p>
+
+        <!-- Diagram 1: Dataflow -->
+        <div class="archify-frame-wrap">
+          <div class="archify-frame-bar">
+            <div>
+              <strong>🎬 Diagram 1 (Archify Dataflow): Encryption &amp; Secrets Lifecycle</strong>
+              <div style="font-size: 0.86rem; color: var(--color-text-muted);">
+                Connects <em>Designed to Scale</em>'s 3 pillars — Transit (TLS 1.3 + JWE), Processing (Argon2id vs Memory Decryptor), and Storage (Envelope KMS + Redacted Logs).
+              </div>
+            </div>
+            <a href="../../diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html?theme=light" target="_blank" class="clay-btn" style="padding: 8px 14px; font-size: 0.84rem;">
+              Open Fullscreen ↗
+            </a>
+          </div>
+          <iframe
+            class="archify-iframe"
+            src="../../diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html?theme=light"
+            title="Encryption and Secrets Lifecycle Archify Dataflow Diagram"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <!-- Diagram 2: Sequence -->
+        <div class="archify-frame-wrap">
+          <div class="archify-frame-bar">
+            <div>
+              <strong>🎬 Diagram 2 (Archify Sequence): FE → BE Credit Card Hybrid JWE Flow</strong>
+              <div style="font-size: 0.86rem; color: var(--color-text-muted);">
+                Traces every message across Browser, TLS-terminating Gateway, Node/TS Backend, KMS/HSM Vault, and Payment Gateway.
+              </div>
+            </div>
+            <a href="../../diagrams/security-cc-hybrid-jwe-flow/security-cc-hybrid-jwe-flow.html?theme=light" target="_blank" class="clay-btn" style="padding: 8px 14px; font-size: 0.84rem;">
+              Open Fullscreen ↗
+            </a>
+          </div>
+          <iframe
+            class="archify-iframe"
+            src="../../diagrams/security-cc-hybrid-jwe-flow/security-cc-hybrid-jwe-flow.html?theme=light"
+            title="FE to BE Credit Card Hybrid Encryption Archify Sequence Diagram"
+            loading="lazy">
+          </iframe>
+        </div>
+
+        <!-- Diagram 3: Architecture -->
+        <div class="archify-frame-wrap">
+          <div class="archify-frame-bar">
+            <div>
+              <strong>🎬 Diagram 3 (Archify Architecture): Trust Boundaries — Hosted Fields (SAQ A) vs. Hybrid JWE (SAQ A-EP)</strong>
+              <div style="font-size: 0.86rem; color: var(--color-text-muted);">
+                Compare PCI DSS scope boundaries side by side and see why a cross-origin Hosted Iframe stops XSS skimming.
+              </div>
+            </div>
+            <a href="../../diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html?theme=light" target="_blank" class="clay-btn" style="padding: 8px 14px; font-size: 0.84rem;">
+              Open Fullscreen ↗
+            </a>
+          </div>
+          <iframe
+            class="archify-iframe"
+            src="../../diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html?theme=light"
+            title="Payment Trust Boundaries Archify Architecture Diagram"
+            loading="lazy">
+          </iframe>
+        </div>
+      </section>
+
+      <!-- SECTION 4: DECISION GUIDE, TYPESCRIPT BLUEPRINTS, SECRETS & TRAPS -->
+      <section class="clay-card skills findings">
+        <h2>4. Solving Your FE → BE Credit Card Problem: Engineering Guide</h2>
+
+        <h3>4.1 Decision Matrix: Pick the Right Architecture</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Approach</th>
+                <th>Wi-Fi Sniffer</th>
+                <th>Proxy / Log Leak</th>
+                <th>Tamper Detection</th>
+                <th>XSS Script Immunity</th>
+                <th>PCI DSS 4.0 Scope</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>❌ Plaintext HTTP</strong></td>
+                <td><span class="badge-tag tag-bad">Exposed</span></td>
+                <td><span class="badge-tag tag-bad">Exposed</span></td>
+                <td><span class="badge-tag tag-bad">None</span></td>
+                <td><span class="badge-tag tag-bad">None</span></td>
+                <td><span class="badge-tag tag-bad">Fails Audit</span></td>
+              </tr>
+              <tr>
+                <td><strong>❌ FE Hardcoded AES Key</strong></td>
+                <td><span class="badge-tag tag-bad">Broken (Key Public)</span></td>
+                <td><span class="badge-tag tag-bad">Fake Security</span></td>
+                <td><span class="badge-tag tag-warn">Optional</span></td>
+                <td><span class="badge-tag tag-bad">None</span></td>
+                <td><span class="badge-tag tag-bad">Fails Audit</span></td>
+              </tr>
+              <tr>
+                <td><strong>⚠️ HTTPS / TLS 1.3 Only</strong></td>
+                <td><span class="badge-tag tag-good">Protected</span></td>
+                <td><span class="badge-tag tag-bad">Exposed at LB/Logs</span></td>
+                <td><span class="badge-tag tag-good">TLS Record MAC</span></td>
+                <td><span class="badge-tag tag-bad">DOM Readable</span></td>
+                <td><span class="badge-tag tag-warn">SAQ D (Heavy)</span></td>
+              </tr>
+              <tr>
+                <td><strong>🛡️ Hybrid JWE + TLS 1.3 (FE → BE)</strong></td>
+                <td><span class="badge-tag tag-good">Double Locked</span></td>
+                <td><span class="badge-tag tag-good">Opaque JWE</span></td>
+                <td><span class="badge-tag tag-good">AES-GCM AuthTag</span></td>
+                <td><span class="badge-tag tag-warn">Needs CSP + SRI</span></td>
+                <td><span class="badge-tag tag-warn">SAQ A-EP / D</span></td>
+              </tr>
+              <tr>
+                <td><strong>🏆 Hosted Fields + Tokenization</strong></td>
+                <td><span class="badge-tag tag-good">Direct TLS to PSP</span></td>
+                <td><span class="badge-tag tag-good">Sees tok_ Only</span></td>
+                <td><span class="badge-tag tag-good">Full TLS + PSP</span></td>
+                <td><span class="badge-tag tag-good">Cross-Origin Iframe</span></td>
+                <td><span class="badge-tag tag-good">SAQ A (Lowest!)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout good">
+          <strong>Rule of Thumb:</strong> If you use a Payment Gateway (Stripe, Adyen, Braintree, CyberSource, etc.), choose <strong>Option A: Hosted Fields + Tokenization</strong> so raw cards never touch your FE DOM or BE. Only build <strong>Option B: Hybrid JWE</strong> when your backend strictly must receive the raw PAN (e.g., multi-PSP smart routing or an internal PCI-certified vault).
+        </div>
+
+        <h3 style="margin-top: 22px;">4.2 Strict TypeScript Blueprints (FE + Node.js BE)</h3>
+        <div class="grid-2">
+          <div class="sub-card">
+            <h4>🏆 Option A: Hosted Fields + Tokenization (Recommended)</h4>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary);">
+              The card input lives inside the PSP's cross-origin iframe. Your Frontend only receives an opaque token, and your Backend only ever types and charges that token.
+            </p>
+            <pre><code>// shared/payment-types.ts
+export interface PaymentTokenRequest {
+  readonly paymentToken: string; // e.g. "tok_9f3a..."
+  readonly amountCents: number;
+  readonly currency: "USD" | "VND";
+  readonly idempotencyKey: string;
+}
+
+export interface ChargeResult {
+  readonly status: "succeeded" | "requires_action";
+  readonly last4: string;
+  readonly chargeId: string;
+}
+
+// frontend/checkout.ts
+export async function submitHostedCheckout(
+  pspSdk: { createToken(): Promise&lt;{ readonly tokenId: string }&gt; },
+  amountCents: number
+): Promise&lt;ChargeResult&gt; {
+  const { tokenId } = await pspSdk.createToken();
+  const body: PaymentTokenRequest = {
+    paymentToken: tokenId,
+    amountCents,
+    currency: "USD",
+    idempotencyKey: crypto.randomUUID(),
+  };
+  const res = await fetch("/api/v1/charges", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Charge failed: ${res.status}`);
+  return (await res.json()) as ChargeResult;
+}</code></pre>
+          </div>
+
+          <div class="sub-card">
+            <h4>🛡️ Option B (Part 1): Frontend Hybrid JWE Encrypt</h4>
+            <p style="font-size: 0.9rem; color: var(--color-text-secondary);">
+              When BE must receive the card: fetch the server's RSA-OAEP-256 public JWK (with <code>kid</code>) and pack card JSON into RFC 7516 JWE using <code>jose</code> (or native Web Crypto).
+            </p>
+            <pre><code>// frontend/encrypt-card.ts (uses `jose` + strict TS)
+import { CompactEncrypt, importJWK, type JWK } from "jose";
+
+export interface CardInput {
+  readonly pan: string;
+  readonly expMonth: string;
+  readonly expYear: string;
+  readonly cvv: string;
+}
+
+export interface ServerPublicKey {
+  readonly kid: string;
+  readonly jwk: JWK;
+}
+
+export async function encryptCardToJwe(
+  card: CardInput,
+  serverKey: ServerPublicKey
+): Promise&lt;string&gt; {
+  const rsaPublicKey = await importJWK(serverKey.jwk, "RSA-OAEP-256");
+  const plaintextBytes = new TextEncoder().encode(JSON.stringify(card));
+
+  return new CompactEncrypt(plaintextBytes)
+    .setProtectedHeader({
+      alg: "RSA-OAEP-256",
+      enc: "A256GCM",
+      kid: serverKey.kid,
+      typ: "JWE",
+    })
+    .encrypt(rsaPublicKey);
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="sub-card" style="margin-top: 18px;">
+          <h4>🛡️ Option B (Part 2): Backend JWE Decrypt, Key Rotation &amp; RAM Wipe</h4>
+          <p style="font-size: 0.9rem; color: var(--color-text-secondary);">
+            The Node.js Backend looks up the private key by <code>kid</code> (from KMS/HSM or rotated keyring), validates the decrypted <code>unknown</code> payload with strict type narrowing, tokenizes at the PSP, and clears plaintext buffers immediately.
+          </p>
+          <pre><code>// backend/decrypt-card.ts (Node.js + strict TypeScript)
+import { compactDecrypt, type KeyLike } from "jose";
+
+export interface DecryptedCard {
+  readonly pan: string;
+  readonly expMonth: string;
+  readonly expYear: string;
+  readonly cvv: string;
+}
+
+export interface KeyResolver {
+  getPrivateKey(kid: string): Promise&lt;KeyLike&gt;;
+}
+
+function assertDecryptedCard(data: unknown): DecryptedCard {
+  if (typeof data !== "object" || data === null) {
+    throw new Error("Invalid decrypted card envelope");
+  }
+  const rec = data as Record&lt;string, unknown&gt;;
+  if (
+    typeof rec.pan !== "string" ||
+    typeof rec.expMonth !== "string" ||
+    typeof rec.expYear !== "string" ||
+    typeof rec.cvv !== "string"
+  ) {
+    throw new Error("Missing required card fields");
+  }
+  return { pan: rec.pan, expMonth: rec.expMonth, expYear: rec.expYear, cvv: rec.cvv };
+}
+
+export async function handleEncryptedCheckout(
+  jweToken: string,
+  keys: KeyResolver,
+  tokenizeWithPsp: (card: DecryptedCard) =&gt; Promise&lt;string&gt;
+): Promise&lt;{ readonly pspToken: string; readonly last4: string }&gt; {
+  let plaintext: Uint8Array | null = null;
+  try {
+    const result = await compactDecrypt(jweToken, async (protectedHeader) =&gt; {
+      if (typeof protectedHeader.kid !== "string") {
+        throw new Error("Missing JWE key ID (kid)");
+      }
+      return keys.getPrivateKey(protectedHeader.kid);
+    });
+    plaintext = result.plaintext;
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(plaintext));
+    const card = assertDecryptedCard(parsed);
+    const pspToken = await tokenizeWithPsp(card);
+    return { pspToken, last4: card.pan.slice(-4) };
+  } finally {
+    // Wipe sensitive card bytes from memory as soon as PSP call finishes
+    if (plaintext !== null) plaintext.fill(0);
+  }
+}</code></pre>
+        </div>
+
+        <h3 style="margin-top: 24px;">4.3 What Happens After Decryption? (Envelope Encryption &amp; Secrets Management)</h3>
+        <div class="grid-2">
+          <div class="sub-card">
+            <h4>📦 Envelope Encryption (At Rest)</h4>
+            <p style="font-size: 0.92rem; color: var(--color-text-secondary);">
+              If an authorized vault ever stores sensitive PII or PANs in a database, it avoids sending megabytes of data to a cloud KMS on every read/write:
+            </p>
+            <ol style="font-size: 0.92rem; margin-bottom: 0;">
+              <li>Generate a fast random <strong>DEK (Data Encryption Key)</strong> to encrypt the record locally with <strong>AES-256-GCM</strong>.</li>
+              <li>Ask <strong>AWS KMS / HashiCorp Vault</strong> to encrypt just that tiny DEK using the master <strong>KEK (Key Encryption Key)</strong> — which never leaves the HSM!</li>
+              <li>Store <code>{ encryptedRecord, encryptedDek, kekVersion }</code> together. Rotating the KEK never requires re-encrypting terabytes at once.</li>
+            </ol>
+          </div>
+          <div class="sub-card">
+            <h4>🛑 Strict Storage Rules (PCI DSS Req 3)</h4>
+            <ul style="font-size: 0.92rem; margin-bottom: 0;">
+              <li><strong>NEVER store CVV/CVC:</strong> Prohibited after authorization — not in SQL, Redis, logs, or dead-letter queues.</li>
+              <li><strong>Store Tokens + Masked Display:</strong> Save <code>tok_9f3a</code>, <code>brand</code>, and <code>last4</code> (max first 6 + last 4 digits if masking PAN).</li>
+              <li><strong>Redact Request Logs:</strong> Configure API Gateway, Express/Fastify logger (<code>pino.redact</code>), and Sentry <code>beforeSend</code> to strip <code>jweCard</code>, <code>pan</code>, and <code>cvv</code>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="margin-top: 24px;">4.4 Top 7 Security Mistakes to Avoid</h3>
+        <div class="grid-2">
+          <div class="callout danger">
+            <strong>1. Hardcoding an AES Secret in Frontend JS</strong><br>
+            Anything shipped to the browser (env vars like <code>VITE_AES_KEY</code>, obfuscated JS) is public. Attackers read it in seconds via DevTools. Only <strong>Public Keys</strong> belong on the Frontend!
+          </div>
+          <div class="callout danger">
+            <strong>2. Reusing an AES-GCM IV / Nonce</strong><br>
+            Never use a fixed IV like <code>0000...</code>! Reusing an IV with the same AES-GCM key breaks confidentiality and lets attackers forge Auth Tags. Always use <code>crypto.getRandomValues(new Uint8Array(12))</code> per request.
+          </div>
+          <div class="callout danger">
+            <strong>3. Using AES-ECB, Unauthenticated AES-CBC, or RSA1_5</strong><br>
+            Legacy modes leak patterns or allow Bleichenbacher / padding-oracle attacks. Stick strictly to <code>RSA-OAEP-256</code> (or <code>ECDH-ES+A256KW</code>) + <code>A256GCM</code>.
+          </div>
+          <div class="callout danger">
+            <strong>4. Ignoring XSS / Magecart Script Skimmers (PCI DSS 4.0)</strong><br>
+            Even perfect JWE only locks data <em>after</em> JavaScript reads the input. Under <strong>PCI DSS 4.0 Req 6.4.3 &amp; 11.6.1</strong>, lock payment pages with strict <strong>Content-Security-Policy (CSP)</strong>, <strong>Subresource Integrity (SRI)</strong> hashes, and script-tamper alerts — or use Hosted Fields iframes!
+          </div>
+          <div class="callout warn">
+            <strong>5. Rolling Your Own Crypto Packing</strong><br>
+            Don't invent custom string concatenation like <code>iv + ":" + ct</code> without authenticating headers. Use standard <strong>JWE (RFC 7516)</strong> via battle-tested libraries like <code>jose</code>.
+          </div>
+          <div class="callout warn">
+            <strong>6. Forgetting Key Rotation (<code>kid</code>)</strong><br>
+            If your single RSA key leaks or expires, rotating without a <code>kid</code> (Key ID) header breaks active checkouts. Serve JWKS with overlapping old/new keys during rotation windows.
+          </div>
+          <div class="callout warn" style="grid-column: 1 / -1;">
+            <strong>7. Logging Request Payloads or Sending Raw Cards to Error Trackers</strong><br>
+            Even an encrypted JWE or plaintext fallback caught in an unhandled exception handler can leak into APM/Sentry if captured before/after decryption. Redact at middleware level and wipe buffers in <code>finally</code> blocks.
+          </div>
+        </div>
+
+        <h3 style="margin-top: 24px;">4.5 Quick Mastery Check &amp; Implementation Checklist</h3>
+        <div class="sub-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <strong>📊 Your Security Readiness Progress</strong>
+            <span id="progress-label" style="font-weight: 800; font-size: 0.9rem;">0 / 12 completed</span>
+          </div>
+          <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 16px;">
+          <!-- Quiz Questions -->
+          <div class="sub-card" data-quiz="q1">
+            <h4>Q1. Your Frontend encodes the card as Base64 over HTTPS. Are Edge Proxy logs safe?</h4>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ Base64 has no secret key — once TLS terminates at the proxy, anyone reading logs decodes it instantly.">A. Yes, Base64 hides the numbers from log readers.</button>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Correct! Base64 is encoding, not encryption. TLS stops at the proxy, exposing raw card numbers to internal logs.">B. No! TLS ends at the proxy and Base64 decodes with zero key.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+
+          <div class="sub-card" data-quiz="q2">
+            <h4>Q2. Why can't we use SHA-256 hashing to send credit card numbers to our Backend?</h4>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Spot on! SHA-256 is one-way (like a fruit smoothie). Your backend or PSP needs the real card number to charge it.">A. Hashing is one-way — the backend cannot recover the card to process payment.</button>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ SHA-256 is fast, not slow — the real issue is irreversibility.">B. SHA-256 is too slow for checkout forms.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+
+          <div class="sub-card" data-quiz="q3">
+            <h4>Q3. Why does Hybrid Encryption (JWE) use BOTH RSA-OAEP and AES-256-GCM?</h4>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Yes! AES-GCM rapidly encrypts + authenticates the card payload with a random 1-time key, while RSA Public Key safely wraps only that 32-byte key.">A. AES encrypts the card fast + detects tampering; RSA safely wraps the 1-time AES key.</button>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ Double-encrypting with two hardcoded passwords still fails if keys live in the browser.">B. Because two symmetric keys are always safer than one.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+
+          <div class="sub-card" data-quiz="q4">
+            <h4>Q4. An attacker flips 1 byte in an AES-256-GCM JWE payload. What happens on BE?</h4>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ AES-GCM is AEAD (Authenticated Encryption). It checks the Auth Tag before trusting any plaintext!">A. Backend gets corrupted garbage and tries to charge a wrong card.</button>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Correct! The 16-byte Auth Tag check fails immediately and rejects the payload before reading a single field.">B. Auth Tag verification fails immediately and rejects the request.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+
+          <div class="sub-card" data-quiz="q5">
+            <h4>Q5. Which option gives your Backend the LOWEST PCI DSS 4.0 compliance scope (SAQ A)?</h4>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Gold star! Isolated cross-origin PSP Hosted Fields + Tokenization means your FE DOM and BE never touch raw PAN/CVV.">A. PSP Hosted Fields (Iframe) + Tokenization (BE receives tok_ only).</button>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ Because your BE still decrypts the PAN in memory, that service and FE script delivery remain in higher CDE scope (SAQ A-EP / D).">B. Decrypting JWE inside your own Backend before calling PSP.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+
+          <div class="sub-card" data-quiz="q6">
+            <h4>Q6. Why does PCI DSS 4.0 strictly require CSP + SRI script monitoring on payment pages?</h4>
+            <button class="quiz-option" type="button" data-ok="true" data-msg="✅ Exactly! A malicious 3rd-party analytics or chat script (Magecart/XSS) can steal card keystrokes BEFORE your encryption function even runs.">A. To stop compromised 3rd-party JS from skimming inputs before encryption runs.</button>
+            <button class="quiz-option" type="button" data-ok="false" data-msg="❌ CSP and SRI protect browser script execution integrity, not server-side SQL injection.">B. To prevent SQL injection inside PostgreSQL.</button>
+            <div class="quiz-feedback" style="font-weight: 700; font-size: 0.86rem; margin-top: 6px;"></div>
+          </div>
+        </div>
+
+        <h4 style="margin-top: 20px;">✅ Action Checklist for Your Codebase</h4>
+        <div class="grid-2" style="margin-top: 10px;">
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c1"><span><strong>Enforce TLS 1.3 / HTTPS</strong> with HSTS everywhere (never allow HTTP fallback on checkout).</span></label>
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c2"><span><strong>Evaluate Hosted Fields first</strong> (Stripe Elements / Adyen / Braintree) to stay in PCI SAQ A.</span></label>
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c3"><span><strong>If BE must receive PAN:</strong> implement RFC 7516 JWE (<code>RSA-OAEP-256</code> + <code>A256GCM</code> + <code>kid</code>).</span></label>
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c4"><span><strong>Isolate Private Keys in KMS/HSM</strong> and verify zero secrets exist in FE or Git history.</span></label>
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c5"><span><strong>Redact all logs &amp; APM traces</strong> and never persist CVV/CVC in DB or cache.</span></label>
+          <label class="check-item"><input type="checkbox" class="action-cb" data-cid="c6"><span><strong>Add strict CSP + SRI headers</strong> and inventory every third-party script on payment pages (PCI DSS 4.0).</span></label>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="clay-card output-footer">
+      <h2>5. Sources, Citations &amp; Methodology</h2>
+      <section class="sources-and-citations">
+        <ul>
+          <li><a href="https://designed-to-scale.vercel.app/#/encryption/1" target="_blank" rel="noopener">Designed to Scale — 07. Security: Encryption &amp; Secrets</a> (Transit, At Rest, and Secrets Management visual curriculum).</li>
+          <li><a href="https://datatracker.ietf.org/doc/html/rfc7516" target="_blank" rel="noopener">IETF RFC 7516: JSON Web Encryption (JWE)</a> &amp; <a href="https://datatracker.ietf.org/doc/html/rfc7518" target="_blank" rel="noopener">RFC 7518 (JWA: RSA-OAEP-256 / A256GCM)</a>.</li>
+          <li><a href="https://datatracker.ietf.org/doc/html/rfc8446" target="_blank" rel="noopener">IETF RFC 8446: The Transport Layer Security (TLS) Protocol Version 1.3</a>.</li>
+          <li><a href="https://www.pcisecuritystandards.org/" target="_blank" rel="noopener">PCI Security Standards Council — PCI DSS v4.0 / v4.0.1</a> (Requirements 3, 4, 6.4.3 &amp; 11.6.1 for payment script integrity, SAQ A vs. SAQ A-EP scope).</li>
+          <li><a href="https://www.w3.org/TR/WebCryptoAPI/" target="_blank" rel="noopener">W3C Web Cryptography API</a> &amp; <a href="https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html" target="_blank" rel="noopener">OWASP Cryptographic Storage Cheat Sheet</a>.</li>
+          <li><a href="https://github.com/panva/jose" target="_blank" rel="noopener">panva/jose</a> — Zero-dependency standard JWE/JWS/JWT library for Web, Node.js, and Edge runtimes.</li>
+        </ul>
+      </section>
+      <section class="methodology-note" style="margin-top: 12px; font-size: 0.88rem; color: var(--color-text-secondary);">
+        <p style="margin: 0;">
+          <strong>Methodology:</strong> Self-contained interactive HTML compliant with <code>AI-Usage</code> Output Contract v1.0.0 &amp; Style Contract v1.0.0. Lab 1 and Lab 3 execute real <code>window.crypto.subtle</code> (2048-bit <code>RSA-OAEP</code> SHA-256 + 256-bit <code>AES-GCM</code> + <code>SHA-256</code>) whenever running in a secure browser context (<code>https://</code> or <code>localhost</code>), with an automatic deterministic pure-JS educational fallback (including real pure-JS SHA-256) when opened directly via <code>file://</code>. All credit card numbers shown (<code>4242...</code>) are standard public test fixtures. The 3 embedded system diagrams were generated and browser-checked with Archify v3.2.0 (<code>--quality showcase</code>).
+        </p>
+      </section>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 0. Crypto Engine Abstraction (Native Web Crypto API + file:// Fallback)
+      // =========================================================================
+      const hasSubtle = Boolean(typeof window !== 'undefined' && window.crypto && window.crypto.subtle);
+      const engineBadge = document.getElementById('crypto-engine-badge');
+      if (engineBadge) {
+        if (hasSubtle) {
+          engineBadge.textContent = '⚡ Live Native Web Crypto API (RSA-OAEP-256 + AES-256-GCM)';
+          engineBadge.style.background = '#d4f0e8';
+          engineBadge.style.color = '#065f46';
+        } else {
+          engineBadge.textContent = '🧪 Local File Mode (Pure-JS Crypto Fallback — use localhost/HTTPS for Web Crypto)';
+          engineBadge.style.background = '#fde8d0';
+          engineBadge.style.color = '#92400e';
+        }
+      }
+
+      const te = new TextEncoder();
+      const td = new TextDecoder();
+
+      function randomBytes(len) {
+        const arr = new Uint8Array(len);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(arr);
+        } else {
+          for (let i = 0; i < len; i++) arr[i] = Math.floor(Math.random() * 256);
+        }
+        return arr;
+      }
+
+      function toBase64Url(bytes) {
+        let bin = '';
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+      }
+
+      function fromBase64Url(str) {
+        const padded = str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4);
+        const bin = atob(padded);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+      }
+
+      function toHex(bytes) {
+        return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      // Real Pure-JS SHA-256 (used only if window.crypto.subtle is unavailable under file://)
+      function sha256PureJs(bytes) {
+        const K = [
+          0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+          0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+          0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+          0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+          0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+          0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+          0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+          0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+        ];
+        const H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+        const bitLen = bytes.length * 8;
+        const withOne = bytes.length + 1;
+        const padLen = (withOne % 64 <= 56) ? (56 - (withOne % 64)) : (120 - (withOne % 64));
+        const buf = new Uint8Array(withOne + padLen + 8);
+        buf.set(bytes);
+        buf[bytes.length] = 0x80;
+        const dv = new DataView(buf.buffer);
+        dv.setUint32(buf.length - 8, Math.floor(bitLen / 0x100000000), false);
+        dv.setUint32(buf.length - 4, bitLen >>> 0, false);
+        const w = new Uint32Array(64);
+        const rrot = (v, n) => (v >>> n) | (v << (32 - n));
+        for (let off = 0; off < buf.length; off += 64) {
+          for (let i = 0; i < 16; i++) w[i] = dv.getUint32(off + i * 4, false);
+          for (let i = 16; i < 64; i++) {
+            const s0 = rrot(w[i - 15], 7) ^ rrot(w[i - 15], 18) ^ (w[i - 15] >>> 3);
+            const s1 = rrot(w[i - 2], 17) ^ rrot(w[i - 2], 19) ^ (w[i - 2] >>> 10);
+            w[i] = (w[i - 16] + s0 + w[i - 7] + s1) >>> 0;
+          }
+          let [a, b, c, d, e, f, g, h] = H;
+          for (let i = 0; i < 64; i++) {
+            const S1 = rrot(e, 6) ^ rrot(e, 11) ^ rrot(e, 25);
+            const ch = (e & f) ^ ((~e) & g);
+            const t1 = (h + S1 + ch + K[i] + w[i]) >>> 0;
+            const S0 = rrot(a, 2) ^ rrot(a, 13) ^ rrot(a, 22);
+            const maj = (a & b) ^ (a & c) ^ (b & c);
+            const t2 = (S0 + maj) >>> 0;
+            h = g; g = f; f = e; e = (d + t1) >>> 0;
+            d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+          }
+          H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+          H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+        }
+        const out = new Uint8Array(32);
+        const outView = new DataView(out.buffer);
+        for (let i = 0; i < 8; i++) outView.setUint32(i * 4, H[i], false);
+        return out;
+      }
+
+      async function digestSha256(text) {
+        const bytes = te.encode(text);
+        if (hasSubtle) {
+          const buf = await window.crypto.subtle.digest('SHA-256', bytes);
+          return new Uint8Array(buf);
+        }
+        return sha256PureJs(bytes);
+      }
+
+      // Fallback stream cipher + integrity tag when subtle is absent (still rejects tampering & wrong keys!)
+      function fallbackEncrypt(plainBytes, keyBytes, ivBytes) {
+        const keyStreamInput = new Uint8Array(keyBytes.length + ivBytes.length);
+        keyStreamInput.set(keyBytes);
+        keyStreamInput.set(ivBytes, keyBytes.length);
+        let block = sha256PureJs(keyStreamInput);
+        const ct = new Uint8Array(plainBytes.length);
+        for (let i = 0; i < plainBytes.length; i++) {
+          if (i > 0 && i % 32 === 0) block = sha256PureJs(block);
+          ct[i] = plainBytes[i] ^ block[i % 32];
+        }
+        const macInput = new Uint8Array(keyBytes.length + ivBytes.length + ct.length);
+        macInput.set(keyBytes);
+        macInput.set(ivBytes, keyBytes.length);
+        macInput.set(ct, keyBytes.length + ivBytes.length);
+        const tag = sha256PureJs(macInput).slice(0, 16);
+        return { ciphertext: ct, tag };
+      }
+
+      function fallbackDecrypt(ct, tag, keyBytes, ivBytes) {
+        const macInput = new Uint8Array(keyBytes.length + ivBytes.length + ct.length);
+        macInput.set(keyBytes);
+        macInput.set(ivBytes, keyBytes.length);
+        macInput.set(ct, keyBytes.length + ivBytes.length);
+        const expected = sha256PureJs(macInput).slice(0, 16);
+        let diff = 0;
+        for (let i = 0; i < 16; i++) diff |= (expected[i] ^ tag[i]);
+        if (diff !== 0) throw new Error('OperationError: Auth Tag mismatch (tampered data or wrong key)');
+        const keyStreamInput = new Uint8Array(keyBytes.length + ivBytes.length);
+        keyStreamInput.set(keyBytes);
+        keyStreamInput.set(ivBytes, keyBytes.length);
+        let block = sha256PureJs(keyStreamInput);
+        const pt = new Uint8Array(ct.length);
+        for (let i = 0; i < ct.length; i++) {
+          if (i > 0 && i % 32 === 0) block = sha256PureJs(block);
+          pt[i] = ct[i] ^ block[i % 32];
+        }
+        return pt;
+      }
+
+      // =========================================================================
+      // 1. LAB 1: Encoding vs Hashing vs AES-256-GCM
+      // =========================================================================
+      const lab1Input = document.getElementById('lab1-input');
+      const lab1B64Out = document.getElementById('lab1-b64-out');
+      const lab1B64Msg = document.getElementById('lab1-b64-msg');
+      const lab1ShaOut = document.getElementById('lab1-sha-out');
+      const lab1ShaMsg = document.getElementById('lab1-sha-msg');
+      const lab1AesOut = document.getElementById('lab1-aes-out');
+      const lab1AesMsg = document.getElementById('lab1-aes-msg');
+
+      let lab1AesState = null;
+
+      async function updateLab1() {
+        if (!lab1Input) return;
+        const text = lab1Input.value || '';
+        const plainBytes = te.encode(text);
+
+        // 1. Base64
+        const b64 = btoa(String.fromCharCode(...plainBytes));
+        if (lab1B64Out) lab1B64Out.textContent = b64 || '(empty)';
+        if (lab1B64Msg) lab1B64Msg.textContent = '';
+
+        // 2. SHA-256
+        const hashBytes = await digestSha256(text);
+        if (lab1ShaOut) lab1ShaOut.textContent = toHex(hashBytes);
+        if (lab1ShaMsg) lab1ShaMsg.textContent = '';
+
+        // 3. AES-256-GCM with fresh 12-byte IV
+        const iv = randomBytes(12);
+        const rawKey = randomBytes(32);
+        const wrongKey = randomBytes(32);
+
+        if (hasSubtle) {
+          const aesKey = await window.crypto.subtle.importKey('raw', rawKey, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+          const badKey = await window.crypto.subtle.importKey('raw', wrongKey, { name: 'AES-GCM' }, false, ['decrypt']);
+          const encryptedBuf = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, plainBytes);
+          const allBytes = new Uint8Array(encryptedBuf);
+          const ct = allBytes.slice(0, allBytes.length - 16);
+          const tag = allBytes.slice(allBytes.length - 16);
+          lab1AesState = { iv, ct, tag, allBytes, aesKey, badKey };
+        } else {
+          const res = fallbackEncrypt(plainBytes, rawKey, iv);
+          lab1AesState = { iv, ct: res.ciphertext, tag: res.tag, rawKey, wrongKey };
+        }
+
+        if (lab1AesOut && lab1AesState) {
+          lab1AesOut.innerHTML =
+            `<div><strong style="color:#b45309;">IV (12B):</strong> ${toBase64Url(lab1AesState.iv)}</div>` +
+            `<div><strong style="color:#047857;">Ciphertext:</strong> ${toBase64Url(lab1AesState.ct) || '(empty)'}</div>` +
+            `<div><strong style="color:#6d28d9;">AuthTag (16B):</strong> ${toBase64Url(lab1AesState.tag)}</div>`;
+        }
+        if (lab1AesMsg) lab1AesMsg.textContent = '';
+      }
+
+      if (lab1Input) {
+        lab1Input.addEventListener('input', () => { updateLab1(); });
+        document.getElementById('lab1-reencrypt')?.addEventListener('click', () => { updateLab1(); });
+        document.getElementById('lab1-b64-decode')?.addEventListener('click', () => {
+          try {
+            const decoded = atob(lab1B64Out.textContent || '');
+            lab1B64Msg.textContent = `🚨 Decoded with ZERO key: "${decoded}"`;
+          } catch {
+            lab1B64Msg.textContent = 'Empty input.';
+          }
+        });
+        document.getElementById('lab1-sha-reverse')?.addEventListener('click', () => {
+          lab1ShaMsg.textContent = '🔒 Impossible! Hashing discards information — there is no decryption function for SHA-256.';
+        });
+        document.getElementById('lab1-aes-ok')?.addEventListener('click', async () => {
+          if (!lab1AesState) return;
+          try {
+            let pt;
+            if (hasSubtle) {
+              const buf = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: lab1AesState.iv }, lab1AesState.aesKey, lab1AesState.allBytes);
+              pt = new Uint8Array(buf);
+            } else {
+              pt = fallbackDecrypt(lab1AesState.ct, lab1AesState.tag, lab1AesState.rawKey, lab1AesState.iv);
+            }
+            lab1AesMsg.style.color = '#065f46';
+            lab1AesMsg.textContent = `✅ Decrypted & Tag Verified: "${td.decode(pt)}"`;
+          } catch (err) {
+            lab1AesMsg.style.color = '#9f1239';
+            lab1AesMsg.textContent = `❌ Failed: ${err.message}`;
+          }
+        });
+        document.getElementById('lab1-aes-bad')?.addEventListener('click', async () => {
+          if (!lab1AesState) return;
+          try {
+            if (hasSubtle) {
+              await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: lab1AesState.iv }, lab1AesState.badKey, lab1AesState.allBytes);
+            } else {
+              fallbackDecrypt(lab1AesState.ct, lab1AesState.tag, lab1AesState.wrongKey, lab1AesState.iv);
+            }
+          } catch {
+            lab1AesMsg.style.color = '#9f1239';
+            lab1AesMsg.textContent = '🛡️ Blocked! Wrong key failed AES-GCM Auth Tag check immediately.';
+          }
+        });
+        updateLab1();
+      }
+
+      // =========================================================================
+      // 2. LAB 2: Designed-to-Scale Style Animated Packet Journey
+      // =========================================================================
+      const dtsModes = {
+        plain: {
+          steps: [
+            {
+              icon: '🌐', title: '1. Browser DOM', sub: 'Checkout Input', status: 'bad', pill: 'Raw Card',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Customer types card 4242-4242-4242-4242 + CVV 123 into your Frontend form. No encryption runs.',
+              wifi: 'Waiting on wire...', proxy: 'Waiting...', backend: 'Waiting...', pci: '❌ Fails PCI DSS (Raw HTTP)'
+            },
+            {
+              icon: '📡', title: '2. Public Wi-Fi', sub: 'ISP / Router', status: 'bad', pill: 'EXPOSED!',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: '🚨 DANGER: Anyone sniffing Wi-Fi packets reads the full card number and CVV in cleartext!',
+              wifi: '🚨 {"pan":"4242...","cvv":"123"}', proxy: 'In transit...', backend: 'Waiting...', pci: '❌ Critical Data Breach Risk'
+            },
+            {
+              icon: '🛡️', title: '3. Edge Proxy / LB', sub: 'Nginx / Cloudflare', status: 'bad', pill: 'EXPOSED!',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Load balancer inspects plain HTTP request and sees the raw credit card number.',
+              wifi: '🚨 Read full PAN', proxy: '🚨 {"pan":"4242...","cvv":"123"}', backend: 'Forwarding...', pci: '❌ Proxy & WAF in CDE Scope'
+            },
+            {
+              icon: '📜', title: '4. App Logs / APM', sub: 'Datadog / Sentry', status: 'bad', pill: 'LEAKED!',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Request body logger writes raw PAN + CVV straight into searchable logs and error trackers!',
+              wifi: '🚨 Read full PAN', proxy: '🚨 Stored in APM Logs!', backend: 'Receiving...', pci: '❌ Illegal CVV Retention'
+            },
+            {
+              icon: '🖥️', title: '5. Backend API', sub: 'Node.js / TS', status: 'bad', pill: 'EXPOSED!',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Backend processes raw card directly; every microservice touching this payload falls into full PCI audit.',
+              wifi: '🚨 Read full PAN', proxy: '🚨 Stored in Logs', backend: '🚨 req.body.pan = "4242..."', pci: '❌ Full PCI SAQ D Required'
+            },
+            {
+              icon: '🏦', title: '6. PSP / Vault', sub: 'Card Network', status: 'ok', pill: 'Charged',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Even though payment succeeds, 5 intermediate systems already touched or logged the stolen-ready card!',
+              wifi: '🚨 Compromised', proxy: '🚨 Compromised', backend: '🚨 Compromised', pci: '❌ Fails Security Standards'
+            }
+          ]
+        },
+        tls: {
+          steps: [
+            {
+              icon: '🌐', title: '1. Browser DOM', sub: 'Checkout Input', status: 'warn', pill: 'TLS Ready',
+              packet: '💳 4242-4242-4242-4242', pState: 'state-plain',
+              narration: 'Customer types card into your DOM. Browser opens a TLS 1.3 encrypted tunnel before sending.',
+              wifi: 'Waiting...', proxy: 'Waiting...', backend: 'Waiting...', pci: '⚠️ SAQ D (Heavy Scope)'
+            },
+            {
+              icon: '📡', title: '2. Public Wi-Fi', sub: 'TLS 1.3 Tunnel', status: 'ok', pill: 'Encrypted!',
+              packet: '🔒 TLS1.3[0x8f9c2a...]', pState: 'state-tls',
+              narration: '✅ Wi-Fi Safe! TLS 1.3 wraps the entire HTTP request in AES-GCM/ChaCha20 on the wire.',
+              wifi: '🔒 Encrypted TLS bytes only', proxy: 'Terminating TLS...', backend: 'Waiting...', pci: '✅ Req 4 Wire Transit Safe'
+            },
+            {
+              icon: '🛡️', title: '3. Edge Proxy / LB', sub: 'TLS Terminates!', status: 'warn', pill: 'UNWRAPPED',
+              packet: '⚠️ 4242-4242-4242-4242', pState: 'state-exposed',
+              narration: '⚠️ Watch closely: TLS ends at the Load Balancer! Inside your cloud network, the JSON body turns back into plaintext.',
+              wifi: '🔒 Safe (TLS bytes)', proxy: '⚠️ TLS unwrapped -> sees PAN!', backend: 'Forwarding...', pci: '⚠️ LB / WAF enter CDE Scope'
+            },
+            {
+              icon: '📜', title: '4. App Logs / APM', sub: 'Middleware Logs', status: 'bad', pill: 'RISK!',
+              packet: '⚠️ 4242-4242-4242-4242', pState: 'state-exposed',
+              narration: '⚠️ If debug logging or Sentry captures req.body after TLS termination, raw cards leak into logs!',
+              wifi: '🔒 Safe', proxy: '⚠️ Exposed unless redacted', backend: 'Receiving...', pci: '⚠️ Requires Strict Redaction'
+            },
+            {
+              icon: '🖥️', title: '5. Backend API', sub: 'Node.js / TS', status: 'warn', pill: 'Raw PAN',
+              packet: '⚠️ 4242-4242-4242-4242', pState: 'state-exposed',
+              narration: 'Your Backend receives raw card numbers directly — your code, servers, and DB backups remain high-scope CDE.',
+              wifi: '🔒 Safe', proxy: '⚠️ Unwrapped', backend: '⚠️ Sees raw PAN + CVV', pci: '⚠️ Heavy PCI SAQ D Scope'
+            },
+            {
+              icon: '🏦', title: '6. PSP / Vault', sub: 'Card Network', status: 'ok', pill: 'Charged',
+              packet: '🎟️ tok_9f3a (**** 4242)', pState: 'state-token',
+              narration: 'Better than plain HTTP, but internal proxies, logs, and app servers still handle raw card numbers.',
+              wifi: '🔒 Safe', proxy: '⚠️ Exposed at LB', backend: '⚠️ High Audit Scope', pci: '⚠️ Better, Not Ideal'
+            }
+          ]
+        },
+        jwe: {
+          steps: [
+            {
+              icon: '🌐', title: '1. Browser DOM', sub: 'Web Crypto JWE', status: 'ok', pill: 'JWE Locked',
+              packet: '🛡️ JWE(eyJhbGciOiJSU0Et...)', pState: 'state-jwe',
+              narration: 'Frontend encrypts card with fresh AES-256-GCM key + wraps key with Server RSA-OAEP-256 Public Key BEFORE leaving browser!',
+              wifi: 'Waiting...', proxy: 'Waiting...', backend: 'Waiting...', pci: '✅ App-Layer Encrypted'
+            },
+            {
+              icon: '📡', title: '2. Public Wi-Fi', sub: 'TLS 1.3 + JWE', status: 'ok', pill: '2x Locked',
+              packet: '🔒 TLS[🛡️ JWE(eyJ...)]', pState: 'state-jwe',
+              narration: 'Double protection! TLS 1.3 hides metadata & traffic, while JWE locks the card inside the HTTP body.',
+              wifi: '🔒 Encrypted TLS bytes only', proxy: 'Waiting...', backend: 'Waiting...', pci: '✅ Double Confidentiality'
+            },
+            {
+              icon: '🛡️', title: '3. Edge Proxy / LB', sub: 'TLS Terminates', status: 'ok', pill: 'Still JWE!',
+              packet: '🛡️ JWE(eyJ...c4Tag)', pState: 'state-jwe',
+              narration: 'Even after TLS unwraps at the Load Balancer, the proxy ONLY sees an opaque JWE string — zero card digits!',
+              wifi: '🔒 Safe', proxy: '🛡️ {"jwe":"eyJhbG..."} (Gibberish)', backend: 'Forwarding...', pci: '✅ Edge Proxies Out of Scope'
+            },
+            {
+              icon: '📜', title: '4. App Logs / APM', sub: 'Observability', status: 'ok', pill: 'Safe String',
+              packet: '🛡️ JWE(eyJ...c4Tag)', pState: 'state-jwe',
+              narration: 'Even if an API logger dumps the request payload, logs only capture unreadable JWE ciphertext.',
+              wifi: '🔒 Safe', proxy: '🛡️ Opaque JWE only', backend: 'Receiving...', pci: '✅ Logs Never Hold PAN'
+            },
+            {
+              icon: '🖥️', title: '5. Backend API', sub: 'Decrypt + Wipe', status: 'warn', pill: 'KMS Unwrap',
+              packet: '🗝️ KMS Unwrap -> Tokenize', pState: 'state-jwe',
+              narration: 'Backend sends only encryptedKey to KMS/HSM, verifies AES-GCM AuthTag, forwards to PSP, and wipes RAM immediately.',
+              wifi: '🔒 Safe', proxy: '🛡️ Safe', backend: '🗝️ Memory-only -> zeroed RAM', pci: '✅ Reduced Scope (SAQ A-EP)'
+            },
+            {
+              icon: '🏦', title: '6. KMS & PSP', sub: 'HSM + Gateway', status: 'ok', pill: 'tok_9f3a',
+              packet: '🎟️ tok_9f3a (**** 4242)', pState: 'state-token',
+              narration: 'PSP charges & returns tok_9f3a. Backend stores only tok_9f3a + last4! (Pair with CSP+SRI against XSS.)',
+              wifi: '🔒 Safe', proxy: '🛡️ Safe', backend: '🎟️ Stores tok_9f3a only', pci: '🛡️ Compliant (SAQ A-EP)'
+            }
+          ]
+        },
+        hosted: {
+          steps: [
+            {
+              icon: '🖼️', title: '1. PSP Iframe', sub: 'Isolated Origin', status: 'ok', pill: 'Cross-Origin',
+              packet: '💳 Inside PSP Iframe Only', pState: 'state-tls',
+              narration: '🏆 Card fields live inside a cross-origin iframe served by Stripe/Adyen. Your own FE JavaScript CANNOT read the card!',
+              wifi: 'Direct to PSP', proxy: 'Bypassed!', backend: 'Bypassed!', pci: '🏆 XSS-Isolated Input'
+            },
+            {
+              icon: '📡', title: '2. Direct TLS', sub: 'Browser → PSP', status: 'ok', pill: 'Encrypted',
+              packet: '🔒 Direct TLS to PSP Vault', pState: 'state-tls',
+              narration: 'Customer clicks Pay → the iframe sends the card directly to the PCI Level 1 PSP Vault over TLS 1.3.',
+              wifi: '🔒 Encrypted TLS to PSP', proxy: 'Never sees card!', backend: 'Never sees card!', pci: '🏆 Zero Merchant Transit'
+            },
+            {
+              icon: '🛡️', title: '3. Edge Proxy / LB', sub: 'Merchant Proxy', status: 'bypass', pill: 'BYPASSED',
+              packet: '🎟️ tok_9f3a (to Merchant)', pState: 'state-token',
+              narration: 'Your Load Balancer / CDN never sees a single digit of the card — later, your FE only sends tok_9f3a.',
+              wifi: '🔒 Safe', proxy: '🎟️ {"token":"tok_9f3a"}', backend: 'Waiting...', pci: '🏆 Proxy Out of PCI Scope'
+            },
+            {
+              icon: '📜', title: '4. App Logs / APM', sub: 'Merchant Logs', status: 'ok', pill: 'Token Only',
+              packet: '🎟️ tok_9f3a (**** 4242)', pState: 'state-token',
+              narration: 'Request logs only ever contain tok_9f3a, useless to thieves even in a total database leak.',
+              wifi: '🔒 Safe', proxy: '🎟️ tok_9f3a only', backend: 'Receiving token...', pci: '🏆 Zero Toxic Data in Logs'
+            },
+            {
+              icon: '🖥️', title: '5. Backend API', sub: 'Merchant BE', status: 'ok', pill: 'Charges Token',
+              packet: '🎟️ POST /charge tok_9f3a', pState: 'state-token',
+              narration: 'Your Backend receives { paymentToken: "tok_9f3a", amountCents: 4900 } — zero encryption key management needed!',
+              wifi: '🔒 Safe', proxy: '🎟️ tok_9f3a only', backend: '🎟️ Sees tok_9f3a (ZERO PAN!)', pci: '🏆 PCI SAQ A (Minimal!)'
+            },
+            {
+              icon: '🏦', title: '6. PSP Vault', sub: 'PCI Level 1', status: 'ok', pill: 'Settled!',
+              packet: '✅ Charged + tok_9f3a', pState: 'state-token',
+              narration: 'PSP looks up tok_9f3a inside its certified vault and settles payment. Your app stays completely out of Cardholder Data scope!',
+              wifi: '🔒 Safe', proxy: '🎟️ Safe', backend: '🎟️ Safe (No PAN!)', pci: '🏆 Gold Standard (SAQ A)'
+            }
+          ]
+        }
+      };
+
+      let dtsMode = 'plain';
+      let dtsStep = 0;
+      let dtsTimer = null;
+
+      const dtsPipelineEl = document.getElementById('dts-pipeline');
+      const dtsPacketEl = document.getElementById('dts-packet');
+      const dtsPlayBtn = document.getElementById('dts-play');
+      const dtsIndEl = document.getElementById('dts-step-indicator');
+      const dtsNarrEl = document.getElementById('dts-narration');
+      const inspWifi = document.getElementById('insp-wifi');
+      const inspProxy = document.getElementById('insp-proxy');
+      const inspBe = document.getElementById('insp-backend');
+      const inspPci = document.getElementById('insp-pci');
+
+      function renderDts() {
+        const steps = dtsModes[dtsMode].steps;
+        const cur = steps[dtsStep];
+
+        if (dtsPipelineEl) {
+          dtsPipelineEl.innerHTML = steps.map((s, idx) => {
+            const cls = [
+              'hop-node',
+              idx === dtsStep ? 'active' : '',
+              s.status === 'bad' ? 'risk' : '',
+              s.status === 'ok' ? 'safe' : '',
+              s.status === 'bypass' ? 'bypass' : ''
+            ].filter(Boolean).join(' ');
+            const pillCls = s.status === 'bad' ? 'pill-bad' : s.status === 'warn' ? 'pill-warn' : s.status === 'bypass' ? 'pill-bypass' : 'pill-ok';
+            return `<button type="button" class="${cls}" data-step="${idx}">
+              <span class="hop-icon">${s.icon}</span>
+              <div class="hop-title">${s.title}</div>
+              <div class="hop-sub">${s.sub}</div>
+              <span class="hop-pill ${pillCls}">${s.pill}</span>
+            </button>`;
+          }).join('');
+
+          dtsPipelineEl.querySelectorAll('.hop-node').forEach((node) => {
+            node.addEventListener('click', () => {
+              stopDtsPlay();
+              dtsStep = Number(node.getAttribute('data-step'));
+              renderDts();
+            });
+          });
+        }
+
+        if (dtsPacketEl) {
+          const leftPct = 8.3 + dtsStep * 16.65;
+          dtsPacketEl.style.left = `${leftPct}%`;
+          dtsPacketEl.className = `packet-traveler ${cur.pState}`;
+          dtsPacketEl.textContent = cur.packet;
+        }
+        if (dtsIndEl) dtsIndEl.textContent = `Step ${dtsStep + 1} / ${steps.length}`;
+        if (dtsNarrEl) dtsNarrEl.textContent = cur.narration;
+        if (inspWifi) inspWifi.textContent = cur.wifi;
+        if (inspProxy) inspProxy.textContent = cur.proxy;
+        if (inspBe) inspBe.textContent = cur.backend;
+        if (inspPci) inspPci.textContent = cur.pci;
+      }
+
+      function stopDtsPlay() {
+        if (dtsTimer) {
+          clearInterval(dtsTimer);
+          dtsTimer = null;
+        }
+        if (dtsPlayBtn) dtsPlayBtn.textContent = '▶ Play';
+      }
+
+      function startDtsPlay() {
+        stopDtsPlay();
+        if (dtsPlayBtn) dtsPlayBtn.textContent = '⏸ Pause';
+        dtsTimer = setInterval(() => {
+          const max = dtsModes[dtsMode].steps.length;
+          dtsStep = (dtsStep + 1) % max;
+          renderDts();
+        }, 1900);
+      }
+
+      document.querySelectorAll('.mode-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.mode-tab').forEach((t) => t.classList.remove('active'));
+          tab.classList.add('active');
+          stopDtsPlay();
+          dtsMode = tab.getAttribute('data-mode') || 'plain';
+          dtsStep = 0;
+          renderDts();
+        });
+      });
+
+      dtsPlayBtn?.addEventListener('click', () => {
+        if (dtsTimer) stopDtsPlay();
+        else startDtsPlay();
+      });
+      document.getElementById('dts-prev')?.addEventListener('click', () => {
+        stopDtsPlay();
+        const max = dtsModes[dtsMode].steps.length;
+        dtsStep = (dtsStep - 1 + max) % max;
+        renderDts();
+      });
+      document.getElementById('dts-next')?.addEventListener('click', () => {
+        stopDtsPlay();
+        const max = dtsModes[dtsMode].steps.length;
+        dtsStep = (dtsStep + 1) % max;
+        renderDts();
+      });
+      document.getElementById('dts-replay')?.addEventListener('click', () => {
+        dtsStep = 0;
+        renderDts();
+        startDtsPlay();
+      });
+      renderDts();
+
+      // =========================================================================
+      // 3. LAB 3: Real FE -> BE Hybrid JWE Simulator (RSA-OAEP-256 + AES-256-GCM)
+      // =========================================================================
+      let keyVersion = 1;
+      let serverKeys = null;
+      let lab3Step = 0;
+      let lab3RunData = null;
+
+      const lab3KidBadge = document.getElementById('lab3-kid-badge');
+      const lab3TamperCb = document.getElementById('lab3-tamper-cb');
+
+      async function generateServerRsaKeys() {
+        const kid = `key-2026-11-v${keyVersion}`;
+        if (lab3KidBadge) lab3KidBadge.textContent = `Active Server Key ID: ${kid}`;
+        if (hasSubtle) {
+          const kp = await window.crypto.subtle.generateKey(
+            {
+              name: 'RSA-OAEP',
+              modulusLength: 2048,
+              publicExponent: new Uint8Array([1, 0, 1]),
+              hash: 'SHA-256'
+            },
+            true,
+            ['encrypt', 'decrypt']
+          );
+          const pubSpki = new Uint8Array(await window.crypto.subtle.exportKey('spki', kp.publicKey));
+          serverKeys = { kid, publicKey: kp.publicKey, privateKey: kp.privateKey, pubFingerprint: toBase64Url(pubSpki).slice(0, 22) };
+        } else {
+          const secret = randomBytes(32);
+          serverKeys = { kid, secret, pubFingerprint: toBase64Url(sha256PureJs(secret)).slice(0, 22) };
+        }
+      }
+
+      function resetLab3Cards() {
+        lab3Step = 0;
+        lab3RunData = null;
+        for (let i = 1; i <= 6; i++) {
+          const card = document.getElementById(`jwe-s${i}`);
+          if (card) card.classList.remove('active', 'done', 'failed');
+          const out = document.getElementById(`jwe-out-${i}`);
+          if (out) out.textContent = i === 5 ? 'header.encryptedKey.iv.ciphertext.tag' : 'Waiting to run...';
+        }
+      }
+
+      async function prepareLab3Data() {
+        if (!serverKeys) await generateServerRsaKeys();
+        const pan = (document.getElementById('cc-pan')?.value || '4242 4242 4242 4242').trim();
+        const exp = (document.getElementById('cc-exp')?.value || '12/28').trim();
+        const cvv = (document.getElementById('cc-cvv')?.value || '123').trim();
+        const payloadObj = { pan, exp, cvv };
+        const payloadJson = JSON.stringify(payloadObj);
+        const plainBytes = te.encode(payloadJson);
+
+        const headerObj = { alg: 'RSA-OAEP-256', enc: 'A256GCM', kid: serverKeys.kid };
+        const headerB64 = toBase64Url(te.encode(JSON.stringify(headerObj)));
+        const aadBytes = te.encode(headerB64);
+
+        const iv = randomBytes(12);
+        const rawCek = randomBytes(32);
+        let ctBytes, tagBytes, wrappedKeyBytes;
+
+        if (hasSubtle) {
+          const cek = await window.crypto.subtle.importKey('raw', rawCek, { name: 'AES-GCM' }, false, ['encrypt']);
+          const encBuf = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: aadBytes }, cek, plainBytes);
+          const full = new Uint8Array(encBuf);
+          ctBytes = full.slice(0, full.length - 16);
+          tagBytes = full.slice(full.length - 16);
+          wrappedKeyBytes = new Uint8Array(await window.crypto.subtle.encrypt({ name: 'RSA-OAEP' }, serverKeys.publicKey, rawCek));
+        } else {
+          const enc = fallbackEncrypt(plainBytes, rawCek, iv);
+          ctBytes = enc.ciphertext;
+          tagBytes = enc.tag;
+          // XOR wrap with SHA-256 of server secret for deterministic educational fallback
+          const mask = sha256PureJs(serverKeys.secret);
+          wrappedKeyBytes = new Uint8Array(32);
+          for (let i = 0; i < 32; i++) wrappedKeyBytes[i] = rawCek[i] ^ mask[i];
+        }
+
+        lab3RunData = {
+          payloadJson,
+          headerB64,
+          aadBytes,
+          rawCek,
+          iv,
+          ctBytes,
+          tagBytes,
+          wrappedKeyBytes,
+          kid: serverKeys.kid
+        };
+      }
+
+      async function renderLab3Step(stepNum) {
+        if (!lab3RunData) await prepareLab3Data();
+        const d = lab3RunData;
+
+        for (let i = 1; i <= 6; i++) {
+          const c = document.getElementById(`jwe-s${i}`);
+          if (!c) continue;
+          c.classList.remove('active', 'done', 'failed');
+          if (i < stepNum) c.classList.add('done');
+          else if (i === stepNum) c.classList.add('active');
+        }
+
+        if (stepNum >= 1) {
+          document.getElementById('jwe-out-1').textContent = d.payloadJson;
+        }
+        if (stepNum >= 2) {
+          document.getElementById('jwe-out-2').innerHTML =
+            `<div><strong>CEK (256-bit):</strong> ${toHex(d.rawCek).slice(0, 32)}...</div>` +
+            `<div><strong>IV (12 bytes):</strong> ${toBase64Url(d.iv)}</div>`;
+        }
+        if (stepNum >= 3) {
+          document.getElementById('jwe-out-3').innerHTML =
+            `<div><strong>Ciphertext:</strong> ${toBase64Url(d.ctBytes)}</div>` +
+            `<div><strong>AuthTag (16B):</strong> ${toBase64Url(d.tagBytes)}</div>`;
+        }
+        if (stepNum >= 4) {
+          document.getElementById('jwe-out-4').innerHTML =
+            `<div><strong>kid:</strong> ${d.kid} (RSA pub: ${serverKeys.pubFingerprint}...)</div>` +
+            `<div><strong>encryptedKey:</strong> ${toBase64Url(d.wrappedKeyBytes).slice(0, 68)}...</div>`;
+        }
+        if (stepNum >= 5) {
+          const tamperOn = Boolean(lab3TamperCb && lab3TamperCb.checked);
+          const sentCt = new Uint8Array(d.ctBytes);
+          if (tamperOn && sentCt.length > 0) sentCt[0] ^= 0xff;
+          d.sentCt = sentCt;
+          const ekShort = toBase64Url(d.wrappedKeyBytes).slice(0, 26) + '...';
+          document.getElementById('jwe-out-5').innerHTML =
+            `<span class="jwe-p-hdr">${d.headerB64}</span>.` +
+            `<span class="jwe-p-key">${ekShort}</span>.` +
+            `<span class="jwe-p-iv">${toBase64Url(d.iv)}</span>.` +
+            `<span class="jwe-p-ct">${toBase64Url(sentCt)}</span>.` +
+            `<span class="jwe-p-tag">${toBase64Url(d.tagBytes)}</span>` +
+            (tamperOn ? `<div style="color:#be123c; font-weight:700; margin-top:6px;">😈 1 byte of Ciphertext was flipped in transit!</div>` : '');
+        }
+        if (stepNum >= 6) {
+          const card6 = document.getElementById('jwe-s6');
+          const out6 = document.getElementById('jwe-out-6');
+          try {
+            const sentCt = d.sentCt || d.ctBytes;
+            let decryptedBytes;
+            if (hasSubtle) {
+              const unwrappedRaw = await window.crypto.subtle.decrypt({ name: 'RSA-OAEP' }, serverKeys.privateKey, d.wrappedKeyBytes);
+              const beAesKey = await window.crypto.subtle.importKey('raw', unwrappedRaw, { name: 'AES-GCM' }, false, ['decrypt']);
+              const combined = new Uint8Array(sentCt.length + d.tagBytes.length);
+              combined.set(sentCt);
+              combined.set(d.tagBytes, sentCt.length);
+              const ptBuf = await window.crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv: d.iv, additionalData: d.aadBytes },
+                beAesKey,
+                combined
+              );
+              decryptedBytes = new Uint8Array(ptBuf);
+            } else {
+              const mask = sha256PureJs(serverKeys.secret);
+              const unwrappedRaw = new Uint8Array(32);
+              for (let i = 0; i < 32; i++) unwrappedRaw[i] = d.wrappedKeyBytes[i] ^ mask[i];
+              decryptedBytes = fallbackDecrypt(sentCt, d.tagBytes, unwrappedRaw, d.iv);
+            }
+
+            const obj = JSON.parse(td.decode(decryptedBytes));
+            decryptedBytes.fill(0); // wipe memory buffer!
+            const digits = String(obj.pan || '').replace(/\D/g, '');
+            const last4 = digits.slice(-4) || '****';
+            card6?.classList.remove('active', 'failed');
+            card6?.classList.add('done');
+            out6.innerHTML =
+              `<div style="color:#047857; font-weight:700;">✅ AuthTag Verified &amp; RSA Unwrapped!</div>` +
+              `<div>Tokenized at PSP → <strong>tok_live_9f3a</strong> (Card **** ${last4})</div>` +
+              `<div style="color:#475569;">Plaintext buffer zeroed in RAM (<code>buf.fill(0)</code>).</div>`;
+          } catch (err) {
+            card6?.classList.remove('active', 'done');
+            card6?.classList.add('failed');
+            out6.innerHTML =
+              `<div style="color:#be123c; font-weight:700;">🚨 SECURITY REJECTED: AES-256-GCM Auth Tag verification failed!</div>` +
+              `<div style="color:#881337;">Reason: Ciphertext was tampered in transit. Zero bytes leaked or charged.</div>`;
+          }
+        }
+      }
+
+      let lab3AnimTimer = null;
+      function stopLab3Anim() {
+        if (lab3AnimTimer) {
+          clearInterval(lab3AnimTimer);
+          lab3AnimTimer = null;
+        }
+      }
+
+      document.getElementById('lab3-run-all')?.addEventListener('click', async () => {
+        stopLab3Anim();
+        resetLab3Cards();
+        await prepareLab3Data();
+        lab3Step = 1;
+        await renderLab3Step(1);
+        lab3AnimTimer = setInterval(async () => {
+          lab3Step += 1;
+          await renderLab3Step(lab3Step);
+          if (lab3Step >= 6) stopLab3Anim();
+        }, 720);
+      });
+
+      document.getElementById('lab3-step-next')?.addEventListener('click', async () => {
+        stopLab3Anim();
+        if (lab3Step >= 6) resetLab3Cards();
+        if (lab3Step === 0) await prepareLab3Data();
+        lab3Step += 1;
+        await renderLab3Step(lab3Step);
+      });
+
+      document.getElementById('lab3-reset')?.addEventListener('click', () => {
+        stopLab3Anim();
+        resetLab3Cards();
+      });
+
+      document.getElementById('lab3-rotate-key')?.addEventListener('click', async () => {
+        stopLab3Anim();
+        keyVersion += 1;
+        await generateServerRsaKeys();
+        resetLab3Cards();
+      });
+
+      generateServerRsaKeys();
+
+      // =========================================================================
+      // 4. QUIZ & PROGRESS CHECKLIST (localStorage)
+      // =========================================================================
+      const STORE_KEY = 'security-encryption-progress-v1';
+      function loadProgress() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+          return {
+            quizzes: Array.isArray(parsed.quizzes) ? parsed.quizzes : [],
+            checks: Array.isArray(parsed.checks) ? parsed.checks : []
+          };
+        } catch {
+          return { quizzes: [], checks: [] };
+        }
+      }
+      function saveProgress(state) {
+        try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch {}
+      }
+
+      const progressState = loadProgress();
+      const progFill = document.getElementById('progress-fill');
+      const progLabel = document.getElementById('progress-label');
+
+      function updateProgressBar() {
+        const doneCount = new Set(progressState.quizzes).size + new Set(progressState.checks).size;
+        const pct = Math.min(100, Math.round((doneCount / 12) * 100));
+        if (progFill) progFill.style.width = `${pct}%`;
+        if (progLabel) progLabel.textContent = `${doneCount} / 12 completed (${pct}%)`;
+      }
+
+      document.querySelectorAll('.action-cb').forEach((cb) => {
+        const cid = cb.getAttribute('data-cid');
+        const label = cb.closest('.check-item');
+        if (cid && progressState.checks.includes(cid)) {
+          cb.checked = true;
+          label?.classList.add('checked');
+        }
+        cb.addEventListener('change', () => {
+          if (!cid) return;
+          const set = new Set(progressState.checks);
+          if (cb.checked) {
+            set.add(cid);
+            label?.classList.add('checked');
+          } else {
+            set.delete(cid);
+            label?.classList.remove('checked');
+          }
+          progressState.checks = Array.from(set);
+          saveProgress(progressState);
+          updateProgressBar();
+        });
+      });
+
+      document.querySelectorAll('.quiz-option').forEach((opt) => {
+        opt.addEventListener('click', () => {
+          const card = opt.closest('[data-quiz]');
+          if (!card) return;
+          const qid = card.getAttribute('data-quiz');
+          const fb = card.querySelector('.quiz-feedback');
+          card.querySelectorAll('.quiz-option').forEach((o) => o.classList.remove('correct', 'wrong'));
+          const ok = opt.getAttribute('data-ok') === 'true';
+          opt.classList.add(ok ? 'correct' : 'wrong');
+          if (fb) {
+            fb.textContent = opt.getAttribute('data-msg') || '';
+            fb.style.color = ok ? '#065f46' : '#9f1239';
+          }
+          if (ok && qid) {
+            const qSet = new Set(progressState.quizzes);
+            qSet.add(qid);
+            progressState.quizzes = Array.from(qSet);
+            saveProgress(progressState);
+            updateProgressBar();
+          }
+        });
+      });
+
+      updateProgressBar();
+    })();
+  </script>
+</body>
+</html>
