@@ -23,6 +23,30 @@ interface OutputDeliverable {
 
 const outputs: readonly OutputDeliverable[] = [
   {
+    title: 'Security & Encryption Mastery — Protecting Credit Cards (FE → BE)',
+    date: '2026-11-22',
+    category: 'Interactive Security Hub',
+    agent: 'security-mentor',
+    status: 'Published',
+    summary: 'Friendly, animated guide to Encryption, Decryption, Secrets Management, and PCI DSS 4.0 FE-to-BE credit card protection — featuring live Web Crypto API JWE labs, a 4-mode animated packet journey, strict TypeScript blueprints, and 3 validated Archify diagrams.',
+    tags: ['security', 'encryption', 'jwe', 'pci-dss', 'archify', 'web-crypto'],
+    htmlPath: `${import.meta.env.BASE_URL}outputs/learning/security-encryption/index.html`,
+    quickLinks: [
+      {
+        label: '🔄 Encryption & Secrets Lifecycle',
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html`
+      },
+      {
+        label: '🔐 FE → BE Hybrid JWE Sequence',
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-cc-hybrid-jwe-flow/security-cc-hybrid-jwe-flow.html`
+      },
+      {
+        label: '🛡️ Trust Boundaries (SAQ A vs A-EP)',
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html`
+      }
+    ]
+  },
+  {
     title: 'OS Interview Mastery Series — CS Learning Hub',
     date: '2026-11-14',
     category: 'CS Learning Hub',

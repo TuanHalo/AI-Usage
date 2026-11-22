@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "dc2a583e-7479-4841-b979-a8aa03fbc2d5",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "D:\\IT\\AI-Usage\\.archify\\architecture-security-payment-trust-boundaries\\candidate.json",
+  "output": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-payment-trust-boundaries\\security-payment-trust-boundaries.html",
+  "specification": {
+    "sha256": "ea8c203bbf626d1b2d595d614236cf41e886cb58d453765e7941fdf97ff801fd",
+    "bytes": 4723
+  },
+  "artifact": {
+    "sha256": "0e0171945308188157f57b0631a16a440ba4d28635eb6cf899692b82fe22d083",
+    "bytes": 846961
+  }
+}

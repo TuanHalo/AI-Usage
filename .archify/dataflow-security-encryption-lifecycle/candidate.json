@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Encryption & Secrets Lifecycle: From Browser Input to Protected Storage",
+    "output": "outputs/diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "stages": [
+    { "label": "Client Input" },
+    { "label": "In Transit" },
+    { "label": "App Processing" },
+    { "label": "Protected Stores" },
+    { "label": "Safe Consumers" }
+  ],
+  "nodes": [
+    {
+      "id": "cardForm",
+      "type": "frontend",
+      "label": "Checkout Form",
+      "sublabel": "PAN, expiry, CVV",
+      "tag": "sensitive",
+      "stage": 0,
+      "row": 0
+    },
+    {
+      "id": "loginForm",
+      "type": "frontend",
+      "label": "Login Form",
+      "sublabel": "user password",
+      "tag": "credential",
+      "stage": 0,
+      "row": 2
+    },
+    {
+      "id": "tlsEdge",
+      "type": "cloud",
+      "label": "TLS 1.3 + JWE",
+      "sublabel": "HTTPS & app lock",
+      "tag": "in transit",
+      "stage": 1,
+      "row": 1
+    },
+    {
+      "id": "decryptor",
+      "type": "security",
+      "label": "Memory Decryptor",
+      "sublabel": "unwrap + wipe RAM",
+      "tag": "zero log",
+      "stage": 2,
+      "row": 0
+    },
+    {
+      "id": "hasher",
+      "type": "security",
+      "label": "Argon2id Hasher",
+      "sublabel": "salted one-way",
+      "tag": "irreversible",
+      "stage": 2,
+      "row": 2
+    },
+    {
+      "id": "kmsVault",
+      "type": "security",
+      "label": "Envelope Vault",
+      "sublabel": "DEK wrapped by KMS",
+      "tag": "at rest",
+      "stage": 3,
+      "row": 0
+    },
+    {
+      "id": "logs",
+      "type": "database",
+      "label": "App Logs & APM",
+      "sublabel": "masked + tokens",
+      "tag": "redacted",
+      "stage": 3,
+      "row": 1
+    },
+    {
+      "id": "authDb",
+      "type": "database",
+      "label": "Auth Database",
+      "sublabel": "salted hashes only",
+      "tag": "no plaintext",
+      "stage": 3,
+      "row": 2
+    },
+    {
+      "id": "pspGateway",
+      "type": "external",
+      "label": "Card Network",
+      "sublabel": "charge via token",
+      "tag": "PCI Level 1",
+      "stage": 4,
+      "row": 0
+    },
+    {
+      "id": "opsDash",
+      "type": "backend",
+      "label": "Ops & Support",
+      "sublabel": "last4 + tok_id",
+      "tag": "safe view",
+      "stage": 4,
+      "row": 1
+    }
+  ],
+  "flows": [
+    {
+      "id": "card-to-transit",
+      "from": "cardForm",
+      "to": "tlsEdge",
+      "label": "JWE over TLS",
+      "classification": "encrypted PAN",
+      "variant": "security"
+    },
+    {
+      "id": "login-to-transit",
+      "from": "loginForm",
+      "to": "tlsEdge",
+      "label": "TLS 1.3 login",
+      "classification": "credential transit",
+      "variant": "default"
+    },
+    {
+      "id": "transit-to-decryptor",
+      "from": "tlsEdge",
+      "to": "decryptor",
+      "label": "opaque JWE",
+      "classification": "app-layer ciphertext",
+      "variant": "security"
+    },
+    {
+      "id": "transit-to-hasher",
+      "from": "tlsEdge",
+      "to": "hasher",
+      "label": "login payload",
+      "classification": "auth input",
+      "variant": "default"
+    },
+    {
+      "id": "decryptor-to-vault",
+      "from": "decryptor",
+      "to": "kmsVault",
+      "label": "AES-256 DEK",
+      "classification": "envelope encrypted",
+      "variant": "security"
+    },
+    {
+      "id": "decryptor-to-logs",
+      "from": "decryptor",
+      "to": "logs",
+      "label": "tok_ + last4",
+      "classification": "redacted audit",
+      "variant": "dashed"
+    },
+    {
+      "id": "hasher-to-db",
+      "from": "hasher",
+      "to": "authDb",
+      "label": "salted hash",
+      "classification": "one-way digest",
+      "variant": "emphasis"
+    },
+    {
+      "id": "vault-to-psp",
+      "from": "kmsVault",
+      "to": "pspGateway",
+      "label": "detokenized PAN",
+      "classification": "vault transfer",
+      "variant": "security"
+    },
+    {
+      "id": "logs-to-ops",
+      "from": "logs",
+      "to": "opsDash",
+      "label": "safe audit log",
+      "classification": "masked metadata",
+      "variant": "default"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "1. Data in Transit (TLS + JWE)",
+      "items": [
+        "TLS 1.3 stops Wi-Fi sniffers between Browser and Edge",
+        "App-layer JWE keeps card data locked past Load Balancers and Proxies",
+        "Logs and APM tools never see raw card numbers or CVV"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "2. Data at Rest (Envelope + KMS)",
+      "items": [
+        "A fast Data Encryption Key (DEK) encrypts stored records with AES-256-GCM",
+        "A KMS Master Key (KEK) wraps the DEK and rotates on schedule",
+        "Raw CVV is never stored after authorization under PCI DSS"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "3. Why Passwords Hash, Cards Encrypt",
+      "items": [
+        "Passwords use one-way salted Argon2id hashing — the server never needs the original text",
+        "Card payments require reversible encryption or tokenization so a PSP can charge them",
+        "Secrets and private keys stay in KMS/Vault, never inside frontend JavaScript"
+      ]
+    }
+  ]
+}

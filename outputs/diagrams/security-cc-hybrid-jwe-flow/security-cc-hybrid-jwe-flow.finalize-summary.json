@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\IT\\AI-Usage\\.archify\\sequence-security-cc-hybrid-jwe-flow\\candidate.json",
+    "sha256": "bbef8fe1e10fbb5203a8545144ba73992ca8147288ed45ee3213b160cbc9c085",
+    "bytes": 4701
+  },
+  "artifact": {
+    "path": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-cc-hybrid-jwe-flow\\security-cc-hybrid-jwe-flow.html",
+    "sha256": "e03fac9cb2c14e618dcd262f481e90d912c8007abfa38436192ae70fd784f232",
+    "bytes": 837862
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-cc-hybrid-jwe-flow\\security-cc-hybrid-jwe-flow.finalize.json",
+    "summaryReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-cc-hybrid-jwe-flow\\security-cc-hybrid-jwe-flow.finalize-summary.json",
+    "browserCheckReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-cc-hybrid-jwe-flow\\security-cc-hybrid-jwe-flow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-21T18:43:43.198Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2755,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}
