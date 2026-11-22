@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "1.0",
+  "title": "API Rate Limiter & Redis Caching Investigation",
+  "platform": "claude",
+  "overallGoal": "Design a reliable distributed rate limiter in Node.js + Redis without race conditions under burst traffic.",
+  "finalOutcome": "Delivered a sliding-window Lua script, benchmark comparison, fail-open circuit breaker wrapper, and local fallback strategy.",
+  "createdAt": "2026-11-22T10:00:00.000Z",
+  "parseMode": "structured-json",
+  "isStreaming": false,
+  "turns": [
+    {
+      "id": "turn-1",
+      "index": 1,
+      "title": "Compare Redis Rate Limit Algorithms",
+      "relation": "initial",
+      "rawUserMessage": "Compare token bucket vs sliding window log in Redis for a Node.js API handling ~5k req/s.",
+      "rawAssistantMessage": "",
+      "intent": "Choose the right Redis rate-limiting algorithm for 5k req/s Node.js traffic.",
+      "inputSummary": "Algorithms: token bucket vs sliding window log; Stack: Node.js + Redis; Load: ~5k req/s.",
+      "expectedOutput": "Side-by-side comparison table covering accuracy, Redis memory usage, and atomicity tradeoffs.",
+      "actualOutput": "Delivered comparison table across token bucket, fixed window, and sliding window counter with memory estimates at 5k req/s.",
+      "delta": "matched",
+      "deltaNote": "Directly addressed the comparison criteria with concrete numbers.",
+      "extras": [],
+      "contractDetected": true,
+      "isStreaming": false
+    },
+    {
+      "id": "turn-2",
+      "index": 2,
+      "title": "Atomic Sliding Window Lua Script",
+      "relation": "research-detour",
+      "rawUserMessage": "Write the atomic Lua script for sliding window counter and show how to invoke it with ioredis.",
+      "rawAssistantMessage": "",
+      "intent": "Get production-ready atomic Redis Lua code and ioredis integration.",
+      "inputSummary": "Chosen algorithm: sliding window counter; Client: ioredis.",
+      "expectedOutput": "Redis Lua script and TypeScript ioredis wrapper function.",
+      "actualOutput": "Delivered atomic Lua script + typed ioredis wrapper, plus investigation into Redis Cluster hash-slot pinning and clock-skew mitigation.",
+      "delta": "expanded",
+      "deltaNote": "Expanded during implementation research to cover cluster slot routing and Redis TIME drift.",
+      "extras": [
+        "Added {userId} hash-tag pattern to prevent CROSSSLOT errors in Redis Cluster",
+        "Replaced local Node Date.now() with Redis server TIME inside Lua to eliminate multi-pod clock skew"
+      ],
+      "contractDetected": true,
+      "isStreaming": false
+    },
+    {
+      "id": "turn-3",
+      "index": 3,
+      "title": "Pivot to Fail-Open Degradation Strategy",
+      "relation": "pivot",
+      "rawUserMessage": "Wait, what happens if Redis goes down for 30 seconds? I do not want legitimate checkout requests blocked.",
+      "rawAssistantMessage": "",
+      "intent": "Prevent Redis outages from blocking checkout requests.",
+      "inputSummary": "Constraint: 30s Redis outage tolerance; Priority: never block legitimate checkouts.",
+      "expectedOutput": "Fail-open fallback behavior and circuit breaker strategy.",
+      "actualOutput": "Pivoted from strict Redis enforcement to a 2-tier circuit-breaker + per-pod LRU token fallback with Prometheus degradation alerts.",
+      "delta": "pivoted",
+      "deltaNote": "Shifted architecture from strict centralized limiting to resilient fail-open fallback based on new availability requirement.",
+      "extras": [
+        "Included half-open probe interval tuning to avoid thundering herd on Redis recovery"
+      ],
+      "contractDetected": true,
+      "isStreaming": false
+    },
+    {
+      "id": "turn-4",
+      "index": 4,
+      "title": "Unit Test Scenarios Checklist",
+      "relation": "follow-up",
+      "rawUserMessage": "Give me 4 concise integration test cases to verify this before merging.",
+      "rawAssistantMessage": "",
+      "intent": "Obtain a focused pre-merge verification checklist.",
+      "inputSummary": "Scope: 4 integration test cases for the new limiter + fallback.",
+      "expectedOutput": "4 concrete integration test scenarios.",
+      "actualOutput": "Delivered 4 integration test scenarios covering burst boundary, Redis timeout fail-open, cluster hash-tag routing, and recovery.",
+      "delta": "matched",
+      "deltaNote": "Matched requested count and scope precisely.",
+      "extras": [],
+      "contractDetected": true,
+      "isStreaming": false
+    }
+  ]
+}

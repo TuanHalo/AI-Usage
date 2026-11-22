@@ -1,0 +1,59 @@
+meta:
+  name: conversation-flow
+  version: "1.0.0"
+  description: >-
+    Transforms raw multi-turn AI conversations or current session transcripts from Claude, Gemini,
+    Grok, ChatGPT, and coding agents into a structured ConversationFlow v1 JSON payload tracking
+    raw prompts, expected vs actual output, and scope deltas. Use whenever analyzing or visualizing
+    an AI conversation flow.
+  tags:
+    - conversation-flow
+    - visualization
+    - prompt-tracking
+    - expected-output
+    - multi-ai
+  author: TuanHalo
+  created: "2026-11-22"
+  updated: "2026-11-22"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Conversation Flow Extraction Skill
+
+  ## Overview
+  Converts raw multi-turn conversations (from Claude Desktop, Antigravity, Gemini, Grok, ChatGPT, or local agent transcripts) into a canonical `ConversationFlow` v1 JSON structure ready for the **AI-Usage Conversation Flow Visualizer** (`site/src/pages/visualizer.astro`) and the **Desktop Live Bridge + MCP Server** (`desktop/`).
+
+  ## Steps
+
+  ### 1. Capture or Receive Conversation
+  - Accept either a pasted multi-turn chat transcript, an Adaptive Flow Contract transcript, or the active session context.
+  - Identify the source platform (`claude`, `gemini`, `grok`, `chatgpt`, `antigravity`, or `generic`) and derive a concise session `title`, `overallGoal`, and `finalOutcome`.
+
+  ### 2. Preserve Verbatim Prompts & Parse Contract Blocks
+  - Copy each user turn verbatim into `rawUserMessage` without paraphrasing, truncating, or rewriting code blocks.
+  - If `[Flow Contract | Pre-Run]` and `[Flow Contract | Post-Run]` blocks are present, extract `intent`, `inputSummary`, `expectedOutput`, `actualOutput`, `delta`, `deltaNote`, and `extras` directly.
+
+  ### 3. Extract Expected vs. Actual & Classify Delta
+  - For turns without contract blocks, infer `intent`, `inputSummary`, `expectedOutput`, and `actualOutput` faithfully from the conversation evidence.
+  - Classify turn transition `relation` (`initial`, `follow-up`, `clarification`, `research-detour`, `pivot`, `refinement`) and `delta` (`matched`, `expanded`, `pivoted`, `partial`, `pending`).
+  - When research or investigation produced valuable extra findings beyond `expectedOutput`, set `delta` to `expanded`, explain why in `deltaNote`, and enumerate each extra discovery in `extras[]`.
+
+  ### 4. Emit ConversationFlow v1 JSON
+  - Consult `references/schema-and-prompt.md` and `examples/sample-flow.json` for exact field names and enum values.
+  - Output valid JSON matching `schemaVersion: "1.0"` so the user can paste it directly into the Visualizer or save locally.
+
+  ## Usage
+  Trigger whenever the user says:
+  - "Extract the conversation flow from this chat."
+  - "Compare my original intent and expected output against what the AI actually produced."
+  - "Generate ConversationFlow JSON for the AI-Usage visualizer."
