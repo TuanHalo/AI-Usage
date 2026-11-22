@@ -13,22 +13,34 @@ const requireFromSite = createRequire(path.join(repoRoot, 'site', 'package.json'
 const esbuild = requireFromSite('esbuild');
 
 async function main() {
-  const testEntry = path.join(repoRoot, 'site', 'tests', 'conversation-flow.test.ts');
+  const testsDir = path.join(repoRoot, 'site', 'tests');
+  const testEntries = fs
+    .readdirSync(testsDir)
+    .filter((f) => f.endsWith('.test.ts'))
+    .sort()
+    .map((f) => path.join(testsDir, f));
+
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ai-usage-tests-'));
-  const bundleOut = path.join(tempDir, 'conversation-flow.test.mjs');
 
   try {
     await esbuild.build({
-      entryPoints: [testEntry],
+      entryPoints: testEntries,
       bundle: true,
       format: 'esm',
       platform: 'node',
       target: ['node22'],
       packages: 'external',
-      outfile: bundleOut,
+      outdir: tempDir,
+      outExtension: { '.js': '.mjs' },
     });
 
-    const result = spawnSync(process.execPath, ['--test', bundleOut], {
+    const bundledTests = fs
+      .readdirSync(tempDir)
+      .filter((f) => f.endsWith('.test.mjs'))
+      .sort()
+      .map((f) => path.join(tempDir, f));
+
+    const result = spawnSync(process.execPath, ['--test', ...bundledTests], {
       stdio: 'inherit',
     });
     process.exitCode = result.status ?? 1;

@@ -186,5 +186,24 @@ foreach ($entry in $jsonFiles.GetEnumerator()) {
     }
 }
 
+# 6. Sync Static HTML Deliverables (outputs/{shared,learning,diagrams,research} -> site/public/outputs/)
+$RepoRoot = (Resolve-Path "$PSScriptRoot\..\..").Path
+$OutputsRoot = Join-Path $RepoRoot "outputs"
+$SitePublicOutputs = Join-Path $RepoRoot "site\public\outputs"
+
+if (Test-Path $OutputsRoot) {
+    foreach ($subDir in @("shared", "learning", "diagrams", "research")) {
+        $srcDir = Join-Path $OutputsRoot $subDir
+        $dstDir = Join-Path $SitePublicOutputs $subDir
+        if (Test-Path $srcDir) {
+            Write-Host "  -> Syncing outputs/$subDir to site/public/outputs/$subDir" -ForegroundColor Cyan
+            if (-not $DryRun) {
+                New-Item -ItemType Directory -Force -Path $dstDir | Out-Null
+                Copy-Item -Path "$srcDir\*" -Destination $dstDir -Recurse -Force
+            }
+        }
+    }
+}
+
 Write-Host "[DONE] Site data generation completed." -ForegroundColor Green
 

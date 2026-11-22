@@ -47,10 +47,20 @@ output_contract:
       - related_skills
       - related_rules
 
-  # Styling rules
+  # Styling & Internationalization rules
   styling:
     design_system: "claymorphism"
     must_use_clay_cards: true
     responsive: true
     code_highlighting: true
+    theme_modes:
+      - "light"
+      - "dark"
+    languages:
+      - "en"
+      - "vi"
+    shared_controller:
+      css: "../../shared/output-prefs.css"
+      i18n_data: "../../shared/output-i18n-data.js"
+      script: "../../shared/output-prefs.js"
 
