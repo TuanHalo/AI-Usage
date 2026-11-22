@@ -15,3 +15,8 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Local private conversation exports & desktop build output
+private-flows/
+*.flow.local.*
+desktop/dist/
+
