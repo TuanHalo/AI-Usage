@@ -6,11 +6,13 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
+  wide?: boolean;
 }
 
 const {
   title = 'AI-Usage — Universal AI Hub',
   description = 'Canonical AI rules, skills, agents, principles and rich research outputs styled in Claymorphism.',
+  wide = false,
 } = Astro.props;
 ---
 
@@ -28,7 +30,7 @@ const {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div style="max-width: 1180px; margin: 0 auto; padding: 24px 20px;">
+  <div style={`max-width: ${wide ? '100%' : '1180px'}; margin: 0 auto; padding: ${wide ? '20px 28px' : '24px 20px'};`}>
     <Header />
     <main>
       <slot />

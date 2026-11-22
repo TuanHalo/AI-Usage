@@ -1,0 +1,892 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ClayCard from '../components/ClayCard.astro';
+import ClayBadge from '../components/ClayBadge.astro';
+---
+
+<BaseLayout
+  title="Conversation Flow Visualizer — AI-Usage"
+  description="Track raw AI prompts, expected vs. actual output, and research scope expansion in real time for Gemini (Antigravity) and Claude Desktop."
+  wide={true}
+>
+  <section class="viz-hero">
+    <ClayCard variant="skills" class="viz-hero-card">
+      <div class="viz-hero-top">
+        <div>
+          <div class="viz-pill-row">
+            <ClayBadge class="viz-privacy-pill">🔒 100% Local — Zero Cloud Upload</ClayBadge>
+            <ClayBadge class="viz-pill-soft">Antigravity • Claude Desktop • Claude Code</ClayBadge>
+          </div>
+          <h1 class="viz-title">🧭 PromptFlow — Conversation Flow Visualizer</h1>
+          <p class="viz-subtitle">
+            Never forget what you asked, what input you gave, what output was expected, or how research expanded the final answer.
+            Stream live from <strong>Gemini (Antigravity)</strong> &amp; <strong>Claude Desktop</strong> or paste any transcript below.
+          </p>
+        </div>
+      </div>
+
+      <div class="viz-quick-actions">
+        <button type="button" class="clay-btn viz-btn-primary" id="btn-demo-contract">
+          ✨ Load Adaptive Contract Demo
+        </button>
+        <button type="button" class="clay-btn" id="btn-demo-raw">
+          💬 Load Raw Chat Demo
+        </button>
+        <button type="button" class="clay-btn" id="btn-open-desktop-modal">
+          🖥️ Connect Antigravity &amp; Claude Desktop
+        </button>
+        <button type="button" class="clay-btn" id="btn-open-rule-modal">
+          📋 Get Adaptive Contract Rule
+        </button>
+        <button type="button" class="clay-btn" id="btn-toggle-history">
+          📚 Saved Flows (<span id="saved-count">0</span>)
+        </button>
+      </div>
+    </ClayCard>
+  </section>
+
+  <!-- Toast Banner -->
+  <div id="viz-toast" class="viz-toast hidden" role="status" aria-live="polite"></div>
+
+  <!-- Real-Time Desktop Sessions Bar (auto-appears when `npm run desktop:live` is running) -->
+  <section id="desktop-live-bar" class="clay-card agents viz-desktop-bar hidden" aria-label="Live desktop AI sessions">
+    <div class="viz-drawer-head">
+      <div>
+        <div class="viz-pill-row" style="margin-bottom: 6px;">
+          <span class="clay-badge viz-live-dot" id="desktop-status-badge">🟢 Desktop Bridge Live</span>
+          <span class="viz-muted-sm" id="desktop-session-count">0 sessions detected</span>
+        </div>
+        <h2 class="viz-h2">🖥️ Live Desktop Sessions (Antigravity &amp; Claude Desktop)</h2>
+      </div>
+      <div class="viz-btn-group">
+        <label class="viz-toggle-label">
+          <input type="checkbox" id="chk-auto-follow" checked />
+          <span>🔄 Auto-Follow Active</span>
+        </label>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-refresh-desktop">
+          ↻ Refresh
+        </button>
+      </div>
+    </div>
+    <div id="desktop-sessions-list" class="viz-desktop-list"></div>
+  </section>
+
+  <!-- Local Saved Flows Drawer -->
+  <section id="history-drawer" class="clay-card rules viz-drawer hidden" aria-label="Locally saved flows">
+    <div class="viz-drawer-head">
+      <div>
+        <h2 class="viz-h2">📚 Locally Saved Flows (Browser Only)</h2>
+        <p class="viz-muted">Stored exclusively in your browser <code>localStorage</code>. Never synced to GitHub or external servers.</p>
+      </div>
+      <div class="viz-btn-group">
+        <button type="button" class="clay-btn viz-btn-sm viz-btn-danger" id="btn-clear-history">
+          🗑️ Clear All
+        </button>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-history">
+          ✕ Close
+        </button>
+      </div>
+    </div>
+    <div id="history-list" class="viz-history-list"></div>
+  </section>
+
+  <!-- Collapsible Conversation Intake Drawer -->
+  <section class="clay-card viz-intake-card" id="intake-section">
+    <div class="viz-intake-head">
+      <div>
+        <h2 class="viz-h2">📥 Conversation Input (Raw Chat, Flow-Contract, or JSON)</h2>
+        <p class="viz-muted">
+          Paste a chat directly, paste JSON from the <strong>Analyzer Prompt</strong>, or use the live Desktop Bridge above.
+        </p>
+      </div>
+      <button type="button" class="clay-btn viz-btn-sm" id="btn-toggle-intake">
+        ▲ Collapse Input
+      </button>
+    </div>
+
+    <div id="intake-body" class="viz-intake-body">
+      <textarea
+        id="raw-input"
+        class="viz-textarea"
+        rows="9"
+        placeholder="Paste your conversation from Antigravity, Claude Desktop, Gemini, Grok, ChatGPT, or structured ConversationFlow JSON here..."
+        aria-label="Conversation transcript or JSON input"
+      ></textarea>
+
+      <div class="viz-intake-controls">
+        <label class="viz-select-wrap">
+          <span class="viz-label-inline">Platform</span>
+          <select id="platform-select" class="viz-select">
+            <option value="generic">Auto-Detect</option>
+            <option value="antigravity">Antigravity (Gemini)</option>
+            <option value="claude">Claude</option>
+            <option value="gemini">Gemini</option>
+            <option value="grok">Grok</option>
+            <option value="chatgpt">ChatGPT</option>
+          </select>
+        </label>
+
+        <div class="viz-btn-group">
+          <button type="button" class="clay-btn viz-btn-primary" id="btn-visualize">
+            ✨ Visualize Flow
+          </button>
+          <button type="button" class="clay-btn" id="btn-copy-analyzer">
+            📋 Copy Analyzer Prompt (Zero-API)
+          </button>
+          <button type="button" class="clay-btn" id="btn-clear-input">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div id="parse-warnings" class="viz-warnings hidden" role="status"></div>
+    </div>
+  </section>
+
+  <!-- Active Flow Workspace -->
+  <section id="workspace-section" class="viz-workspace hidden">
+    <!-- Mission Summary & Export Bar -->
+    <div class="clay-card agents viz-mission-card">
+      <div class="viz-mission-top">
+        <div class="viz-mission-title-wrap">
+          <div class="viz-pill-row" id="flow-meta-pills"></div>
+          <input
+            id="flow-title-input"
+            type="text"
+            class="viz-title-input"
+            aria-label="Conversation title"
+          />
+        </div>
+        <div class="viz-btn-group">
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-export-html">
+            🌐 Export Standalone HTML
+          </button>
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-md">
+            📋 Copy Markdown
+          </button>
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-export-json">
+            💾 Download JSON
+          </button>
+          <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-save-local">
+            📌 Save Locally
+          </button>
+        </div>
+      </div>
+
+      <div class="viz-mission-grid">
+        <div class="viz-mission-box">
+          <label class="viz-sub-label" for="overall-goal-input">🎯 Original Goal (Editable)</label>
+          <textarea id="overall-goal-input" class="viz-inline-area" rows="2"></textarea>
+        </div>
+        <div class="viz-mission-box">
+          <label class="viz-sub-label" for="final-outcome-input">🏁 Final Outcome (Editable)</label>
+          <textarea id="final-outcome-input" class="viz-inline-area" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="viz-filter-row" id="delta-filters" role="group" aria-label="Filter turns by scope delta"></div>
+    </div>
+
+    <!-- Two-Column Synchronized Stage -->
+    <div class="viz-stage">
+      <div class="clay-card viz-map-panel">
+        <div class="viz-panel-head">
+          <div>
+            <h2 class="viz-h2">🗺️ Conversation Flow Map</h2>
+            <p class="viz-muted-sm">Click a turn or use ↑ / ↓ arrows to inspect</p>
+          </div>
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-add-turn">
+            + Add Turn
+          </button>
+        </div>
+        <div id="flow-map-list" class="viz-flow-list" role="listbox" aria-label="Conversation turns"></div>
+      </div>
+
+      <div class="clay-card viz-inspector-panel" id="turn-inspector" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- Rule Modal -->
+  <dialog id="rule-modal" class="viz-dialog">
+    <div class="clay-card rules viz-dialog-card">
+      <div class="viz-drawer-head">
+        <div>
+          <h2 class="viz-h2">📋 Adaptive Flow Contract Rule</h2>
+          <p class="viz-muted">
+            Works in Antigravity, Claude Desktop, Claude Code, Gemini, and Grok. States Goal, Input &amp; Expected Output upfront (only pausing if ambiguous) and records Actual Output + Delta (including research expansion) at the end.
+          </p>
+        </div>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-rule-modal">✕ Close</button>
+      </div>
+      <pre id="rule-snippet-preview" class="viz-code-block"></pre>
+      <div class="viz-btn-group" style="margin-top: 16px;">
+        <button type="button" class="clay-btn viz-btn-primary" id="btn-copy-rule-snippet">
+          📋 Copy Adaptive Rule Snippet
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Desktop Live Setup Modal -->
+  <dialog id="desktop-modal" class="viz-dialog">
+    <div class="clay-card principles viz-dialog-card">
+      <div class="viz-drawer-head">
+        <div>
+          <h2 class="viz-h2">🖥️ Real-Time Desktop Setup (Antigravity &amp; Claude Desktop)</h2>
+          <p class="viz-muted">
+            Watch your desktop AI conversations stream live into PromptFlow on <code>127.0.0.1:4328</code> — zero copy-pasting.
+          </p>
+        </div>
+        <button type="button" class="clay-btn viz-btn-sm" id="btn-close-desktop-modal">✕ Close</button>
+      </div>
+
+      <div class="viz-setup-section">
+        <h3 class="viz-h3">1. Start the Local Desktop Live Bridge (Antigravity + Claude Code Auto-Watched)</h3>
+        <p class="viz-muted">
+          Automatically watches Antigravity <code>transcript.jsonl</code> and Claude Code <code>.jsonl</code> files in real time and serves this Visualizer:
+        </p>
+        <pre class="viz-code-block">cd d:\IT\AI-Usage\site
+npm run desktop:live
+# Then open http://127.0.0.1:4328/AI-Usage/visualizer</pre>
+      </div>
+
+      <div class="viz-setup-section">
+        <h3 class="viz-h3">2. Connect Claude Desktop (Chat Tab) via Local Stdio MCP</h3>
+        <p class="viz-muted">
+          Run <code>.\scripts\setup-desktop-mcp.ps1 -Target claude-desktop -Apply</code> (creates a <code>.bak</code> backup) or add this to <code>%APPDATA%\Claude\claude_desktop_config.json</code>, then restart Claude Desktop:
+        </p>
+        <pre id="claude-mcp-preview" class="viz-code-block"></pre>
+        <div class="viz-btn-group" style="margin-top: 10px;">
+          <button type="button" class="clay-btn viz-btn-sm viz-btn-primary" id="btn-copy-claude-mcp">
+            📋 Copy Claude Desktop MCP JSON
+          </button>
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-claude-instructions">
+            📋 Copy Claude Desktop Custom Instructions
+          </button>
+        </div>
+      </div>
+
+      <div class="viz-setup-section">
+        <h3 class="viz-h3">3. (Optional) Register MCP in Antigravity (<code>~/.gemini/config/mcp_config.json</code>)</h3>
+        <p class="viz-muted">
+          Antigravity transcripts already stream automatically in Step 1, or add the MCP server for explicit Expected-vs-Actual logging:
+        </p>
+        <pre id="agy-mcp-preview" class="viz-code-block"></pre>
+        <div class="viz-btn-group" style="margin-top: 10px;">
+          <button type="button" class="clay-btn viz-btn-sm" id="btn-copy-agy-mcp">
+            📋 Copy Antigravity MCP JSON
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import '../scripts/visualizer-app';
+  </script>
+</BaseLayout>
+
+<style>
+  .hidden {
+    display: none !important;
+  }
+
+  .viz-hero {
+    margin-bottom: 24px;
+  }
+
+  .viz-hero-card {
+    padding: 32px;
+  }
+
+  .viz-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .viz-privacy-pill,
+  .viz-live-dot {
+    background: #d4f0e8 !important;
+    color: #065f46 !important;
+  }
+
+  .viz-pill-soft {
+    background: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  .viz-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 10px;
+  }
+
+  .viz-subtitle {
+    font-size: 1.04rem;
+    color: var(--color-text-secondary);
+    max-width: 820px;
+  }
+
+  .viz-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .viz-btn-primary {
+    background-color: var(--color-accent) !important;
+    color: #ffffff !important;
+  }
+
+  .viz-btn-sm {
+    padding: 8px 16px !important;
+    font-size: 0.88rem !important;
+    border-radius: var(--clay-radius-sm) !important;
+  }
+
+  .viz-btn-danger {
+    background-color: #fcd5ce !important;
+    color: #9f1239 !important;
+  }
+
+  .viz-toast {
+    margin-bottom: 18px;
+    padding: 14px 20px;
+    border-radius: var(--clay-radius-md);
+    background: #d4f0e8;
+    color: #065f46;
+    font-weight: 700;
+    box-shadow: var(--clay-shadow-sm);
+  }
+
+  .viz-desktop-bar,
+  .viz-drawer {
+    margin-bottom: 24px;
+    padding: 22px 26px;
+  }
+
+  .viz-desktop-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .viz-toggle-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--clay-radius-sm);
+    background: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-sm);
+  }
+
+  .viz-drawer-head,
+  .viz-intake-head,
+  .viz-mission-top,
+  .viz-panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .viz-h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .viz-h3 {
+    font-family: var(--font-display);
+    font-size: 1.08rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .viz-setup-section {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(46, 16, 101, 0.1);
+  }
+
+  .viz-muted {
+    color: var(--color-text-secondary);
+    font-size: 0.94rem;
+  }
+
+  .viz-muted-sm {
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+  }
+
+  .viz-btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .viz-history-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .viz-intake-card {
+    background-color: #ffffff;
+    margin-bottom: 24px;
+    padding: 24px 28px;
+  }
+
+  .viz-intake-body {
+    margin-top: 16px;
+  }
+
+  .viz-textarea,
+  .viz-inline-area,
+  .viz-title-input,
+  .viz-select {
+    width: 100%;
+    border: 2px solid rgba(124, 58, 237, 0.14);
+    border-radius: var(--clay-radius-sm);
+    background: #f8f7fc;
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    padding: 14px 16px;
+    box-shadow: inset 0 3px 8px rgba(100, 60, 150, 0.08);
+    transition: var(--clay-transition);
+  }
+
+  .viz-textarea {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    resize: vertical;
+  }
+
+  .viz-textarea:focus,
+  .viz-inline-area:focus,
+  .viz-title-input:focus,
+  .viz-select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background: #ffffff;
+  }
+
+  .viz-intake-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .viz-select-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .viz-label-inline {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-text-secondary);
+  }
+
+  .viz-select {
+    width: auto;
+    padding: 10px 14px;
+    font-weight: 600;
+  }
+
+  .viz-warnings {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: var(--clay-radius-sm);
+    background: #fde8d0;
+    color: #9a3412;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .viz-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .viz-mission-card {
+    padding: 24px 28px;
+  }
+
+  .viz-mission-title-wrap {
+    flex: 1 1 320px;
+  }
+
+  .viz-title-input {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 800;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.82);
+  }
+
+  .viz-mission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .viz-mission-box {
+    background: rgba(255, 255, 255, 0.78);
+    border-radius: var(--clay-radius-md);
+    padding: 14px 16px;
+  }
+
+  .viz-sub-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    margin-bottom: 6px;
+  }
+
+  .viz-inline-area {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+  }
+
+  .viz-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .viz-stage {
+    display: grid;
+    grid-template-columns: minmax(340px, 440px) 1fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .viz-map-panel,
+  .viz-inspector-panel {
+    background-color: #ffffff;
+    padding: 24px;
+    height: 100vh;
+    min-height: 720px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.28) transparent;
+  }
+
+  .viz-map-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .viz-inspector-panel {
+    overflow-y: auto;
+  }
+
+  .viz-map-panel:hover,
+  .viz-inspector-panel:hover,
+  .viz-intake-card:hover,
+  .viz-hero-card:hover,
+  .viz-mission-card:hover,
+  .viz-desktop-bar:hover {
+    transform: none;
+  }
+
+  .viz-flow-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 4px 6px 8px 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.28) transparent;
+  }
+
+  @media (max-width: 920px) {
+    .viz-stage {
+      grid-template-columns: 1fr;
+    }
+
+    .viz-map-panel {
+      height: 55vh;
+      min-height: 360px;
+    }
+
+    .viz-inspector-panel {
+      height: auto;
+      min-height: 0;
+      overflow-y: visible;
+    }
+  }
+
+  .viz-dialog {
+    border: none;
+    background: transparent;
+    padding: 16px;
+    max-width: 780px;
+    width: calc(100% - 24px);
+    margin: auto;
+  }
+
+  .viz-dialog::backdrop {
+    background: rgba(46, 16, 101, 0.35);
+    backdrop-filter: blur(4px);
+  }
+
+  .viz-dialog-card {
+    padding: 28px;
+  }
+
+  .viz-dialog-card:hover {
+    transform: none;
+  }
+
+  .viz-code-block {
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.88);
+    padding: 14px 16px;
+    border-radius: var(--clay-radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--color-text-primary);
+    box-shadow: inset 0 2px 6px rgba(100, 60, 150, 0.1);
+  }
+
+  :global(.viz-session-btn) {
+    text-align: left;
+    border: 2px solid transparent;
+    border-radius: var(--clay-radius-md);
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-sm);
+    transition: var(--clay-transition);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  :global(.viz-session-btn:hover) {
+    background: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  :global(.viz-session-btn.active) {
+    background: #ffffff;
+    border-color: var(--color-accent);
+  }
+
+  :global(.viz-filter-pill) {
+    border: none;
+    border-radius: var(--clay-radius-sm);
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--color-text-primary);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.86rem;
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-sm);
+    transition: var(--clay-transition);
+  }
+
+  :global(.viz-filter-pill.active) {
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+
+  :global(.viz-connector) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 6px 20px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  :global(.viz-connector-line) {
+    width: 3px;
+    height: 20px;
+    border-radius: 99px;
+    background: rgba(124, 58, 237, 0.25);
+  }
+
+  :global(.viz-node-btn) {
+    width: 100%;
+    text-align: left;
+    border: 2px solid transparent;
+    border-radius: var(--clay-radius-md);
+    padding: 14px 16px;
+    background: #f8f7fc;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    box-shadow: var(--clay-shadow-sm);
+    transition: var(--clay-transition);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  :global(.viz-node-btn:hover) {
+    background: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  :global(.viz-node-btn.active) {
+    background: #f3f0ff;
+    border-color: var(--color-accent);
+  }
+
+  :global(.viz-node-top) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  :global(.viz-node-title) {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.98rem;
+  }
+
+  :global(.viz-node-prompt) {
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  :global(.viz-delta-badge) {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  :global(.viz-delta-matched) { background: #d4f0e8; color: #065f46; }
+  :global(.viz-delta-expanded) { background: #e4dffd; color: #5b21b6; }
+  :global(.viz-delta-pivoted) { background: #fde8d0; color: #9a3412; }
+  :global(.viz-delta-partial) { background: #fcd5ce; color: #9f1239; }
+  :global(.viz-delta-pending) { background: #d0e8fd; color: #075985; }
+
+  :global(.viz-inspector-head) {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  :global(.viz-raw-box) {
+    background: #f8f7fc;
+    border-radius: var(--clay-radius-md);
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: inset 0 2px 6px rgba(100, 60, 150, 0.08);
+  }
+
+  :global(.viz-raw-pre) {
+    margin: 6px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: var(--font-mono);
+    font-size: 0.87rem;
+    color: var(--color-text-primary);
+  }
+
+  :global(.viz-raw-pre.clamped) {
+    max-height: 150px;
+    overflow: hidden;
+  }
+
+  :global(.viz-compare-grid) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+
+  :global(.viz-compare-card) {
+    border-radius: var(--clay-radius-md);
+    padding: 16px;
+  }
+
+  :global(.viz-compare-card.expected) { background: #e8f3fe; }
+  :global(.viz-compare-card.actual) { background: #e6f6f0; }
+
+  :global(.viz-extras-card) {
+    border-radius: var(--clay-radius-md);
+    padding: 16px;
+    background: #f3f0ff;
+    margin-bottom: 14px;
+  }
+
+  :global(.viz-extras-list) {
+    margin: 8px 0 0 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  :global(.viz-edit-form) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  :global(.viz-history-item) {
+    background: rgba(255, 255, 255, 0.88);
+    border-radius: var(--clay-radius-md);
+    padding: 14px 16px;
+    box-shadow: var(--clay-shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
