@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "dataflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\IT\\AI-Usage\\.archify\\dataflow-security-encryption-lifecycle\\candidate.json",
+    "sha256": "9149d5c86f6070be4958b49bf9100cb3f3ceef2df15e25c87b44b71c72df0cb8",
+    "bytes": 5276
+  },
+  "artifact": {
+    "path": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-encryption-lifecycle\\security-encryption-lifecycle.html",
+    "sha256": "f40b4c373b4846c5bc7cc376e6e039508e80c719be80013fc6d602a120437a38",
+    "bytes": 844101
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-encryption-lifecycle\\security-encryption-lifecycle.finalize.json",
+    "summaryReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-encryption-lifecycle\\security-encryption-lifecycle.finalize-summary.json",
+    "browserCheckReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-encryption-lifecycle\\security-encryption-lifecycle.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-21T18:43:43.198Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3748,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

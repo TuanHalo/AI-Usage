@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Payment Trust Boundaries: Hosted Fields (SAQ A) vs. Hybrid JWE (SAQ A-EP)",
+    "output": "outputs/diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html",
+    "locale": "en",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "pspIframe",
+      "type": "security",
+      "label": "PSP Hosted Iframe",
+      "sublabel": "isolated origin",
+      "tag": "SAQ A",
+      "pos": [40, 60],
+      "size": [160, 64]
+    },
+    {
+      "id": "pciVault",
+      "type": "security",
+      "label": "PSP Token Vault",
+      "sublabel": "PCI DSS Level 1",
+      "tag": "stores PAN",
+      "pos": [360, 60],
+      "size": [160, 64]
+    },
+    {
+      "id": "merchantFeA",
+      "type": "frontend",
+      "label": "Merchant FE",
+      "sublabel": "gets tok_ only",
+      "tag": "no raw PAN",
+      "pos": [680, 60],
+      "size": [160, 64]
+    },
+    {
+      "id": "merchantBeA",
+      "type": "backend",
+      "label": "Merchant BE",
+      "sublabel": "charges tok_id",
+      "tag": "out of CDE",
+      "pos": [1000, 60],
+      "size": [160, 64]
+    },
+    {
+      "id": "merchantFeB",
+      "type": "frontend",
+      "label": "Merchant FE",
+      "sublabel": "Web Crypto JWE",
+      "tag": "SAQ A-EP",
+      "pos": [40, 260],
+      "size": [160, 64]
+    },
+    {
+      "id": "apiGateway",
+      "type": "cloud",
+      "label": "Edge / Gateway",
+      "sublabel": "TLS termination",
+      "tag": "sees JWE only",
+      "pos": [360, 260],
+      "size": [160, 64]
+    },
+    {
+      "id": "decryptBe",
+      "type": "backend",
+      "label": "PCI Decrypt BE",
+      "sublabel": "in-memory unwrap",
+      "tag": "in CDE scope",
+      "pos": [680, 260],
+      "size": [160, 64]
+    },
+    {
+      "id": "cardProcB",
+      "type": "external",
+      "label": "Bank / PSP API",
+      "sublabel": "authorizes card",
+      "tag": "TLS 1.3",
+      "pos": [1000, 260],
+      "size": [160, 64]
+    },
+    {
+      "id": "kmsHsm",
+      "type": "security",
+      "label": "KMS / HSM",
+      "sublabel": "RSA private key",
+      "tag": "key rotation",
+      "pos": [680, 420],
+      "size": [160, 64]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "security-group",
+      "label": "Path A: Isolated PCI Vault Boundary (SAQ A)",
+      "wraps": ["pspIframe", "pciVault"]
+    },
+    {
+      "kind": "region",
+      "label": "Path B: Merchant CDE Boundary (SAQ A-EP / D)",
+      "wraps": ["decryptBe", "kmsHsm"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "iframe-to-vault",
+      "from": "pspIframe",
+      "to": "pciVault",
+      "label": "PAN over TLS",
+      "variant": "security"
+    },
+    {
+      "id": "vault-to-fea",
+      "from": "pciVault",
+      "to": "merchantFeA",
+      "label": "return tok_9f3a",
+      "variant": "emphasis"
+    },
+    {
+      "id": "fea-to-bea",
+      "from": "merchantFeA",
+      "to": "merchantBeA",
+      "label": "POST tok_9f3a",
+      "variant": "default"
+    },
+    {
+      "id": "feb-to-gw",
+      "from": "merchantFeB",
+      "to": "apiGateway",
+      "label": "JWE + TLS 1.3",
+      "variant": "security"
+    },
+    {
+      "id": "gw-to-be",
+      "from": "apiGateway",
+      "to": "decryptBe",
+      "label": "opaque JWE",
+      "variant": "security"
+    },
+    {
+      "id": "be-to-kms",
+      "from": "decryptBe",
+      "to": "kmsHsm",
+      "label": "unwrap CEK",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "be-to-proc",
+      "from": "decryptBe",
+      "to": "cardProcB",
+      "label": "charge PAN",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Path A: Hosted Fields (Gold Standard)",
+      "items": [
+        "Card inputs live inside a cross-origin PSP iframe — your own JS cannot read them",
+        "Merchant FE and BE only ever handle opaque tokens (tok_9f3a)",
+        "Lowest PCI DSS compliance scope (SAQ A)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Path B: Hybrid JWE (When BE Needs Card)",
+      "items": [
+        "Protects card payloads past TLS-terminating Edge proxies and logs",
+        "KMS/HSM protects the RSA private key while Merchant Decrypt BE stays in CDE scope",
+        "Useful for multi-PSP routing or legacy acquirer integrations"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "XSS & Script Risk (PCI DSS 4.0)",
+      "items": [
+        "In Path B, a compromised 3rd-party JS script can read inputs before JWE runs",
+        "PCI DSS 4.0 Req 6.4.3 & 11.6.1 enforce CSP, SRI hashes, and script monitoring",
+        "Path A isolates card fields via browser Same-Origin Policy"
+      ]
+    }
+  ]
+}

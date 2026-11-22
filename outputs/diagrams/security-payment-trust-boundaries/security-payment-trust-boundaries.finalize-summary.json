@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "D:\\IT\\AI-Usage\\.archify\\architecture-security-payment-trust-boundaries\\candidate.json",
+    "sha256": "ea8c203bbf626d1b2d595d614236cf41e886cb58d453765e7941fdf97ff801fd",
+    "bytes": 4723
+  },
+  "artifact": {
+    "path": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-payment-trust-boundaries\\security-payment-trust-boundaries.html",
+    "sha256": "0e0171945308188157f57b0631a16a440ba4d28635eb6cf899692b82fe22d083",
+    "bytes": 846961
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-payment-trust-boundaries\\security-payment-trust-boundaries.finalize.json",
+    "summaryReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-payment-trust-boundaries\\security-payment-trust-boundaries.finalize-summary.json",
+    "browserCheckReceipt": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-payment-trust-boundaries\\security-payment-trust-boundaries.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-21T18:43:43.198Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3001,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

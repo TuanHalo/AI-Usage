@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "cdaedcf0-8a12-40f8-b80f-a1a056ebeee7",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "D:\\IT\\AI-Usage\\.archify\\sequence-security-cc-hybrid-jwe-flow\\candidate.json",
+  "output": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-cc-hybrid-jwe-flow\\security-cc-hybrid-jwe-flow.html",
+  "specification": {
+    "sha256": "bbef8fe1e10fbb5203a8545144ba73992ca8147288ed45ee3213b160cbc9c085",
+    "bytes": 4701
+  },
+  "artifact": {
+    "sha256": "e03fac9cb2c14e618dcd262f481e90d912c8007abfa38436192ae70fd784f232",
+    "bytes": 837862
+  }
+}

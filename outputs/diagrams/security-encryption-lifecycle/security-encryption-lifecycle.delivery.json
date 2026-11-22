@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "cc11b2b1-48f7-4bf3-a632-1bb1da849eee",
+  "status": "current",
+  "command": "deliver",
+  "type": "dataflow",
+  "input": "D:\\IT\\AI-Usage\\.archify\\dataflow-security-encryption-lifecycle\\candidate.json",
+  "output": "D:\\IT\\AI-Usage\\outputs\\diagrams\\security-encryption-lifecycle\\security-encryption-lifecycle.html",
+  "specification": {
+    "sha256": "9149d5c86f6070be4958b49bf9100cb3f3ceef2df15e25c87b44b71c72df0cb8",
+    "bytes": 5276
+  },
+  "artifact": {
+    "sha256": "f40b4c373b4846c5bc7cc376e6e039508e80c719be80013fc6d602a120437a38",
+    "bytes": 844101
+  }
+}
