@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import T from '../components/T.astro';
 
 interface OutputQuickLink {
   readonly label: string;
@@ -11,11 +12,14 @@ interface OutputQuickLink {
 
 interface OutputDeliverable {
   readonly title: string;
+  readonly titleVi: string;
   readonly date: string;
   readonly category: string;
   readonly agent: string;
   readonly status: string;
+  readonly statusVi: string;
   readonly summary: string;
+  readonly summaryVi: string;
   readonly tags: readonly string[];
   readonly htmlPath: string;
   readonly quickLinks?: readonly OutputQuickLink[];
@@ -24,84 +28,99 @@ interface OutputDeliverable {
 const outputs: readonly OutputDeliverable[] = [
   {
     title: 'Security & Encryption Mastery — Protecting Credit Cards (FE → BE)',
+    titleVi: 'Làm chủ Bảo mật & Mã hoá — Bảo vệ Thẻ Tín dụng (FE → BE)',
     date: '2026-11-22',
     category: 'Interactive Security Hub',
     agent: 'security-mentor',
     status: 'Published',
-    summary: 'Friendly, animated guide to Encryption, Decryption, Secrets Management, and PCI DSS 4.0 FE-to-BE credit card protection — featuring live Web Crypto API JWE labs, a 4-mode animated packet journey, strict TypeScript blueprints, and 3 validated Archify diagrams.',
+    statusVi: 'Đã xuất bản',
+    summary:
+      'Friendly, animated guide to Encryption, Decryption, Secrets Management, and PCI DSS 4.0 FE-to-BE credit card protection — featuring live Web Crypto API JWE labs, a 4-mode animated packet journey, strict TypeScript blueprints, and 3 validated Archify diagrams.',
+    summaryVi:
+      'Cẩm nang trực quan và sống động về Mã hoá, Giải mã, Quản lý Bí mật (Secrets) và bảo vệ thẻ tín dụng từ FE đến BE theo chuẩn PCI DSS 4.0 — tích hợp phòng lab Web Crypto API JWE trực tiếp, hành trình gói tin 4 chế độ, bản thiết kế TypeScript chặt chẽ và 3 sơ đồ Archify đã kiểm chứng.',
     tags: ['security', 'encryption', 'jwe', 'pci-dss', 'archify', 'web-crypto'],
     htmlPath: `${import.meta.env.BASE_URL}outputs/learning/security-encryption/index.html`,
     quickLinks: [
       {
         label: '🔄 Encryption & Secrets Lifecycle',
-        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html`
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-encryption-lifecycle/security-encryption-lifecycle.html`,
       },
       {
         label: '🔐 FE → BE Hybrid JWE Sequence',
-        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-cc-hybrid-jwe-flow/security-cc-hybrid-jwe-flow.html`
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-cc-hybrid-jwe-flow/security-cc-hybrid-jwe-flow.html`,
       },
       {
         label: '🛡️ Trust Boundaries (SAQ A vs A-EP)',
-        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html`
-      }
-    ]
+        href: `${import.meta.env.BASE_URL}outputs/diagrams/security-payment-trust-boundaries/security-payment-trust-boundaries.html`,
+      },
+    ],
   },
   {
     title: 'OS Interview Mastery Series — CS Learning Hub',
+    titleVi: 'Chuỗi Ôn luyện Phỏng vấn Hệ điều hành (OS) — CS Learning Hub',
     date: '2026-11-14',
     category: 'CS Learning Hub',
     agent: 'cs-mentor',
     status: 'Published',
-    summary: 'Complete 6-module Operating Systems interview curriculum with daily-life analogies, Fresher-to-Senior level tags, interactive labs, flashcards, and 6 animated Archify flow diagrams.',
+    statusVi: 'Đã xuất bản',
+    summary:
+      'Complete 6-module Operating Systems interview curriculum with daily-life analogies, Fresher-to-Senior level tags, interactive labs, flashcards, and 6 animated Archify flow diagrams.',
+    summaryVi:
+      'Giáo trình 6 học phần ôn luyện phỏng vấn Hệ điều hành với ví dụ thực tế, phân cấp Fresher đến Senior, bài lab tương tác, flashcard và 6 sơ đồ luồng Archify sống động.',
     tags: ['operating-systems', 'interview-prep', 'archify', 'fresher-to-senior'],
     htmlPath: `${import.meta.env.BASE_URL}outputs/learning/os-interview/index.html`,
     quickLinks: [
       {
         label: '📘 M1: Process & Thread',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-1-process-thread.html`
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-1-process-thread.html`,
       },
       {
         label: '🔀 M2: Context Switch & COW',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-2-context-switch-ipc.html`
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-2-context-switch-ipc.html`,
       },
       {
         label: '🧠 M3: Virtual Memory',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-3-virtual-memory.html`
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-3-virtual-memory.html`,
       },
       {
         label: '🔒 M4: Locks & Deadlock',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-4-concurrency-locking.html`
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-4-concurrency-locking.html`,
       },
       {
         label: '⚡ M5: Syscalls & epoll',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-5-kernel-io-filesystems.html`
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-5-kernel-io-filesystems.html`,
       },
       {
         label: '🎯 M6: Flashcards & Cheat Sheet',
-        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-6-interview-drill.html`
-      }
-    ]
+        href: `${import.meta.env.BASE_URL}outputs/learning/os-interview/module-6-interview-drill.html`,
+      },
+    ],
   },
   {
     title: 'Autonomous AI Agent Architectures — 2026 Evaluation',
+    titleVi: 'Kiến trúc AI Agent Tự chủ — Đánh giá Toàn diện 2026',
     date: '2026-11-09',
     category: 'Research Report',
     agent: 'research-analyst',
     status: 'Published',
-    summary: 'Comprehensive comparative evaluation of hierarchical vs peer agent orchestration architectures, topological flow, and token budget impacts.',
+    statusVi: 'Đã xuất bản',
+    summary:
+      'Comprehensive comparative evaluation of hierarchical vs peer agent orchestration architectures, topological flow, and token budget impacts.',
+    summaryVi:
+      'Báo cáo so sánh chuyên sâu giữa kiến trúc điều phối Agent phân cấp và ngang hàng (peer), luồng topo và tác động đến ngân sách token.',
     tags: ['agents', 'architecture', 'multi-agent', 'orchestration'],
-    htmlPath: `${import.meta.env.BASE_URL}outputs/research/ai-agent-architectures/index.html`
-  }
+    htmlPath: `${import.meta.env.BASE_URL}outputs/research/ai-agent-architectures/index.html`,
+  },
 ];
 ---
 
-<BaseLayout title="AI Outputs & Research — AI-Usage">
+<BaseLayout titleKey="meta.outputs.title">
   <div style="margin-bottom: 32px;">
     <h1 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; margin-bottom: 8px;">
-      📊 AI Deliverables & Research Outputs
+      <T k="outputs.title" />
     </h1>
     <p style="font-size: 1.1rem; color: var(--color-text-secondary);">
-      Rich HTML research deliverables, system architecture evaluations, and interactive graphs generated by AI agents.
+      <T k="outputs.subtitle" />
     </p>
   </div>
 
@@ -112,19 +131,21 @@ const outputs: readonly OutputDeliverable[] = [
           <div>
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
               <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
-                {out.title}
+                <T en={out.title} vi={out.titleVi} />
               </h2>
-              <ClayBadge style="background: #ffffff; color: #e11d48;">{out.status}</ClayBadge>
+              <ClayBadge style="background: var(--color-surface); color: var(--status-danger-fg);">
+                <T en={out.status} vi={out.statusVi} />
+              </ClayBadge>
             </div>
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <ClayBadge style="background: rgba(255,255,255,0.7); font-size: 0.85rem;">
+              <ClayBadge style="background: var(--color-surface-soft); font-size: 0.85rem;">
                 📅 {out.date}
               </ClayBadge>
-              <ClayBadge style="background: rgba(255,255,255,0.7); font-size: 0.85rem;">
-                🤖 Agent: {out.agent}
+              <ClayBadge style="background: var(--color-surface-soft); font-size: 0.85rem;">
+                <T k="outputs.agentLabel" params={{ agent: out.agent }} />
               </ClayBadge>
               {out.tags.map((tag) => (
-                <ClayBadge style="background: rgba(255,255,255,0.5); font-size: 0.78rem;">
+                <ClayBadge style="background: var(--color-surface-soft); font-size: 0.78rem;">
                   #{tag}
                 </ClayBadge>
               ))}
@@ -132,11 +153,11 @@ const outputs: readonly OutputDeliverable[] = [
           </div>
 
           <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <ClayButton href={out.htmlPath} class="open-btn" style="background-color: #ffffff;">
-              🔗 Open Fullscreen HTML
+            <ClayButton href={out.htmlPath} class="open-btn">
+              <T k="outputs.openFullscreen" />
             </ClayButton>
             {out.quickLinks && out.quickLinks.map((link) => (
-              <ClayButton href={link.href} style="background-color: rgba(255,255,255,0.82); font-size: 0.9rem;">
+              <ClayButton href={link.href}>
                 {link.label}
               </ClayButton>
             ))}
@@ -144,17 +165,17 @@ const outputs: readonly OutputDeliverable[] = [
         </div>
 
         <p style="font-size: 1.05rem; margin-bottom: 24px; color: var(--color-text-secondary);">
-          {out.summary}
+          <T en={out.summary} vi={out.summaryVi} />
         </p>
 
         <!-- Clay Embedded Preview Box -->
-        <div style="background: #ffffff; border-radius: var(--clay-radius-md); padding: 12px; box-shadow: var(--clay-shadow-sm);">
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px 14px; border-bottom: 1px solid rgba(0,0,0,0.05);">
+        <div style="background: var(--color-surface); border-radius: var(--clay-radius-md); padding: 12px; box-shadow: var(--clay-shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px 14px; border-bottom: 1px solid var(--color-border-subtle);">
             <span style="font-size: 0.85rem; font-weight: 700; color: var(--color-text-muted);">
-              LIVE EMBEDDED REPORT PREVIEW (CLAY CONTAINER)
+              <T k="outputs.livePreviewLabel" />
             </span>
             <a href={out.htmlPath} target="_blank" style="font-size: 0.85rem;">
-              Open in new tab ↗
+              <T k="outputs.openNewTab" />
             </a>
           </div>
           <iframe 
@@ -167,4 +188,3 @@ const outputs: readonly OutputDeliverable[] = [
     ))}
   </div>
 </BaseLayout>
-

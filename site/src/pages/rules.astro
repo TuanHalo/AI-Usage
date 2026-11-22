@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayBadge from '../components/ClayBadge.astro';
 import ClayButton from '../components/ClayButton.astro';
+import T from '../components/T.astro';
+import { RULES_VI } from '../i18n/assets-vi';
 import rulesData from '../data/rules.json';
 
 interface RuleItem {
@@ -18,13 +20,13 @@ interface RuleItem {
 const rules: RuleItem[] = rulesData;
 ---
 
-<BaseLayout title="Rules Catalog — AI-Usage">
+<BaseLayout titleKey="meta.rules.title">
   <div style="margin-bottom: 32px;">
     <h1 style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 900; margin-bottom: 8px;">
-      🛡️ Rules Catalog
+      <T k="catalog.rules.title" />
     </h1>
     <p style="font-size: 1.1rem; color: var(--color-text-secondary);">
-      Persistent behavioral constraints, code conventions, and safety standards.
+      <T k="catalog.rules.subtitle" />
     </p>
   </div>
 
@@ -32,58 +34,65 @@ const rules: RuleItem[] = rulesData;
     <ClayCard variant="rules" style="text-align: center; padding: 48px 24px;">
       <span style="font-size: 3rem; display: block; margin-bottom: 12px;">🌱</span>
       <h3 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 8px;">
-        No Rules Authored Yet
+        <T k="catalog.rules.emptyTitle" />
       </h3>
       <p style="color: var(--color-text-secondary); max-width: 520px; margin: 0 auto 24px;">
-        Use the <code>asset-architect</code> skill or run <code>.\scripts\new-asset.ps1 -Type rule</code> to scaffold your first canonical rule.
+        <T k="catalog.rules.emptyDesc" html={true} />
       </p>
       <ClayButton href="https://github.com/TuanHalo/AI-Usage">
-        Read Rule Contract ➔
+        <T k="catalog.rules.emptyCta" />
       </ClayButton>
     </ClayCard>
   ) : (
     <div style="display: flex; flex-direction: column; gap: 32px;">
-      {rules.map((rule) => (
-        <ClayCard variant="rules">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
-                <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
-                  {rule.name}
-                </h2>
-                <ClayBadge>v{rule.version}</ClayBadge>
-                <ClayBadge style="background: #ffffff; color: #0284c7;">Priority: {rule.priority}</ClayBadge>
-              </div>
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                {rule.tags.map((tag) => (
-                  <ClayBadge style="background: rgba(255,255,255,0.65); font-size: 0.78rem;">
-                    #{tag}
+      {rules.map((rule) => {
+        const viEntry = RULES_VI[rule.name];
+        return (
+          <ClayCard variant="rules">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+                  <h2 style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800;">
+                    {rule.name}
+                  </h2>
+                  <ClayBadge>v{rule.version}</ClayBadge>
+                  <ClayBadge style="background: var(--color-surface); color: var(--status-info-fg);">
+                    <T k="catalog.rules.priority" params={{ priority: rule.priority }} />
                   </ClayBadge>
-                ))}
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  {rule.tags.map((tag) => (
+                    <ClayBadge style="background: var(--color-surface-soft); font-size: 0.78rem;">
+                      #{tag}
+                    </ClayBadge>
+                  ))}
+                </div>
               </div>
+
+              <ClayButton href={`https://github.com/TuanHalo/AI-Usage/tree/main/assets/rules/${rule.name}.yaml`}>
+                <T k="catalog.sourceYaml" />
+              </ClayButton>
             </div>
 
-            <ClayButton href={`https://github.com/TuanHalo/AI-Usage/tree/main/assets/rules/${rule.name}.yaml`}>
-              Source YAML ➔
-            </ClayButton>
-          </div>
+            <p style="font-size: 1.05rem; margin-bottom: 20px;">
+              <T en={rule.description} vi={viEntry?.descriptionVi ?? rule.description} />
+            </p>
 
-          <p style="font-size: 1.05rem; margin-bottom: 20px;">
-            {rule.description}
-          </p>
-
-          <div style="background: rgba(255, 255, 255, 0.7); border-radius: var(--clay-radius-md); padding: 20px;">
-            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">
-              Mandatory Standards
-            </h3>
-            <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px;">
-              {rule.guidelines.map((g) => (
-                <li style="color: var(--color-text-secondary);">{g}</li>
-              ))}
-            </ul>
-          </div>
-        </ClayCard>
-      ))}
+            <div style="background: var(--color-surface-soft); border-radius: var(--clay-radius-md); padding: 20px;">
+              <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">
+                <T k="catalog.rules.standardsLabel" />
+              </h3>
+              <ul style="margin-left: 20px; display: flex; flex-direction: column; gap: 8px;">
+                {rule.guidelines.map((g, idx) => (
+                  <li style="color: var(--color-text-secondary);">
+                    <T en={g} vi={viEntry?.itemsVi[idx] ?? g} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </ClayCard>
+        );
+      })}
     </div>
   )}
 </BaseLayout>

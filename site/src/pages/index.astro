@@ -3,88 +3,104 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ClayCard from '../components/ClayCard.astro';
 import ClayButton from '../components/ClayButton.astro';
 import ClayBadge from '../components/ClayBadge.astro';
+import T from '../components/T.astro';
+import type { TKey, TParams } from '../i18n/index';
 import skills from '../data/skills.json';
 import rules from '../data/rules.json';
 import agents from '../data/agents.json';
 import principles from '../data/principles.json';
 
-const categories = [
+interface CategoryCard {
+  readonly titleKey: TKey;
+  readonly variant: 'skills' | 'rules' | 'agents' | 'principles' | 'outputs';
+  readonly countKey: TKey;
+  readonly countParams?: TParams;
+  readonly descKey: TKey;
+  readonly href: string;
+  readonly icon: string;
+}
+
+const categories: readonly CategoryCard[] = [
   {
-    title: 'Skills',
-    variant: 'skills' as const,
-    count: `${skills.length} Active`,
-    desc: 'Procedural runbooks, tool recipes, and on-demand workflows for complex tasks.',
+    titleKey: 'home.cat.skills.title',
+    variant: 'skills',
+    countKey: 'home.cat.skills.count',
+    countParams: { n: skills.length },
+    descKey: 'home.cat.skills.desc',
     href: `${import.meta.env.BASE_URL}skills`,
     icon: '⚡',
   },
   {
-    title: 'Rules',
-    variant: 'rules' as const,
-    count: `${rules.length} Active`,
-    desc: 'Always-on constraints, code style standards, and safety invariants.',
+    titleKey: 'home.cat.rules.title',
+    variant: 'rules',
+    countKey: 'home.cat.rules.count',
+    countParams: { n: rules.length },
+    descKey: 'home.cat.rules.desc',
     href: `${import.meta.env.BASE_URL}rules`,
     icon: '🛡️',
   },
   {
-    title: 'Agents',
-    variant: 'agents' as const,
-    count: `${agents.length} Active`,
-    desc: 'Autonomous agent persona profiles, role boundaries, and tool specifications.',
+    titleKey: 'home.cat.agents.title',
+    variant: 'agents',
+    countKey: 'home.cat.agents.count',
+    countParams: { n: agents.length },
+    descKey: 'home.cat.agents.desc',
     href: `${import.meta.env.BASE_URL}agents`,
     icon: '🤖',
   },
   {
-    title: 'Principles',
-    variant: 'principles' as const,
-    count: `${principles.length} Active`,
-    desc: 'Core engineering philosophies, token-efficiency rules, and architectural tenets.',
+    titleKey: 'home.cat.principles.title',
+    variant: 'principles',
+    countKey: 'home.cat.principles.count',
+    countParams: { n: principles.length },
+    descKey: 'home.cat.principles.desc',
     href: `${import.meta.env.BASE_URL}principles`,
     icon: '💡',
   },
   {
-    title: 'AI Outputs',
-    variant: 'outputs' as const,
-    count: '3 Collections',
-    desc: 'Rich interactive HTML deliverables, CS interview learning modules, and animated Archify system flows.',
+    titleKey: 'home.cat.outputs.title',
+    variant: 'outputs',
+    countKey: 'home.cat.outputs.count',
+    descKey: 'home.cat.outputs.desc',
     href: `${import.meta.env.BASE_URL}outputs`,
     icon: '📊',
   },
   {
-    title: 'Flow Visualizer',
-    variant: 'skills' as const,
-    count: 'Live + Client-Side',
-    desc: 'Track raw AI prompts, expected vs. actual output, and research scope expansions in real time across Claude, Gemini, Grok, and ChatGPT.',
+    titleKey: 'home.cat.visualizer.title',
+    variant: 'skills',
+    countKey: 'home.cat.visualizer.count',
+    descKey: 'home.cat.visualizer.desc',
     href: `${import.meta.env.BASE_URL}visualizer`,
     icon: '🧭',
   },
 ];
 ---
 
-<BaseLayout title="AI-Usage — Universal AI Hub & Artifacts">
+<BaseLayout titleKey="meta.home.title" descriptionKey="meta.home.desc">
   <!-- Hero Section -->
   <section style="margin-bottom: 40px;">
     <ClayCard variant="skills" style="padding: 48px 40px; text-align: center;">
       <div style="display: inline-block; margin-bottom: 12px;">
-        <ClayBadge style="background: #ffffff; color: var(--color-accent); font-size: 0.95rem;">
-          ✨ Canonical Source of Truth for AI Assets
+        <ClayBadge style="background: var(--color-surface); color: var(--color-accent); font-size: 0.95rem;">
+          <T k="home.hero.badge" />
         </ClayBadge>
       </div>
       <h1 style="font-family: var(--font-display); font-size: 3rem; font-weight: 900; line-height: 1.2; margin-bottom: 16px;">
-        Universal AI Assets & Outputs
+        <T k="home.hero.title" />
       </h1>
       <p style="font-size: 1.2rem; color: var(--color-text-secondary); max-width: 720px; margin: 0 auto 28px;">
-        Author once in canonical format. Synchronize automatically across Antigravity, Cursor, Claude Code, and Gemini CLI, and publish rich AI outputs directly to GitHub Pages.
+        <T k="home.hero.subtitle" />
       </p>
 
       <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
         <ClayButton href={`${import.meta.env.BASE_URL}visualizer`}>
-          🧭 Open Flow Visualizer
+          <T k="home.hero.ctaVisualizer" />
         </ClayButton>
         <ClayButton href={`${import.meta.env.BASE_URL}skills`}>
-          Explore Skills Catalog
+          <T k="home.hero.ctaSkills" />
         </ClayButton>
         <ClayButton href={`${import.meta.env.BASE_URL}outputs`}>
-          Read AI Research Outputs ➔
+          <T k="home.hero.ctaOutputs" />
         </ClayButton>
       </div>
     </ClayCard>
@@ -95,12 +111,14 @@ const categories = [
     <ClayCard variant="rules" style="padding: 24px 32px;">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
-          <h3 style="font-size: 1.2rem; font-weight: 700;">🔄 Machine Synchronization</h3>
+          <h3 style="font-size: 1.2rem; font-weight: 700;">
+            <T k="home.sync.title" />
+          </h3>
           <p style="font-size: 0.95rem; color: var(--color-text-secondary);">
-            Run the PowerShell orchestrator to sync canonical rules & skills into your machine:
+            <T k="home.sync.desc" />
           </p>
         </div>
-        <div style="background: rgba(255, 255, 255, 0.85); padding: 12px 20px; border-radius: var(--clay-radius-sm); font-family: var(--font-mono); font-size: 0.95rem; box-shadow: var(--clay-shadow-sm);">
+        <div style="background: var(--color-surface-soft); padding: 12px 20px; border-radius: var(--clay-radius-sm); font-family: var(--font-mono); font-size: 0.95rem; box-shadow: var(--clay-shadow-sm);">
           <code>.\scripts\sync.ps1 -Target all</code>
         </div>
       </div>
@@ -109,7 +127,9 @@ const categories = [
 
   <!-- Categories Grid -->
   <section style="margin-bottom: 48px;">
-    <h2 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 24px;">Asset Catalogs & Outputs</h2>
+    <h2 style="font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 24px;">
+      <T k="home.categories.heading" />
+    </h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
       {categories.map((cat) => (
         <a href={cat.href} style="text-decoration: none; display: block;">
@@ -117,17 +137,17 @@ const categories = [
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <span style="font-size: 2rem;">{cat.icon}</span>
-                <ClayBadge>{cat.count}</ClayBadge>
+                <ClayBadge><T k={cat.countKey} params={cat.countParams} /></ClayBadge>
               </div>
               <h3 style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; margin-bottom: 8px;">
-                {cat.title}
+                <T k={cat.titleKey} />
               </h3>
               <p style="color: var(--color-text-secondary); font-size: 0.98rem; font-weight: normal; margin-bottom: 20px;">
-                {cat.desc}
+                <T k={cat.descKey} />
               </p>
             </div>
             <div style="display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--color-text-primary);">
-              <span>Browse Catalog</span>
+              <span><T k="home.categories.browse" /></span>
               <span>➔</span>
             </div>
           </ClayCard>
@@ -140,16 +160,16 @@ const categories = [
   <section>
     <ClayCard variant="principles" style="padding: 32px;">
       <h3 style="font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 12px;">
-        📜 Consistency & Generation Contracts
+        <T k="home.contracts.title" />
       </h3>
       <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
-        Every asset and output in this repository is governed by declarative contracts to ensure stylistic and content consistency across AI model generations:
+        <T k="home.contracts.desc" />
       </p>
       <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-        <ClayBadge style="background: #ffffff;">Content Contract v1.0.0</ClayBadge>
-        <ClayBadge style="background: #ffffff;">Style Contract (Claymorphism)</ClayBadge>
-        <ClayBadge style="background: #ffffff;">Output Contract (HTML & Citations)</ClayBadge>
-        <ClayBadge style="background: #ffffff;">JSON Schema Verified</ClayBadge>
+        <ClayBadge style="background: var(--color-surface);"><T k="home.contracts.content" /></ClayBadge>
+        <ClayBadge style="background: var(--color-surface);"><T k="home.contracts.style" /></ClayBadge>
+        <ClayBadge style="background: var(--color-surface);"><T k="home.contracts.output" /></ClayBadge>
+        <ClayBadge style="background: var(--color-surface);"><T k="home.contracts.schema" /></ClayBadge>
       </div>
     </ClayCard>
   </section>
