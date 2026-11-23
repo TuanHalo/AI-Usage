@@ -168,6 +168,10 @@ export const vi: Record<keyof typeof en, string> = {
   'viz.mission.goalLabel': '🎯 Mục tiêu Ban đầu (Có thể sửa)',
   'viz.mission.outcomeLabel': '🏁 Kết quả Cuối cùng (Có thể sửa)',
   'viz.mission.filterAria': 'Lọc lượt hội thoại theo độ lệch phạm vi',
+  'viz.parking.title': '🅿️ Danh sách Chủ đề Tạm gác (Parking Lot)',
+  'viz.parking.subtitle':
+    'Các nhánh rẽ ngoài chủ đề được lưu lại để giữ cuộc trò chuyện đúng hướng. Tạo hội thoại mới chỉ với một cú nhấp.',
+  'viz.parking.copyBtn': '📋 Sao chép Prompt Chat Mới',
   'viz.map.title': '🗺️ Bản đồ Luồng Hội thoại',
   'viz.map.subtitle': 'Nhấp vào một lượt hoặc dùng phím ↑ / ↓ để xem chi tiết',
   'viz.map.addTurn': '+ Thêm Lượt',
@@ -215,6 +219,11 @@ export const vi: Record<keyof typeof en, string> = {
   'viz.rt.modeMcpLive': 'Phiên MCP Trực tiếp',
   'viz.rt.modeHeuristic': 'Phân tích Heuristic',
   'viz.rt.liveUpdating': '⚡ Đang cập nhật Trực tiếp',
+  'viz.rt.sessionTopicBadge': '🎯 Chủ đề: {topic}',
+  'viz.rt.focusOnTopic': 'Đúng trọng tâm',
+  'viz.rt.focusAdjacent': 'Liên quan gần',
+  'viz.rt.focusOffTopic': 'Lạc đề (Drift)',
+  'viz.rt.scopeLabel': 'Phạm vi: {scope}',
   'viz.rt.filterAll': 'Tất cả ({n})',
   'viz.rt.filterMatched': '✓ Matched ({n})',
   'viz.rt.filterExpanded': '✨ Expanded ({n})',
@@ -233,6 +242,8 @@ export const vi: Record<keyof typeof en, string> = {
   'viz.rt.fieldTurnTitle': 'Tiêu đề Lượt',
   'viz.rt.fieldRelation': 'Quan hệ Chuyển tiếp',
   'viz.rt.fieldDelta': 'Độ lệch Phạm vi (Delta)',
+  'viz.rt.fieldFocus': 'Độ bám Chủ đề (Focus)',
+  'viz.rt.fieldFocusUnset': 'Chưa gán',
   'viz.rt.fieldRawPrompt': 'Tin nhắn Người dùng Nguyên bản (Raw Prompt)',
   'viz.rt.fieldIntent': 'Ý định (Intent)',
   'viz.rt.fieldInputSummary': 'Tóm tắt Đầu vào',
@@ -240,8 +251,10 @@ export const vi: Record<keyof typeof en, string> = {
   'viz.rt.fieldActual': 'Kết quả Thực tế',
   'viz.rt.fieldDeltaNote': 'Ghi chú Độ lệch',
   'viz.rt.fieldExtras': 'Phát hiện Bổ sung / Mở rộng (Mỗi dòng một mục)',
+  'viz.rt.fieldParked': 'Chủ đề Tạm gác cho Hội thoại Sau (Mỗi dòng một mục)',
   'viz.rt.extrasHeading':
     '✨ Phát hiện Nghiên cứu Bổ sung Ngoài Kỳ vọng ({n})',
+  'viz.rt.parkedHeading': '🅿️ Tạm gác cho Hội thoại Khác ({n})',
   'viz.rt.toolsExecuted': '🛠️ Công cụ đã Thực thi',
   'viz.rt.viewRawReply': '📄 Xem Toàn bộ Phản hồi Nguyên bản của AI',
   'viz.rt.deleteTurnBtn': '🗑️ Xoá',
@@ -290,4 +303,6 @@ export const vi: Record<keyof typeof en, string> = {
   'viz.toast.hashDecodeFailed':
     'Không thể giải mã dữ liệu #flow= từ URL hash.',
   'viz.toast.hashImported': 'Đã nhập luồng {platform} từ URL hash.',
+  'viz.toast.parkedPromptCopied':
+    'Đã sao chép Prompt mở Chat mới cho "{topic}"!',
 };

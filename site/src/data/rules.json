@@ -1,24 +1,31 @@
 ﻿[
     {
         "name":  "confirm-intent-output",
-        "version":  "1.0.0",
+        "version":  "2.0.0",
         "scope":  "global",
         "priority":  "high",
-        "description":  "Enforces an adaptive pre-run intent/input/expected-output header and a post-run actual-output and scope-delta footer across Claude, Gemini, Grok, ChatGPT, and coding agents so every turn can be tracked and visualized in real time.",
+        "description":  "Enforces a session topic anchor, active off-topic drift alerts with a parking lot, verifiable step/parallel scope sizing, two-part summary-first plans, and Pre-Run/Post-Run Flow Contracts across Claude, Gemini, Grok, ChatGPT, and coding agents.",
         "tags":  [
                      "workflow",
                      "conversation-flow",
                      "expected-output",
                      "accountability",
-                     "multi-ai"
+                     "multi-ai",
+                     "topic-focus",
+                     "drift-guard",
+                     "verifiable-steps",
+                     "two-part-output"
                  ],
         "guidelines":  [
-                           "**Pre-Run Contract Header**: Before answering any non-trivial request, emit a compact `[Flow Contract | Pre-Run]` blockquote stating `Goal`, `Input`, `Expected Output`, and `Gate`.",
-                           "**Adaptive Confirmation Gate**: Proceed directly after stating the Pre-Run contract when the request is clear; pause to ask the user for confirmation ONLY when requirements are ambiguous or the task carries high cost or destructive impact.",
-                           "**Post-Run Contract Footer**: At the end of the response, emit a compact `[Flow Contract | Post-Run]` blockquote stating `Actual Output`, `Delta`, `Delta Note`, and optional `Extras`.",
-                           "**Honest Scope Delta Classification**: Classify `Delta` strictly as `Matched` (delivered as expected), `Expanded` (delivered expected output plus extra research findings or edge cases), `Pivoted` (approach changed based on new findings or user direction), or `Partial` (blocked or incomplete).",
-                           "**Normalize Research Expansion**: Treat `Expanded` as a normal, healthy outcome during deep investigation or research rather than forcing output to stay artificially small; list bonus discoveries in `Extras` separated by semicolons.",
-                           "**Skip Ceremony on Trivial Queries**: Omit both contract blocks for quick one-line factual lookups or greetings so everyday chat remains friction-free."
+                           "**Session Topic Anchor \u0026 Pre-Run Header**: Lock a canonical `Topic` on Turn 1 and emit `[Flow Contract | Pre-Run]` before every non-trivial request with `Topic`, `Focus`, `Goal`, `Input`, `Expected Output`, `Scope`, and `Gate`.",
+                           "**Active Drift Guard \u0026 Parking Lot**: Evaluate `Focus` (`On-Topic` | `Adjacent` | `Off-Topic Drift`) against the active `Topic`; on `Off-Topic Drift` (or repeated `Adjacent` detours), emit a `[Drift Alert]` naming the active `Topic`, log the tangent in `Parked:` with a 1-line follow-up seed, and pause to ask whether to stay focused, pivot the anchor, or detour briefly.",
+                           "**Verification Scope Guard \u0026 Parallel Split Prediction**: Classify `Scope` upfront as `Small` (\u003c= 3 files or ~150 LOC, verify in 1 turn), `Medium â€” Steps` (3â€“6 files, sequential verify-gate steps), or `Large â€” Parallel Split` (\u003e 6 files or \u003e= 3 independent modules â€” invoke `task-orchestrator` to lock contracts and tests in Chat 0 before splitting disjoint parallel chats).",
+                           "**Two-Part Response Structure**: For every plan and substantial multi-section response, split the body into **Part 1: Executive Summary (High-Level)** (\u003c= 20 lines covering What, How, Verification, and Decisions) followed by `---` and **Part 2: Detailed Breakdown**.",
+                           "**Adaptive Confirmation Gate**: Proceed directly when the request is `On-Topic`, clear, and `Small` or `Medium`; pause to ask for confirmation when requirements are ambiguous, high-impact/destructive, or `Off-Topic Drift`.",
+                           "**Post-Run Contract Footer**: End every non-trivial turn with `[Flow Contract | Post-Run]` stating `Actual Output`, `Delta`, `Delta Note`, optional `Extras`, and optional `Parked`.",
+                           "**Honest Scope Delta Classification**: Classify `Delta` strictly as `Matched` (delivered as expected), `Expanded` (expected output plus extra on-topic findings), `Pivoted` (direction changed), or `Partial` (blocked or incomplete).",
+                           "**Normalize On-Topic Research Expansion**: Treat `Expanded` as healthy when valuable on-topic insights emerge (listed in `Extras`), while keeping genuinely unrelated tangents in `Parked` instead of hijacking the active thread.",
+                           "**Skip Ceremony on Trivial Queries**: Omit contract blocks and two-part headers for quick one-line factual lookups or greetings so everyday chat remains friction-free."
                        ]
     }
 ]

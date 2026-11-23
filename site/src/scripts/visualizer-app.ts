@@ -11,8 +11,14 @@ import {
   exportFlowAsMarkdown,
   exportFlowAsStandaloneHtml,
   formatDeltaLabel,
+  formatScopeLabel,
 } from '../lib/conversation-flow/exporter';
-import { parseConversation } from '../lib/conversation-flow/parser';
+import {
+  buildParkedFollowUpPrompt,
+  collectParkedTopics,
+  normalizeFocusStatus,
+  parseConversation,
+} from '../lib/conversation-flow/parser';
 import { SAMPLE_PRESETS } from '../lib/conversation-flow/samples';
 import {
   clearAllSavedFlows,
@@ -27,6 +33,7 @@ import type {
   DeltaStatus,
   DesktopSessionSummary,
   DesktopSource,
+  FocusStatus,
   SavedFlowEntry,
   TurnRelation,
 } from '../lib/conversation-flow/types';
@@ -234,6 +241,48 @@ function getFilteredTurns(flow: ConversationFlow): readonly ConversationTurn[] {
   return flow.turns.filter((turn) => turn.delta === state.deltaFilter);
 }
 
+function formatLocalizedFocus(focus: FocusStatus): string {
+  switch (focus) {
+    case 'on-topic':
+      return t('viz.rt.focusOnTopic');
+    case 'adjacent':
+      return t('viz.rt.focusAdjacent');
+    case 'off-topic':
+      return t('viz.rt.focusOffTopic');
+  }
+}
+
+function renderParkingLot(flow: ConversationFlow): void {
+  const card = getEl<HTMLElement>('parking-lot-card');
+  const list = getEl<HTMLDivElement>('parking-lot-list');
+  if (!card || !list) return;
+
+  const parked =
+    flow.parkedTopics && flow.parkedTopics.length > 0
+      ? flow.parkedTopics
+      : collectParkedTopics(flow.turns);
+
+  if (parked.length === 0) {
+    card.classList.add('hidden');
+    list.innerHTML = '';
+    return;
+  }
+
+  card.classList.remove('hidden');
+  list.innerHTML = parked
+    .map(
+      (topic) => `<div class="viz-parking-item">
+        <span class="viz-parking-topic">${escapeHtml(topic)}</span>
+        <button
+          type="button"
+          class="clay-btn viz-btn-sm"
+          data-parked-topic="${escapeHtml(topic)}"
+        >${escapeHtml(t('viz.parking.copyBtn'))}</button>
+      </div>`
+    )
+    .join('');
+}
+
 function renderMissionSummary(flow: ConversationFlow): void {
   const pillsEl = getEl<HTMLDivElement>('flow-meta-pills');
   const titleInput = getEl<HTMLInputElement>('flow-title-input');
@@ -252,6 +301,9 @@ function renderMissionSummary(flow: ConversationFlow): void {
             : flow.parseMode === 'mcp-live'
               ? t('viz.rt.modeMcpLive')
               : t('viz.rt.modeHeuristic');
+    const sessionTopicTag = flow.sessionTopic
+      ? `<span class="clay-badge">${escapeHtml(t('viz.rt.sessionTopicBadge', { topic: flow.sessionTopic }))}</span>`
+      : '';
     const liveTag = flow.isStreaming
       ? `<span class="viz-delta-badge viz-delta-pivoted">${escapeHtml(t('viz.rt.liveUpdating'))}</span>`
       : '';
@@ -259,6 +311,7 @@ function renderMissionSummary(flow: ConversationFlow): void {
       `<span class="clay-badge">${escapeHtml(flow.platform.toUpperCase())}</span>`,
       `<span class="clay-badge">${escapeHtml(t('viz.rt.turnsCountCap', { n: flow.turns.length }))}</span>`,
       `<span class="clay-badge">${escapeHtml(modeLabel)}</span>`,
+      sessionTopicTag,
       liveTag,
     ].join('');
   }
@@ -330,6 +383,9 @@ function renderFlowMap(flow: ConversationFlow): void {
     const deltaLabel = turn.isStreaming
       ? t('viz.rt.statusRunningEllipsis')
       : `${formatDeltaLabel(turn.delta)}${extrasLabel}`;
+    const focusBadge = turn.focusStatus
+      ? `<span class="viz-delta-badge viz-focus-${turn.focusStatus}">${escapeHtml(formatLocalizedFocus(turn.focusStatus))}</span>`
+      : '';
 
     parts.push(
       `<button
@@ -341,9 +397,12 @@ function renderFlowMap(flow: ConversationFlow): void {
       >
         <div class="viz-node-top">
           <span class="viz-node-title">#${turn.index} ${escapeHtml(turn.title)}</span>
-          <span class="viz-delta-badge viz-delta-${turn.delta}">
-            ${escapeHtml(deltaLabel)}
-          </span>
+          <div class="viz-pill-row" style="margin:0;">
+            ${focusBadge}
+            <span class="viz-delta-badge viz-delta-${turn.delta}">
+              ${escapeHtml(deltaLabel)}
+            </span>
+          </div>
         </div>
         <div class="viz-node-prompt">“${escapeHtml(promptPreview)}”</div>
         <div class="viz-muted-sm">
@@ -414,6 +473,18 @@ function renderTurnInspector(flow: ConversationFlow): void {
                 .join('')}
             </select>
           </label>
+          <label>
+            <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldFocus'))}</span>
+            <select name="focusStatus" class="viz-select" style="width:100%;">
+              <option value="" ${!selectedTurn.focusStatus ? 'selected' : ''}>${escapeHtml(t('viz.rt.fieldFocusUnset'))}</option>
+              ${(['on-topic', 'adjacent', 'off-topic'] as const)
+                .map(
+                  (f) =>
+                    `<option value="${f}" ${selectedTurn.focusStatus === f ? 'selected' : ''}>${escapeHtml(formatLocalizedFocus(f))}</option>`
+                )
+                .join('')}
+            </select>
+          </label>
         </div>
         <label>
           <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldRawPrompt'))}</span>
@@ -443,6 +514,10 @@ function renderTurnInspector(flow: ConversationFlow): void {
           <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldExtras'))}</span>
           <textarea name="extras" class="viz-inline-area" rows="3">${escapeHtml(selectedTurn.extras.join('\n'))}</textarea>
         </label>
+        <label>
+          <span class="viz-sub-label">${escapeHtml(t('viz.rt.fieldParked'))}</span>
+          <textarea name="parkedTopics" class="viz-inline-area" rows="2">${escapeHtml((selectedTurn.parkedTopics ?? []).join('\n'))}</textarea>
+        </label>
       </form>
     `;
     return;
@@ -457,6 +532,23 @@ function renderTurnInspector(flow: ConversationFlow): void {
           </ul>
         </div>`
       : '';
+
+  const parkedTurnSection =
+    selectedTurn.parkedTopics && selectedTurn.parkedTopics.length > 0
+      ? `<div class="viz-raw-box" style="background:var(--status-warn-bg);color:var(--status-warn-fg);">
+          <div class="viz-sub-label" style="color:inherit;">${escapeHtml(t('viz.rt.parkedHeading', { n: selectedTurn.parkedTopics.length }))}</div>
+          <ul class="viz-extras-list">
+            ${selectedTurn.parkedTopics.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </div>`
+      : '';
+
+  const focusPill = selectedTurn.focusStatus
+    ? `<span class="viz-delta-badge viz-focus-${selectedTurn.focusStatus}">${escapeHtml(formatLocalizedFocus(selectedTurn.focusStatus))}</span>`
+    : '';
+  const scopePill = selectedTurn.scopeSize
+    ? `<span class="clay-badge">${escapeHtml(t('viz.rt.scopeLabel', { scope: formatScopeLabel(selectedTurn.scopeSize) }))}</span>`
+    : '';
 
   const toolSummarySection = selectedTurn.toolSummary
     ? `<div class="viz-raw-box" style="background:var(--color-expected-bg);">
@@ -487,6 +579,8 @@ function renderTurnInspector(flow: ConversationFlow): void {
         <div class="viz-pill-row" style="margin-bottom:8px;">
           <span class="clay-badge">${escapeHtml(t('viz.rt.turnBadge', { index: selectedTurn.index }))}</span>
           <span class="clay-badge">${escapeHtml(selectedTurn.relation)}</span>
+          ${focusPill}
+          ${scopePill}
           <span class="viz-delta-badge viz-delta-${selectedTurn.delta}">
             ${escapeHtml(formatDeltaLabel(selectedTurn.delta))}${selectedTurn.extras.length > 0 ? ` (+${selectedTurn.extras.length})` : ''}
           </span>
@@ -548,6 +642,7 @@ function renderTurnInspector(flow: ConversationFlow): void {
     }
 
     ${extrasSection}
+    ${parkedTurnSection}
     ${rawAssistantSection}
   `;
 }
@@ -571,11 +666,13 @@ function renderAll(): void {
 
   if (!state.flow || state.flow.turns.length === 0) {
     workspace.classList.add('hidden');
+    getEl<HTMLElement>('parking-lot-card')?.classList.add('hidden');
     return;
   }
 
   workspace.classList.remove('hidden');
   renderMissionSummary(state.flow);
+  renderParkingLot(state.flow);
   renderFlowMap(state.flow);
   renderTurnInspector(state.flow);
 }
@@ -879,6 +976,15 @@ function bindStaticEvents(): void {
     renderAll();
   });
 
+  // Parking lot copy kickoff prompt
+  getEl<HTMLDivElement>('parking-lot-list')?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-parked-topic]');
+    const topic = btn?.dataset.parkedTopic;
+    if (!topic) return;
+    const promptText = buildParkedFollowUpPrompt(topic, state.flow?.sessionTopic);
+    void copyText(promptText, t('viz.toast.parkedPromptCopied', { topic }));
+  });
+
   // Flow map turn clicks & keyboard navigation
   const flowList = getEl<HTMLDivElement>('flow-map-list');
   flowList?.addEventListener('click', (e) => {
@@ -965,12 +1071,19 @@ function bindStaticEvents(): void {
         .split(/\r?\n/)
         .map((line) => line.trim())
         .filter((line) => line.length > 0);
+      const parkedRaw = String(fd.get('parkedTopics') ?? '');
+      const parkedTopics = parkedRaw
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      const focusStatus = normalizeFocusStatus(String(fd.get('focusStatus') ?? ''));
 
       updateSelectedTurn((turn) => ({
         ...turn,
         title: String(fd.get('title') ?? turn.title).trim() || turn.title,
         relation: String(fd.get('relation') ?? turn.relation) as TurnRelation,
         delta: String(fd.get('delta') ?? turn.delta) as DeltaStatus,
+        focusStatus,
         rawUserMessage: String(fd.get('rawUserMessage') ?? turn.rawUserMessage),
         intent: String(fd.get('intent') ?? turn.intent).trim(),
         inputSummary: String(fd.get('inputSummary') ?? turn.inputSummary).trim(),
@@ -978,7 +1091,15 @@ function bindStaticEvents(): void {
         actualOutput: String(fd.get('actualOutput') ?? turn.actualOutput).trim(),
         deltaNote: String(fd.get('deltaNote') ?? turn.deltaNote).trim(),
         extras,
+        ...(parkedTopics.length > 0 ? { parkedTopics } : { parkedTopics: undefined }),
       }));
+      if (state.flow) {
+        const mergedParked = collectParkedTopics(state.flow.turns);
+        state.flow = {
+          ...state.flow,
+          parkedTopics: mergedParked.length > 0 ? mergedParked : undefined,
+        };
+      }
       state.isEditingTurn = false;
       renderAll();
       showToast(t('viz.toast.turnUpdated'));
@@ -990,8 +1111,10 @@ function bindStaticEvents(): void {
       const remaining = state.flow.turns
         .filter((turn) => turn.id !== state.selectedTurnId)
         .map((turn, i) => ({ ...turn, index: i + 1 }));
+      const mergedParked = collectParkedTopics(remaining);
       state.flow = {
         ...state.flow,
+        parkedTopics: mergedParked.length > 0 ? mergedParked : undefined,
         turns: remaining,
       };
       state.selectedTurnId = remaining[0]?.id ?? null;

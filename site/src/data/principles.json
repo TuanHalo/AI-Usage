@@ -1,3 +1,21 @@
 ﻿[
-
+    {
+        "name":  "focused-verifiable-flow",
+        "version":  "1.0.0",
+        "category":  "engineering",
+        "description":  "Engineering principle keeping AI conversations anchored to one topic, sized for easy verification or parallel splitting, built top-down via Skeleton-First TDD, and summarized before details.",
+        "applications":  [
+                             "**One Session, One Anchor:** Pin a canonical `Topic` on Turn 1; emit a Drift Alert and park unrelated tangents for follow-up chats rather than diluting the current thread.",
+                             "**Small Verifiable Increments \u0026 Predictive Parallel Splits:** Cap single-turn work (`Small`), gate multi-step chats (`Medium â€” Steps`), or split independent modules into disjoint Parallel Conversation Packets (`Large â€” Parallel Split`).",
+                             "**Contracts \u0026 Tests Before Internals (Top-Down Skeleton TDD):** Present high-level architecture first, create typed stubs (`NOT_IMPLEMENTED` on units under test), confirm tests fail RED, and implement high-to-low while peeling temporary collaborator mocks.",
+                             "**Executive Summary Before Technical Details:** Present Part 1 (Summary \u003c= 20 lines covering What, How, Verification) above Part 2 (Detailed Breakdown) on every plan and substantial response."
+                         ],
+        "tags":  [
+                     "workflow",
+                     "focus",
+                     "tdd",
+                     "verification",
+                     "parallel-execution"
+                 ]
+    }
 ]
