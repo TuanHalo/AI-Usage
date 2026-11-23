@@ -13,6 +13,10 @@ export type DeltaStatus =
   | 'partial'
   | 'pending';
 
+export type FocusStatus = 'on-topic' | 'adjacent' | 'off-topic';
+
+export type ScopeSize = 'small' | 'medium' | 'split-steps' | 'split-parallel';
+
 export type TurnRelation =
   | 'initial'
   | 'follow-up'
@@ -41,6 +45,9 @@ export interface RawMessagePair {
 }
 
 export interface FlowContractPreRun {
+  readonly topic?: string;
+  readonly focusStatus?: FocusStatus;
+  readonly scopeSize?: ScopeSize;
   readonly goal: string;
   readonly inputSummary: string;
   readonly expectedOutput: string;
@@ -52,6 +59,7 @@ export interface FlowContractPostRun {
   readonly delta: DeltaStatus;
   readonly deltaNote: string;
   readonly extras: readonly string[];
+  readonly parkedTopics: readonly string[];
 }
 
 export interface ConversationTurn {
@@ -68,6 +76,9 @@ export interface ConversationTurn {
   readonly delta: DeltaStatus;
   readonly deltaNote: string;
   readonly extras: readonly string[];
+  readonly focusStatus?: FocusStatus;
+  readonly scopeSize?: ScopeSize;
+  readonly parkedTopics?: readonly string[];
   readonly contractDetected: boolean;
   readonly isStreaming: boolean;
   readonly toolSummary?: string;
@@ -77,8 +88,10 @@ export interface ConversationFlow {
   readonly schemaVersion: '1.0';
   readonly title: string;
   readonly platform: AIPlatform;
+  readonly sessionTopic?: string;
   readonly overallGoal: string;
   readonly finalOutcome: string;
+  readonly parkedTopics?: readonly string[];
   readonly createdAt: string;
   readonly parseMode: ParseMode;
   readonly isStreaming: boolean;

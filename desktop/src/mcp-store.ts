@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
+  collectParkedTopics,
   normalizeDelta,
   normalizePlatform,
   normalizeRelation,
@@ -11,18 +12,23 @@ import type {
   ConversationFlow,
   ConversationTurn,
   DesktopSessionSummary,
+  FocusStatus,
+  ScopeSize,
   TurnRelation,
 } from '../../site/src/lib/conversation-flow/types';
 
 export interface StartTurnInput {
   readonly sessionId?: string;
   readonly sessionTitle?: string;
+  readonly sessionTopic?: string;
   readonly platform?: AIPlatform;
   readonly rawUserMessage: string;
   readonly intent: string;
   readonly inputSummary?: string;
   readonly expectedOutput: string;
   readonly relation?: TurnRelation;
+  readonly focusStatus?: FocusStatus;
+  readonly scopeSize?: ScopeSize;
 }
 
 export interface CompleteTurnInput {
@@ -32,6 +38,7 @@ export interface CompleteTurnInput {
   readonly delta: string;
   readonly deltaNote?: string;
   readonly extras?: readonly string[];
+  readonly parkedTopics?: readonly string[];
   readonly rawAssistantMessage?: string;
 }
 
@@ -157,6 +164,8 @@ export function startMcpTurn(input: StartTurnInput): {
     delta: 'pending',
     deltaNote: 'Pre-Run Flow Contract registered; awaiting completion.',
     extras: [],
+    ...(input.focusStatus ? { focusStatus: input.focusStatus } : {}),
+    ...(input.scopeSize ? { scopeSize: input.scopeSize } : {}),
     contractDetected: true,
     isStreaming: true,
   };
@@ -166,13 +175,20 @@ export function startMcpTurn(input: StartTurnInput): {
     input.sessionTitle?.trim() ||
     existing?.flow.title ||
     newTurn.title;
+  const sessionTopic =
+    existing?.flow.sessionTopic || input.sessionTopic?.trim() || undefined;
+  const existingParked = existing?.flow.parkedTopics;
 
   const flow: ConversationFlow = {
     schemaVersion: '1.0',
     title: flowTitle,
     platform,
+    ...(sessionTopic ? { sessionTopic } : {}),
     overallGoal: existing?.flow.overallGoal || newTurn.intent,
     finalOutcome: existing?.flow.finalOutcome || 'Awaiting completed turn output…',
+    ...(existingParked && existingParked.length > 0
+      ? { parkedTopics: existingParked }
+      : {}),
     createdAt: now,
     parseMode: 'mcp-live',
     isStreaming: true,
@@ -203,6 +219,9 @@ export function completeMcpTurn(input: CompleteTurnInput): {
   const cleanedExtras = (input.extras ?? [])
     .map((item) => item.trim())
     .filter((item) => item.length > 0 && !/^(none|n\/a|-)$/i.test(item));
+  const cleanedParked = (input.parkedTopics ?? [])
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0 && !/^(none|n\/a|-)$/i.test(item));
 
   if (!existing || existing.flow.turns.length === 0) {
     const fallbackTurn: ConversationTurn = {
@@ -219,6 +238,7 @@ export function completeMcpTurn(input: CompleteTurnInput): {
       delta: normalizedDelta,
       deltaNote: input.deltaNote?.trim() ?? '',
       extras: cleanedExtras,
+      ...(cleanedParked.length > 0 ? { parkedTopics: cleanedParked } : {}),
       contractDetected: true,
       isStreaming: false,
     };
@@ -229,6 +249,7 @@ export function completeMcpTurn(input: CompleteTurnInput): {
       platform: 'claude',
       overallGoal: fallbackTurn.intent,
       finalOutcome: fallbackTurn.actualOutput,
+      ...(cleanedParked.length > 0 ? { parkedTopics: cleanedParked } : {}),
       createdAt: now,
       parseMode: 'mcp-live',
       isStreaming: false,
@@ -248,6 +269,8 @@ export function completeMcpTurn(input: CompleteTurnInput): {
     if (turn.index !== targetIndex) {
       return turn;
     }
+    const nextParked =
+      input.parkedTopics !== undefined ? cleanedParked : (turn.parkedTopics ?? []);
     return {
       ...turn,
       rawAssistantMessage: input.rawAssistantMessage ?? turn.rawAssistantMessage,
@@ -255,6 +278,7 @@ export function completeMcpTurn(input: CompleteTurnInput): {
       delta: normalizedDelta,
       deltaNote: input.deltaNote?.trim() ?? turn.deltaNote,
       extras: cleanedExtras,
+      ...(nextParked.length > 0 ? { parkedTopics: nextParked } : { parkedTopics: undefined }),
       contractDetected: true,
       isStreaming: false,
     };
@@ -262,10 +286,12 @@ export function completeMcpTurn(input: CompleteTurnInput): {
 
   const anyStreaming = updatedTurns.some((t) => t.isStreaming);
   const lastTurn = updatedTurns[updatedTurns.length - 1];
+  const aggregatedParked = collectParkedTopics(updatedTurns);
 
   const flow: ConversationFlow = {
     ...existing.flow,
     finalOutcome: lastTurn?.actualOutput || existing.flow.finalOutcome,
+    parkedTopics: aggregatedParked.length > 0 ? aggregatedParked : undefined,
     createdAt: now,
     isStreaming: anyStreaming,
     turns: updatedTurns,

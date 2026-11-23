@@ -1,4 +1,10 @@
-import type { ConversationFlow, DeltaStatus } from './types';
+import { collectParkedTopics } from './parser';
+import type {
+  ConversationFlow,
+  DeltaStatus,
+  FocusStatus,
+  ScopeSize,
+} from './types';
 
 export function escapeHtml(raw: string): string {
   return raw
@@ -24,29 +30,76 @@ export function formatDeltaLabel(delta: DeltaStatus): string {
   }
 }
 
+export function formatFocusLabel(focus: FocusStatus): string {
+  switch (focus) {
+    case 'on-topic':
+      return 'On-Topic';
+    case 'adjacent':
+      return 'Adjacent';
+    case 'off-topic':
+      return 'Off-Topic Drift';
+  }
+}
+
+export function formatScopeLabel(scope: ScopeSize): string {
+  switch (scope) {
+    case 'small':
+      return 'Small';
+    case 'medium':
+      return 'Medium';
+    case 'split-steps':
+      return 'Medium — Steps';
+    case 'split-parallel':
+      return 'Large — Parallel Split';
+  }
+}
+
 export function exportFlowAsJson(flow: ConversationFlow): string {
   return JSON.stringify(flow, null, 2);
 }
 
+function resolveFlowParkedTopics(flow: ConversationFlow): readonly string[] {
+  if (flow.parkedTopics && flow.parkedTopics.length > 0) {
+    return flow.parkedTopics;
+  }
+  return collectParkedTopics(flow.turns);
+}
+
 export function exportFlowAsMarkdown(flow: ConversationFlow): string {
+  const parkedAll = resolveFlowParkedTopics(flow);
   const lines: string[] = [
     `# ${flow.title}`,
     '',
     `- **Platform:** ${flow.platform}`,
     `- **Captured:** ${flow.createdAt}`,
     `- **Turns:** ${flow.turns.length}`,
+    ...(flow.sessionTopic ? [`- **Session Topic:** ${flow.sessionTopic}`] : []),
     `- **Original Goal:** ${flow.overallGoal}`,
     `- **Final Outcome:** ${flow.finalOutcome}`,
     '',
-    '---',
-    '',
   ];
+
+  if (parkedAll.length > 0) {
+    lines.push('## Parked Topics (Follow-Up Later)');
+    for (const item of parkedAll) {
+      lines.push(`- ${item}`);
+    }
+    lines.push('');
+  }
+
+  lines.push('---', '');
 
   for (const turn of flow.turns) {
     lines.push(
       `## Turn ${turn.index}: ${turn.title} [${formatDeltaLabel(turn.delta)}]`
     );
     lines.push(`- **Relation:** \`${turn.relation}\``);
+    if (turn.focusStatus) {
+      lines.push(`- **Focus:** ${formatFocusLabel(turn.focusStatus)}`);
+    }
+    if (turn.scopeSize) {
+      lines.push(`- **Scope:** ${formatScopeLabel(turn.scopeSize)}`);
+    }
     lines.push(`- **Intent:** ${turn.intent}`);
     lines.push(`- **Input Summary:** ${turn.inputSummary}`);
     lines.push(`- **Expected Output:** ${turn.expectedOutput}`);
@@ -63,6 +116,12 @@ export function exportFlowAsMarkdown(flow: ConversationFlow): string {
         lines.push(`  - ${extra}`);
       }
     }
+    if (turn.parkedTopics && turn.parkedTopics.length > 0) {
+      lines.push(`- **Parked Topics:**`);
+      for (const parked of turn.parkedTopics) {
+        lines.push(`  - ${parked}`);
+      }
+    }
     lines.push('');
     lines.push('### Verbatim User Prompt');
     lines.push('```text');
@@ -72,6 +131,20 @@ export function exportFlowAsMarkdown(flow: ConversationFlow): string {
   }
 
   return lines.join('\n');
+}
+
+function focusBadgeColors(focus: FocusStatus): {
+  readonly bg: string;
+  readonly fg: string;
+} {
+  switch (focus) {
+    case 'on-topic':
+      return { bg: 'var(--status-ok-bg)', fg: 'var(--status-ok-fg)' };
+    case 'adjacent':
+      return { bg: 'var(--status-warn-bg)', fg: 'var(--status-warn-fg)' };
+    case 'off-topic':
+      return { bg: 'var(--status-err-bg)', fg: 'var(--status-err-fg)' };
+  }
 }
 
 function deltaBadgeColors(delta: DeltaStatus): {
@@ -102,10 +175,37 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
   const safeGoal = escapeHtml(flow.overallGoal);
   const safeOutcome = escapeHtml(flow.finalOutcome);
   const safeDate = escapeHtml(flow.createdAt.slice(0, 10));
+  const parkedAll = resolveFlowParkedTopics(flow);
+
+  const sessionTopicBadge = flow.sessionTopic
+    ? `<span class="pill">🎯 ${escapeHtml(flow.sessionTopic)}</span>`
+    : '';
+
+  const parkingLotHtml =
+    parkedAll.length > 0
+      ? `<section class="turn-card parking-card">
+          <div class="sub-label">🅿️ ${dualSpan(
+            `Session Parking Lot (${parkedAll.length})`,
+            `Chủ đề Tạm gác (Session Parking Lot · ${parkedAll.length})`
+          )}</div>
+          <ul style="margin:6px 0 0 18px;padding:0;">
+            ${parkedAll.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+          </ul>
+        </section>`
+      : '';
 
   const turnCardsHtml = flow.turns
     .map((turn) => {
       const colors = deltaBadgeColors(turn.delta);
+      const focusPill = turn.focusStatus
+        ? (() => {
+            const fc = focusBadgeColors(turn.focusStatus);
+            return `<span class="pill" style="background:${fc.bg};color:${fc.fg};">${escapeHtml(formatFocusLabel(turn.focusStatus))}</span>`;
+          })()
+        : '';
+      const scopePill = turn.scopeSize
+        ? `<span class="pill">${escapeHtml(formatScopeLabel(turn.scopeSize))}</span>`
+        : '';
       const extrasHtml =
         turn.extras.length > 0
           ? `<div class="extras-box">
@@ -115,6 +215,18 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
               )}</div>
               <ul>
                 ${turn.extras.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+              </ul>
+            </div>`
+          : '';
+      const parkedTurnHtml =
+        turn.parkedTopics && turn.parkedTopics.length > 0
+          ? `<div class="extras-box" style="background:var(--status-warn-bg);color:var(--status-warn-fg);">
+              <div class="sub-label" style="color:inherit;">🅿️ ${dualSpan(
+                `Parked for Later (${turn.parkedTopics.length})`,
+                `Đã gác lại cho Hội thoại Khác (${turn.parkedTopics.length})`
+              )}</div>
+              <ul>
+                ${turn.parkedTopics.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
               </ul>
             </div>`
           : '';
@@ -131,6 +243,8 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
           <div class="turn-meta">
             <span class="pill idx">#${turn.index}</span>
             <span class="pill rel">${escapeHtml(turn.relation)}</span>
+            ${focusPill}
+            ${scopePill}
             <h2>${escapeHtml(turn.title)}</h2>
           </div>
           <span class="pill delta" style="background:${colors.bg};color:${colors.fg};">
@@ -158,6 +272,7 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
         ${turn.deltaNote ? `<p class="delta-note"><strong>${dualSpan('Delta Note:', 'Ghi chú Độ lệch:')}</strong> ${escapeHtml(turn.deltaNote)}</p>` : ''}
         ${turn.toolSummary ? `<p class="delta-note"><strong>${dualSpan('Tools Executed:', 'Công cụ đã Thực thi:')}</strong> ${escapeHtml(turn.toolSummary)}</p>` : ''}
         ${extrasHtml}
+        ${parkedTurnHtml}
         ${rawAssistantHtml}
       </article>`;
     })
@@ -332,6 +447,7 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
           <span class="pill">${safePlatform}</span>
           <span class="pill">${flow.turns.length} ${dualSpan('Turns', 'Lượt')}</span>
           <span class="pill">${safeDate}</span>
+          ${sessionTopicBadge}
           <span class="pill">${dualSpan('Offline Self-Contained Export', 'Bản xuất Độc lập Ngoại tuyến')}</span>
         </div>
         <div class="pref-bar">
@@ -353,6 +469,7 @@ export function exportFlowAsStandaloneHtml(flow: ConversationFlow): string {
       </div>
     </section>
     <nav class="quick-nav" aria-label="Turn shortcuts">${quickNavHtml}</nav>
+    ${parkingLotHtml}
     ${turnCardsHtml}
   </main>
   <script>

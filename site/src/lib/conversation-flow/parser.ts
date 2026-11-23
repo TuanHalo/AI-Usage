@@ -5,10 +5,12 @@ import type {
   DeltaStatus,
   FlowContractPostRun,
   FlowContractPreRun,
+  FocusStatus,
   ParseMode,
   ParseOptions,
   ParseResult,
   RawMessagePair,
+  ScopeSize,
   TurnRelation,
 } from './types';
 
@@ -84,6 +86,79 @@ export function normalizeDelta(raw: string): DeltaStatus {
   if (normalized.startsWith('part')) return 'partial';
   if (normalized.startsWith('pend')) return 'pending';
   return 'pending';
+}
+
+export function normalizeFocusStatus(raw: string): FocusStatus | undefined {
+  const normalized = raw.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (
+    normalized.includes('off-topic') ||
+    normalized.includes('off topic') ||
+    normalized.includes('drift')
+  ) {
+    return 'off-topic';
+  }
+  if (normalized.includes('adjacent') || normalized.includes('soft')) {
+    return 'adjacent';
+  }
+  if (normalized.includes('on-topic') || normalized.includes('on topic')) {
+    return 'on-topic';
+  }
+  return undefined;
+}
+
+export function normalizeScopeSize(raw: string): ScopeSize | undefined {
+  const normalized = raw.trim().toLowerCase();
+  if (!normalized) return undefined;
+  if (normalized.includes('parallel') || normalized.includes('large')) {
+    return 'split-parallel';
+  }
+  if (normalized.includes('step') || normalized.includes('split')) {
+    return 'split-steps';
+  }
+  if (normalized.includes('small')) {
+    return 'small';
+  }
+  if (normalized.includes('medium')) {
+    return 'medium';
+  }
+  return undefined;
+}
+
+export function collectParkedTopics(
+  turns: readonly ConversationTurn[]
+): readonly string[] {
+  const seen = new Set<string>();
+  const collected: string[] = [];
+  for (const turn of turns) {
+    for (const rawItem of turn.parkedTopics ?? []) {
+      const cleaned = rawItem.trim();
+      if (!cleaned || /^(none|n\/a|-)$/i.test(cleaned)) continue;
+      const key = cleaned.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        collected.push(cleaned);
+      }
+    }
+  }
+  return collected;
+}
+
+export function buildParkedFollowUpPrompt(
+  parkedTopic: string,
+  sourceSessionTopic?: string
+): string {
+  const cleanTopic = parkedTopic.trim() || 'Follow-up task';
+  const originNote = sourceSessionTopic?.trim()
+    ? ` (parked from session "${sourceSessionTopic.trim()}")`
+    : '';
+  return [
+    `Topic Anchor: ${cleanTopic}${originNote}`,
+    'Please keep this conversation focused strictly on this topic.',
+    'Start with:',
+    '1. Part 1: Executive Summary (high-level goal, approach, scope size, and verification plan)',
+    '2. Part 2: Detailed breakdown (using Top-Down Skeleton-First TDD if implementing code)',
+  ].join('\n');
 }
 
 export function normalizeRelation(
@@ -183,6 +258,9 @@ export function extractFlowContract(assistantText: string): {
   let section: 'none' | 'pre' | 'post' = 'none';
   let inCodeFence = false;
 
+  let topic = '';
+  let focusRaw = '';
+  let scopeRaw = '';
   let goal = '';
   let inputSummary = '';
   let expectedOutput = '';
@@ -192,6 +270,7 @@ export function extractFlowContract(assistantText: string): {
   let deltaRaw = '';
   let deltaNote = '';
   let extrasRaw = '';
+  let parkedRaw = '';
   let hasPre = false;
   let hasPost = false;
   let lastKey = '';
@@ -240,7 +319,10 @@ export function extractFlowContract(assistantText: string): {
       lastKey = key;
 
       if (section === 'pre') {
-        if (key === 'goal' || key === 'intent') goal = value;
+        if (key === 'topic' || key === 'session topic') topic = value;
+        else if (key === 'focus' || key === 'focus status') focusRaw = value;
+        else if (key === 'scope' || key === 'scope size') scopeRaw = value;
+        else if (key === 'goal' || key === 'intent') goal = value;
         else if (key === 'input' || key === 'inputs') inputSummary = value;
         else if (key === 'expected output' || key === 'expected') {
           expectedOutput = value;
@@ -250,6 +332,9 @@ export function extractFlowContract(assistantText: string): {
         else if (key === 'delta') deltaRaw = value;
         else if (key === 'delta note' || key === 'note') deltaNote = value;
         else if (key === 'extras' || key === 'extra') extrasRaw = value;
+        else if (key === 'parked' || key === 'parked topics' || key === 'parked topic') {
+          parkedRaw = value;
+        }
       }
       continue;
     }
@@ -258,6 +343,11 @@ export function extractFlowContract(assistantText: string): {
       const continuation = strippedQuote.replace(/^[-*]\s*/, '').trim();
       if (section === 'post' && (lastKey === 'extras' || lastKey === 'extra')) {
         extrasRaw = extrasRaw ? `${extrasRaw}; ${continuation}` : continuation;
+      } else if (
+        section === 'post' &&
+        (lastKey === 'parked' || lastKey === 'parked topics' || lastKey === 'parked topic')
+      ) {
+        parkedRaw = parkedRaw ? `${parkedRaw}; ${continuation}` : continuation;
       }
     } else if (!trimmed.startsWith('>')) {
       section = 'none';
@@ -265,8 +355,19 @@ export function extractFlowContract(assistantText: string): {
     }
   }
 
+  const focusStatus = focusRaw ? normalizeFocusStatus(focusRaw) : undefined;
+  const scopeSize = scopeRaw ? normalizeScopeSize(scopeRaw) : undefined;
+
   const preRun: FlowContractPreRun | null = hasPre
-    ? { goal, inputSummary, expectedOutput, gate }
+    ? {
+        ...(topic ? { topic } : {}),
+        ...(focusStatus ? { focusStatus } : {}),
+        ...(scopeSize ? { scopeSize } : {}),
+        goal,
+        inputSummary,
+        expectedOutput,
+        gate,
+      }
     : null;
 
   const postRun: FlowContractPostRun | null = hasPost
@@ -275,6 +376,7 @@ export function extractFlowContract(assistantText: string): {
         delta: deltaRaw ? normalizeDelta(deltaRaw) : 'pending',
         deltaNote,
         extras: splitExtrasList(extrasRaw),
+        parkedTopics: splitExtrasList(parkedRaw),
       }
     : null;
 
@@ -682,6 +784,13 @@ function tryParseStructuredJson(
       readString(entry, 'rawAssistantMessage') || readString(entry, 'assistantMessage');
     const intent = readString(entry, 'intent') || truncateText(rawUserMessage, 160);
     const delta = normalizeDelta(readString(entry, 'delta') || 'matched');
+    const focusStatus = normalizeFocusStatus(
+      readString(entry, 'focusStatus') || readString(entry, 'focus')
+    );
+    const scopeSize = normalizeScopeSize(
+      readString(entry, 'scopeSize') || readString(entry, 'scope')
+    );
+    const parkedTopics = readStringArray(entry, 'parkedTopics');
 
     turns.push({
       id: readString(entry, 'id') || `turn-${index}`,
@@ -697,6 +806,9 @@ function tryParseStructuredJson(
       delta,
       deltaNote: readString(entry, 'deltaNote'),
       extras: readStringArray(entry, 'extras'),
+      ...(focusStatus ? { focusStatus } : {}),
+      ...(scopeSize ? { scopeSize } : {}),
+      ...(parkedTopics.length > 0 ? { parkedTopics } : {}),
       contractDetected: readBoolean(entry, 'contractDetected'),
       isStreaming: readBoolean(entry, 'isStreaming'),
     });
@@ -711,11 +823,16 @@ function tryParseStructuredJson(
     platformValue.length > 0
       ? normalizePlatform(platformValue)
       : (platformHint ?? 'generic');
+  const sessionTopic = readString(parsedUnknown, 'sessionTopic') || undefined;
+  const rawFlowParked = readStringArray(parsedUnknown, 'parkedTopics');
+  const collectedParked = collectParkedTopics(turns);
+  const flowParked = rawFlowParked.length > 0 ? rawFlowParked : collectedParked;
 
   const flow: ConversationFlow = {
     schemaVersion: '1.0',
     title: readString(parsedUnknown, 'title') || turns[0]?.title || 'Conversation Flow',
     platform,
+    ...(sessionTopic ? { sessionTopic } : {}),
     overallGoal:
       readString(parsedUnknown, 'overallGoal') ||
       turns[0]?.intent ||
@@ -724,6 +841,7 @@ function tryParseStructuredJson(
       readString(parsedUnknown, 'finalOutcome') ||
       turns[turns.length - 1]?.actualOutput ||
       'Pending outcome',
+    ...(flowParked.length > 0 ? { parkedTopics: flowParked } : {}),
     createdAt: readString(parsedUnknown, 'createdAt') || new Date().toISOString(),
     parseMode: 'structured-json',
     isStreaming: readBoolean(parsedUnknown, 'isStreaming'),
@@ -743,6 +861,7 @@ export function parseStructuredTurns(
 ): ParseResult {
   const warnings: string[] = [];
   let contractCount = 0;
+  let detectedSessionTopic = '';
   const totalPairs = pairs.length;
   const flowStreaming = Boolean(options?.isStreaming);
 
@@ -754,6 +873,9 @@ export function parseStructuredTurns(
     const hasContract = preRun !== null || postRun !== null;
     if (hasContract) {
       contractCount++;
+    }
+    if (!detectedSessionTopic && preRun?.topic) {
+      detectedSessionTopic = preRun.topic;
     }
 
     const strippedAssistant = stripFlowContractBlocks(pair.assistantMessage);
@@ -812,6 +934,7 @@ export function parseStructuredTurns(
     }
 
     const relation = classifyTurnRelation(pair.userMessage, index, delta);
+    const parkedTopics = postRun?.parkedTopics ?? [];
 
     return {
       id: `turn-${index}`,
@@ -827,6 +950,9 @@ export function parseStructuredTurns(
       delta,
       deltaNote,
       extras,
+      ...(preRun?.focusStatus ? { focusStatus: preRun.focusStatus } : {}),
+      ...(preRun?.scopeSize ? { scopeSize: preRun.scopeSize } : {}),
+      ...(parkedTopics.length > 0 ? { parkedTopics } : {}),
       contractDetected: hasContract,
       isStreaming: isTurnStreaming,
       toolSummary: pair.toolSummary,
@@ -847,14 +973,17 @@ export function parseStructuredTurns(
   const lastCompleted =
     [...turns].reverse().find((t) => !t.isStreaming && t.actualOutput.length > 0) ??
     turns[turns.length - 1];
+  const flowParked = collectParkedTopics(turns);
 
   const flow: ConversationFlow = {
     schemaVersion: '1.0',
     title: options?.title?.trim() || turns[0]?.title || 'AI Conversation Flow',
     platform: options?.platformHint ?? 'generic',
+    ...(detectedSessionTopic ? { sessionTopic: detectedSessionTopic } : {}),
     overallGoal: turns[0]?.intent || 'No user prompt detected yet.',
     finalOutcome:
       lastCompleted?.actualOutput || 'Awaiting completed assistant output.',
+    ...(flowParked.length > 0 ? { parkedTopics: flowParked } : {}),
     createdAt: new Date().toISOString(),
     parseMode,
     isStreaming: flowStreaming,
