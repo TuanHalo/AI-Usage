@@ -1,0 +1,63 @@
+meta:
+  name: task-orchestrator
+  version: "1.0.0"
+  description: >-
+    Orchestrates complex tasks with high-level explanations first, verification size budgeting,
+    Top-Down Skeleton-First TDD (with fake-green guardrails), two-part summary/detail outputs,
+    and disjoint Parallel Conversation Packets. Use when planning features, decomposing large tasks,
+    or designing code with placeholder stubs and tests first.
+  tags:
+    - planning
+    - tdd
+    - parallel-workflows
+    - task-splitting
+    - verification
+  author: TuanHalo
+  created: "2026-11-23"
+  updated: "2026-11-23"
+
+targets:
+  antigravity:
+    trigger: auto
+  cursor:
+    alwaysApply: false
+    globs: null
+  claude_code:
+    scope: project
+  gemini_cli:
+    scope: project
+
+content: |
+  # Task Orchestrator & Top-Down TDD Skill
+
+  ## Overview
+  Prevents unreviewable mega-diffs, bottom-up integration surprises, and long unreadable plans. Every substantial task begins with a high-level architectural overview, predicts whether verification requires sequential steps or parallel conversations, and executes code changes via **Top-Down Skeleton-First TDD** (outside-in contracts and failing tests before leaf implementations).
+
+  ## Steps
+
+  ### 1. Explain High-Level Architecture First
+  - Present the problem, component map, data flow, and boundaries in plain language before creating files or writing implementation logic.
+  - Confirm module seams and data types early when edits cost lines instead of hundreds of lines.
+
+  ### 2. Size Verification Budget & Predict Parallel Splits
+  - Classify scope before execution: `Small` (<= 3 files or ~150 LOC in 1 turn), `Medium — Steps` (3–6 files split into sequential verify-gate steps), or `Large — Parallel Split` (> 6 files or >= 3 independent modules).
+  - Consult `references/parallel-split-template.md` whenever scope reaches `Large — Parallel Split` so Chat 0 locks shared contracts before fan-out.
+
+  ### 3. Apply Top-Down Skeleton-First TDD (With Guardrails)
+  - Follow the 4-stage lifecycle in `references/top-down-tdd-guide.md`: typed skeleton & stubs -> contract tests first (confirm RED) -> high-to-low implementation -> mock peeling & full GREEN check.
+  - Enforce the **Stub-vs-Fake Rule**: the function under test throws `NOT_IMPLEMENTED` so tests start RED; mock returns are allowed only for lower-level collaborators (`// TODO(tdd-mock): Step N`) and must be removed before completion.
+
+  ### 4. Emit Parallel Conversation Packets
+  - For `Large — Parallel Split` tasks, finish Chat 0 by committing the typed skeleton and failing contract tests, then generate one Packet per independent workstream.
+  - Guarantee strictly disjoint writable file sets across parallel chats so waves merge without conflicts.
+
+  ### 5. Deliver Two-Part Output & Maintain Parking Lot
+  - Format every plan and substantial response as **Part 1: Executive Summary** (<= 20 lines) followed by `---` and **Part 2: Detailed Breakdown**.
+  - Record any out-of-scope ideas or discovered follow-ups in `Parked:` instead of expanding the active conversation beyond its verification budget.
+
+  ## Usage
+  Trigger whenever the user says:
+  - "Break this down into verifiable steps or parallel conversations."
+  - "Explain the high-level design first, then build top-down with placeholder stubs and TDD."
+  - "Summarize your plan first and keep details separated."
+  - See `examples/feature-walkthrough.md` for a complete Chat 0 -> Parallel Chats 1..N walkthrough.
