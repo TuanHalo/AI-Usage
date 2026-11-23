@@ -1,0 +1,28 @@
+meta:
+  name: focused-verifiable-flow
+  version: "1.0.0"
+  description: >-
+    Engineering principle keeping AI conversations anchored to one topic, sized for easy verification
+    or parallel splitting, built top-down via Skeleton-First TDD, and summarized before details.
+  category: "engineering"
+  tags:
+    - workflow
+    - focus
+    - tdd
+    - verification
+    - parallel-execution
+
+content: |
+  # Focused, Verifiable & Top-Down Flow
+
+  ## Definition
+  A four-part engineering discipline for human-AI collaboration: lock every conversation to a single topic anchor, bound work to verifiable steps or disjoint parallel chats, validate architecture top-down through typed skeletons and failing tests before leaf logic, and separate executive summaries from detailed breakdowns.
+
+  ## Rationale
+  Unanchored sessions drift across unrelated problems, unbounded diffs exceed human review capacity, bottom-up generation hides boundary flaws until late integration, and flat walls of text bury key decisions. Locking interfaces and contract tests upfront resolves both verification overload and parallel-chat merge conflicts.
+
+  ## Application
+  - **One Session, One Anchor:** Pin a canonical `Topic` on Turn 1; emit a Drift Alert and park unrelated tangents for follow-up chats rather than diluting the current thread.
+  - **Small Verifiable Increments & Predictive Parallel Splits:** Cap single-turn work (`Small`), gate multi-step chats (`Medium — Steps`), or split independent modules into disjoint Parallel Conversation Packets (`Large — Parallel Split`).
+  - **Contracts & Tests Before Internals (Top-Down Skeleton TDD):** Present high-level architecture first, create typed stubs (`NOT_IMPLEMENTED` on units under test), confirm tests fail RED, and implement high-to-low while peeling temporary collaborator mocks.
+  - **Executive Summary Before Technical Details:** Present Part 1 (Summary <= 20 lines covering What, How, Verification) above Part 2 (Detailed Breakdown) on every plan and substantial response.

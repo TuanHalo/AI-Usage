@@ -79,19 +79,33 @@ export const SKILLS_VI: Readonly<Record<string, AssetTranslation>> = {
       'Kiểm chứng Đầu ra & Bàn giao',
     ],
   },
+  'task-orchestrator': {
+    descriptionVi:
+      'Điều phối tác vụ phức tạp bằng giải thích kiến trúc tổng quan trước, giới hạn phạm vi kiểm chứng, TDD Từ trên xuống với khung sườn giả lập (Top-Down Skeleton-First TDD), phản hồi hai phần tóm tắt/chi tiết và các Gói Hội thoại Song song độc lập. Sử dụng khi lập kế hoạch tính năng, tách tác vụ lớn hoặc thiết kế mã nguồn theo stub và test trước.',
+    itemsVi: [
+      'Giải thích Kiến trúc Tổng quan Trước tiên',
+      'Đo lường Ngân sách Kiểm chứng & Dự báo Tách Song song',
+      'Áp dụng TDD Từ trên xuống với Khung sườn (Top-Down Skeleton-First TDD)',
+      'Xuất Gói Hội thoại Song song (Parallel Conversation Packets)',
+      'Trả về Kết quả Hai phần & Duy trì Danh sách Tạm gác (Parking Lot)',
+    ],
+  },
 };
 
 export const RULES_VI: Readonly<Record<string, AssetTranslation>> = {
   'confirm-intent-output': {
     descriptionVi:
-      'Áp dụng tiêu đề xác nhận Ý định / Đầu vào / Kết quả Kỳ vọng trước khi chạy (Pre-Run) và phần tổng kết Kết quả Thực tế / Độ lệch Phạm vi sau khi chạy (Post-Run) trên Claude, Gemini, Grok, ChatGPT và các coding agent để mọi lượt hội thoại đều có thể theo dõi và trực quan hoá theo thời gian thực.',
+      'Áp dụng mỏ neo chủ đề phiên, cảnh báo lạc đề chủ động kèm danh sách tạm gác (parking lot), phân cỡ phạm vi kiểm chứng theo bước hoặc tách song song, phản hồi hai phần tóm tắt/chi tiết và Hợp đồng Luồng Pre-Run/Post-Run trên Claude, Gemini, Grok, ChatGPT và các coding agent.',
     itemsVi: [
-      '**Tiêu đề Hợp đồng Trước khi Chạy (Pre-Run Contract Header)**: Trước khi trả lời bất kỳ yêu cầu không tầm thường nào, xuất khối trích dẫn `[Flow Contract | Pre-Run]` nêu rõ `Goal`, `Input`, `Expected Output` và `Gate`.',
-      '**Cổng Xác nhận Thích ứng (Adaptive Confirmation Gate)**: Tiến hành trực tiếp sau khi nêu hợp đồng Pre-Run nếu yêu cầu đã rõ ràng; CHỈ tạm dừng hỏi người dùng khi yêu cầu mơ hồ hoặc tác vụ có chi phí cao / tác động phá huỷ.',
-      '**Chân trang Hợp đồng Sau khi Chạy (Post-Run Contract Footer)**: Ở cuối câu trả lời, xuất khối trích dẫn `[Flow Contract | Post-Run]` nêu rõ `Actual Output`, `Delta`, `Delta Note` và `Extras` (nếu có).',
-      '**Phân loại Độ lệch Phạm vi Trung thực (Honest Scope Delta Classification)**: Phân loại `Delta` nghiêm ngặt thành `Matched` (khớp kỳ vọng), `Expanded` (đạt kỳ vọng kèm phát hiện nghiên cứu mở rộng), `Pivoted` (đổi hướng tiếp cận) hoặc `Partial` (bị chặn hoặc chưa hoàn tất).',
-      '**Bình thường hoá Mở rộng Nghiên cứu (Normalize Research Expansion)**: Coi `Expanded` là kết quả lành mạnh, tự nhiên trong quá trình điều tra hoặc nghiên cứu sâu; liệt kê các phát hiện bổ sung trong `Extras` ngăn cách bằng dấu chấm phẩy.',
-      '**Bỏ qua Thủ tục với Truy vấn Đơn giản (Skip Ceremony on Trivial Queries)**: Bỏ qua cả hai khối hợp đồng đối với các câu hỏi tra cứu một dòng hoặc lời chào hỏi thông thường.',
+      '**Mỏ neo Chủ đề Phiên & Tiêu đề Pre-Run (Session Topic Anchor & Pre-Run Header)**: Khoá một `Topic` chuẩn ở Lượt 1 và xuất khối `[Flow Contract | Pre-Run]` trước mọi yêu cầu không tầm thường với `Topic`, `Focus`, `Goal`, `Input`, `Expected Output`, `Scope` và `Gate`.',
+      '**Cảnh báo Lạc đề Chủ động & Kho Tạm gác (Active Drift Guard & Parking Lot)**: Đánh giá `Focus` (`On-Topic` | `Adjacent` | `Off-Topic Drift`) so với `Topic` hiện tại; khi `Off-Topic Drift` (hoặc rẽ nhánh `Adjacent` lặp lại), xuất `[Drift Alert]` nêu rõ `Topic`, ghi nhánh rẽ vào `Parked:` kèm gợi ý mở luồng mới và tạm dừng hỏi ý kiến người dùng.',
+      '**Giới hạn Phạm vi Kiểm chứng & Dự báo Tách Song song (Verification Scope Guard & Parallel Split Prediction)**: Phân loại `Scope` ngay từ đầu thành `Small` (<= 3 tệp hoặc ~150 dòng mã, kiểm chứng trong 1 lượt), `Medium — Steps` (3–6 tệp, chia bước tuần tự có cổng kiểm chứng) hoặc `Large — Parallel Split` (> 6 tệp hoặc >= 3 mô-đun độc lập — kích hoạt `task-orchestrator` để khoá hợp đồng và test ở Chat 0 trước khi tách các luồng chat song song không xung đột).',
+      '**Cấu trúc Phản hồi Hai phần (Two-Part Response Structure)**: Với mọi kế hoạch và câu trả lời nhiều phần, tách nội dung thành **Phần 1: Tóm tắt Điều hành (Executive Summary)** (<= 20 dòng gồm Làm gì, Làm thế nào, Kiểm chứng và Quyết định), ngăn cách bằng `---` với **Phần 2: Phân tích Chi tiết**.',
+      '**Cổng Xác nhận Thích ứng (Adaptive Confirmation Gate)**: Tiến hành trực tiếp khi yêu cầu `On-Topic`, rõ ràng và ở mức `Small` hoặc `Medium`; tạm dừng xác nhận khi yêu cầu mơ hồ, có rủi ro cao hoặc bị `Off-Topic Drift`.',
+      '**Chân trang Hợp đồng Sau khi Chạy (Post-Run Contract Footer)**: Kết thúc mọi lượt không tầm thường bằng khối `[Flow Contract | Post-Run]` nêu rõ `Actual Output`, `Delta`, `Delta Note`, `Extras` (nếu có) và `Parked` (nếu có).',
+      '**Phân loại Độ lệch Phạm vi Trung thực (Honest Scope Delta Classification)**: Phân loại `Delta` nghiêm ngặt thành `Matched` (khớp kỳ vọng), `Expanded` (đạt kỳ vọng kèm phát hiện đúng chủ đề bổ sung), `Pivoted` (đổi hướng) hoặc `Partial` (bị chặn hoặc chưa hoàn tất).',
+      '**Bình thường hoá Mở rộng Đúng Chủ đề (Normalize On-Topic Research Expansion)**: Coi `Expanded` là kết quả lành mạnh khi phát hiện thêm giá trị đúng chủ đề (ghi vào `Extras`), đồng thời đẩy các nhánh rẽ ngoài chủ đề vào `Parked` thay vì làm loãng luồng hiện tại.',
+      '**Bỏ qua Thủ tục với Truy vấn Đơn giản (Skip Ceremony on Trivial Queries)**: Bỏ qua các khối hợp đồng và bố cục hai phần đối với câu hỏi tra cứu một dòng hoặc lời chào thông thường.',
     ],
   },
 };

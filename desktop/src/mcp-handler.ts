@@ -1,6 +1,8 @@
 import {
+  normalizeFocusStatus,
   normalizePlatform,
   normalizeRelation,
+  normalizeScopeSize,
 } from '../../site/src/lib/conversation-flow/parser';
 import {
   completeMcpTurn,
@@ -52,6 +54,20 @@ const MCP_TOOLS: readonly McpToolDefinition[] = [
           type: 'string',
           description: 'Short human-readable title for the chat session.',
         },
+        sessionTopic: {
+          type: 'string',
+          description: 'Canonical session topic anchor locked on Turn 1.',
+        },
+        focusStatus: {
+          type: 'string',
+          enum: ['on-topic', 'adjacent', 'off-topic'],
+          description: 'Whether this turn stays on the active session topic or drifts off-topic.',
+        },
+        scopeSize: {
+          type: 'string',
+          enum: ['small', 'medium', 'split-steps', 'split-parallel'],
+          description: 'Verification budget sizing or parallel split prediction.',
+        },
         platform: {
           type: 'string',
           enum: ['claude', 'antigravity', 'gemini', 'grok', 'chatgpt', 'generic'],
@@ -67,7 +83,7 @@ const MCP_TOOLS: readonly McpToolDefinition[] = [
   {
     name: 'promptflow_complete_turn',
     description:
-      'Finalize the active turn after execution with actualOutput, scope delta (matched | expanded | pivoted | partial), deltaNote, and optional extra discoveries beyond expectedOutput.',
+      'Finalize the active turn after execution with actualOutput, scope delta (matched | expanded | pivoted | partial), deltaNote, and optional extra discoveries or parked follow-up topics.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -88,6 +104,11 @@ const MCP_TOOLS: readonly McpToolDefinition[] = [
           type: 'array',
           items: { type: 'string' },
           description: 'Bonus discoveries, edge cases, or artifacts beyond expectedOutput.',
+        },
+        parkedTopics: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Off-topic tangents deferred to follow-up chats.',
         },
         sessionId: {
           type: 'string',
@@ -181,16 +202,21 @@ function executeToolCall(
 
     const platformRaw = readOptionalString(args, 'platform');
     const relationRaw = readOptionalString(args, 'relation');
+    const focusRaw = readOptionalString(args, 'focusStatus');
+    const scopeRaw = readOptionalString(args, 'scopeSize');
 
     const res = startMcpTurn({
       sessionId: readOptionalString(args, 'sessionId'),
       sessionTitle: readOptionalString(args, 'sessionTitle'),
+      sessionTopic: readOptionalString(args, 'sessionTopic'),
       platform: platformRaw ? normalizePlatform(platformRaw) : undefined,
       rawUserMessage,
       intent,
       inputSummary: readOptionalString(args, 'inputSummary'),
       expectedOutput,
       relation: relationRaw ? normalizeRelation(relationRaw, 2) : undefined,
+      focusStatus: focusRaw ? normalizeFocusStatus(focusRaw) : undefined,
+      scopeSize: scopeRaw ? normalizeScopeSize(scopeRaw) : undefined,
     });
 
     return {
@@ -230,6 +256,7 @@ function executeToolCall(
       delta,
       deltaNote: readOptionalString(args, 'deltaNote'),
       extras: readOptionalStringArray(args, 'extras'),
+      parkedTopics: readOptionalStringArray(args, 'parkedTopics'),
       rawAssistantMessage: readOptionalString(args, 'rawAssistantMessage'),
     });
 

@@ -171,5 +171,30 @@
                       "PPTX Deck Generation",
                       "Output Verification \u0026 Delivery"
                   ]
+    },
+    {
+        "name":  "task-orchestrator",
+        "version":  "1.0.0",
+        "description":  "Orchestrates complex tasks with high-level explanations first, verification size budgeting, Top-Down Skeleton-First TDD (with fake-green guardrails), two-part summary/detail outputs, and disjoint Parallel Conversation Packets. Use when planning features, decomposing large tasks, or designing code with placeholder stubs and tests first.",
+        "tags":  [
+                     "planning",
+                     "tdd",
+                     "parallel-workflows",
+                     "task-splitting",
+                     "verification"
+                 ],
+        "targets":  [
+                        "Antigravity (auto)",
+                        "Cursor",
+                        "Claude Code",
+                        "Gemini CLI"
+                    ],
+        "steps":  [
+                      "Explain High-Level Architecture First",
+                      "Size Verification Budget \u0026 Predict Parallel Splits",
+                      "Apply Top-Down Skeleton-First TDD (With Guardrails)",
+                      "Emit Parallel Conversation Packets",
+                      "Deliver Two-Part Output \u0026 Maintain Parking Lot"
+                  ]
     }
 ]

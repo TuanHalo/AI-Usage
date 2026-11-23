@@ -21,9 +21,15 @@ import {
 import {
   exportFlowAsMarkdown,
   exportFlowAsStandaloneHtml,
+  formatFocusLabel,
+  formatScopeLabel,
 } from '../src/lib/conversation-flow/exporter';
 import {
+  buildParkedFollowUpPrompt,
+  collectParkedTopics,
   extractFlowContract,
+  normalizeFocusStatus,
+  normalizeScopeSize,
   parseConversation,
   parseStructuredTurns,
 } from '../src/lib/conversation-flow/parser';
@@ -471,4 +477,283 @@ test('MCP JSON-RPC handler logs start_turn, complete_turn, and get_flow atomical
     }
     fs.rmSync(tempSessionsDir, { recursive: true, force: true });
   }
+});
+
+test('normalizeFocusStatus and normalizeScopeSize handle canonical and shorthand inputs cleanly', () => {
+  assert.equal(normalizeFocusStatus('On-Topic'), 'on-topic');
+  assert.equal(normalizeFocusStatus('Adjacent'), 'adjacent');
+  assert.equal(normalizeFocusStatus('Off-Topic Drift'), 'off-topic');
+  assert.equal(normalizeFocusStatus('drift'), 'off-topic');
+  assert.equal(normalizeFocusStatus(''), undefined);
+  assert.equal(normalizeFocusStatus('unknown'), undefined);
+
+  assert.equal(normalizeScopeSize('Small'), 'small');
+  assert.equal(normalizeScopeSize('Medium'), 'medium');
+  assert.equal(normalizeScopeSize('Medium — Steps'), 'split-steps');
+  assert.equal(normalizeScopeSize('Large — Parallel Split'), 'split-parallel');
+  assert.equal(normalizeScopeSize('parallel'), 'split-parallel');
+  assert.equal(normalizeScopeSize(''), undefined);
+});
+
+test('extractFlowContract parses v2 Pre-Run Topic/Focus/Scope and Post-Run Parked topics', () => {
+  const reply = [
+    '> **[Flow Contract | Pre-Run]**',
+    '> - **Topic:** Auth Token Rotation',
+    '> - **Focus:** Off-Topic Drift',
+    '> - **Goal:** Tune Redis eviction policies.',
+    '> - **Input:** Production Redis cluster config.',
+    '> - **Expected Output:** Recommended maxmemory-policy.',
+    '> - **Scope:** Large — Parallel Split',
+    '> - **Gate:** Paused — confirm before proceeding',
+    '',
+    'Parked the Redis question.',
+    '',
+    '> **[Flow Contract | Post-Run]**',
+    '> - **Actual Output:** Logged Redis tangent to parking lot.',
+    '> - **Delta:** Partial',
+    '> - **Delta Note:** Request drifted from Auth Token Rotation.',
+    '> - **Extras:** None',
+    '> - **Parked:** Tune Redis eviction policy; Benchmark Postgres JSONB',
+    '> Add rate-limit tests',
+  ].join('\n');
+
+  const { preRun, postRun } = extractFlowContract(reply);
+  assert.ok(preRun);
+  assert.equal(preRun.topic, 'Auth Token Rotation');
+  assert.equal(preRun.focusStatus, 'off-topic');
+  assert.equal(preRun.scopeSize, 'split-parallel');
+  assert.ok(postRun);
+  assert.deepEqual(postRun.parkedTopics, [
+    'Tune Redis eviction policy',
+    'Benchmark Postgres JSONB',
+    'Add rate-limit tests',
+  ]);
+
+  const noParked = extractFlowContract([
+    '> **[Flow Contract | Post-Run]**',
+    '> - **Actual Output:** Done.',
+    '> - **Delta:** Matched',
+    '> - **Parked:** None',
+  ].join('\n'));
+  assert.deepEqual(noParked.postRun?.parkedTopics, []);
+});
+
+test('parseStructuredTurns and collectParkedTopics aggregate deduplicated parked topics and build follow-up prompt', () => {
+  const result = parseStructuredTurns([
+    {
+      userMessage: 'Refactor auth middleware.',
+      assistantMessage: [
+        '> **[Flow Contract | Pre-Run]**',
+        '> - **Topic:** Auth Refactor',
+        '> - **Focus:** On-Topic',
+        '> - **Goal:** Refactor auth middleware cleanly.',
+        '> - **Input:** Express routes.',
+        '> - **Expected Output:** Updated middleware module.',
+        '> - **Scope:** Medium — Steps',
+        '> - **Gate:** Proceed directly',
+        '',
+        'Done.',
+        '',
+        '> **[Flow Contract | Post-Run]**',
+        '> - **Actual Output:** Middleware refactored.',
+        '> - **Delta:** Matched',
+        '> - **Delta Note:** On target.',
+        '> - **Parked:** Rate limit middleware; Redis TTL',
+      ].join('\n'),
+    },
+    {
+      userMessage: 'Wait, check billing webhook retry too.',
+      assistantMessage: [
+        '> **[Flow Contract | Pre-Run]**',
+        '> - **Topic:** Auth Refactor',
+        '> - **Focus:** Off-Topic Drift',
+        '> - **Goal:** Inspect billing webhook retries.',
+        '> - **Input:** Webhook queue.',
+        '> - **Expected Output:** Brief check or park.',
+        '> - **Scope:** Small',
+        '> - **Gate:** Paused — confirm before proceeding',
+        '',
+        'Parked for follow-up.',
+        '',
+        '> **[Flow Contract | Post-Run]**',
+        '> - **Actual Output:** Parked billing retry question.',
+        '> - **Delta:** Partial',
+        '> - **Delta Note:** Kept thread focused on Auth Refactor.',
+        '> - **Parked:** rate limit middleware; Billing webhook retry',
+      ].join('\n'),
+    },
+  ]);
+
+  assert.equal(result.flow.sessionTopic, 'Auth Refactor');
+  assert.equal(result.flow.turns[0]?.focusStatus, 'on-topic');
+  assert.equal(result.flow.turns[0]?.scopeSize, 'split-steps');
+  assert.equal(result.flow.turns[1]?.focusStatus, 'off-topic');
+  assert.equal(result.flow.turns[1]?.scopeSize, 'small');
+  assert.deepEqual(collectParkedTopics(result.flow.turns), [
+    'Rate limit middleware',
+    'Redis TTL',
+    'Billing webhook retry',
+  ]);
+  assert.deepEqual(result.flow.parkedTopics, [
+    'Rate limit middleware',
+    'Redis TTL',
+    'Billing webhook retry',
+  ]);
+
+  const followUp = buildParkedFollowUpPrompt('Billing webhook retry', 'Auth Refactor');
+  assert.ok(followUp.includes('Billing webhook retry'));
+  assert.ok(followUp.includes('Auth Refactor'));
+});
+
+test('MCP handler logs v2 sessionTopic, focusStatus, scopeSize, and parkedTopics', () => {
+  const tempSessionsDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'promptflow-mcp-v2-test-')
+  );
+  const prevEnv = process.env.PROMPTFLOW_SESSIONS_DIR;
+  process.env.PROMPTFLOW_SESSIONS_DIR = tempSessionsDir;
+
+  try {
+    const toolsResp = JSON.parse(
+      handleJsonRpcLine(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' })) ?? '{}'
+    ) as { result?: { tools?: Array<{ name: string }> } };
+    assert.equal(toolsResp.result?.tools?.length, 3);
+
+    handleJsonRpcLine(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'tools/call',
+        params: {
+          name: 'promptflow_start_turn',
+          arguments: {
+            sessionId: 'mcp-v2-test',
+            sessionTitle: 'Payment Gateway TDD',
+            sessionTopic: 'Payment Gateway TDD',
+            focusStatus: 'off-topic',
+            scopeSize: 'split-parallel',
+            rawUserMessage: 'Also export invoice PDFs while refactoring payments.',
+            intent: 'Add invoice PDF export.',
+            expectedOutput: 'PDF renderer or parked item.',
+          },
+        },
+      })
+    );
+
+    handleJsonRpcLine(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 3,
+        method: 'tools/call',
+        params: {
+          name: 'promptflow_complete_turn',
+          arguments: {
+            sessionId: 'mcp-v2-test',
+            actualOutput: 'Warned about off-topic drift and parked PDF export.',
+            delta: 'partial',
+            deltaNote: 'Kept payment gateway chat focused.',
+            parkedTopics: ['Invoice PDF export', 'None', 'Tax rounding check'],
+          },
+        },
+      })
+    );
+
+    const getResp = JSON.parse(
+      handleJsonRpcLine(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 4,
+          method: 'tools/call',
+          params: {
+            name: 'promptflow_get_flow',
+            arguments: { sessionId: 'mcp-v2-test' },
+          },
+        })
+      ) ?? '{}'
+    ) as {
+      result?: {
+        structuredContent?: {
+          flow?: {
+            sessionTopic?: string;
+            parkedTopics?: string[];
+            turns: Array<{
+              focusStatus?: string;
+              scopeSize?: string;
+              parkedTopics?: string[];
+            }>;
+          };
+        };
+      };
+    };
+
+    const flow = getResp.result?.structuredContent?.flow;
+    assert.ok(flow);
+    assert.equal(flow.sessionTopic, 'Payment Gateway TDD');
+    assert.deepEqual(flow.parkedTopics, ['Invoice PDF export', 'Tax rounding check']);
+    assert.equal(flow.turns[0]?.focusStatus, 'off-topic');
+    assert.equal(flow.turns[0]?.scopeSize, 'split-parallel');
+    assert.deepEqual(flow.turns[0]?.parkedTopics, ['Invoice PDF export', 'Tax rounding check']);
+  } finally {
+    if (prevEnv === undefined) {
+      delete process.env.PROMPTFLOW_SESSIONS_DIR;
+    } else {
+      process.env.PROMPTFLOW_SESSIONS_DIR = prevEnv;
+    }
+    fs.rmSync(tempSessionsDir, { recursive: true, force: true });
+  }
+});
+
+test('v2 snippets and XSS-safe Markdown/HTML exports include Focus, Scope, and Parking Lot', () => {
+  const rule = getAdaptiveRuleSnippet();
+  assert.ok(rule.includes('Topic:'));
+  assert.ok(rule.includes('Focus:'));
+  assert.ok(rule.includes('Scope:'));
+  assert.ok(rule.includes('[Drift Alert]'));
+  assert.ok(rule.includes('Parked:'));
+  assert.ok(rule.includes('Executive Summary'));
+  assert.ok(rule.includes('Detailed Breakdown'));
+
+  const claudeInst = getClaudeDesktopInstructionSnippet();
+  assert.ok(claudeInst.includes('focusStatus'));
+  assert.ok(claudeInst.includes('scopeSize'));
+  assert.ok(claudeInst.includes('parkedTopics'));
+
+  assert.equal(formatFocusLabel('off-topic'), 'Off-Topic Drift');
+  assert.equal(formatScopeLabel('split-parallel'), 'Large — Parallel Split');
+
+  const parsed = parseStructuredTurns([
+    {
+      userMessage: 'Also wire a <script>alert(1)</script> webhook.',
+      assistantMessage: [
+        '> **[Flow Contract | Pre-Run]**',
+        '> - **Topic:** Core API',
+        '> - **Focus:** Off-Topic Drift',
+        '> - **Goal:** Wire webhook.',
+        '> - **Input:** Core API repo.',
+        '> - **Expected Output:** Parked webhook.',
+        '> - **Scope:** Large — Parallel Split',
+        '> - **Gate:** Paused — confirm before proceeding',
+        '',
+        'Parked webhook.',
+        '',
+        '> **[Flow Contract | Post-Run]**',
+        '> - **Actual Output:** Parked off-topic webhook request.',
+        '> - **Delta:** Partial',
+        '> - **Delta Note:** Drift prevented.',
+        '> - **Parked:** Add <script>alert(1)</script> webhook',
+      ].join('\n'),
+    },
+  ]);
+
+  const md = exportFlowAsMarkdown(parsed.flow);
+  assert.ok(md.includes('Core API'));
+  assert.ok(md.includes('Off-Topic Drift'));
+  assert.ok(md.includes('Large — Parallel Split'));
+  assert.ok(md.includes('Parked Topics'));
+  assert.ok(md.includes('Add <script>alert(1)</script> webhook'));
+
+  const html = exportFlowAsStandaloneHtml(parsed.flow);
+  assert.ok(!html.includes('<script>alert(1)</script>'));
+  assert.ok(html.includes('&lt;script&gt;alert(1)&lt;/script&gt;'));
+  assert.ok(html.includes('Off-Topic Drift'));
+  assert.ok(html.includes('Session Parking Lot'));
 });
